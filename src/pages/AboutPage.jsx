@@ -1,0 +1,27 @@
+import Header from '../components/Header';
+import About from '../components/About';
+import Footer from '../components/Footer';
+
+const AboutPage = () => {
+    return (
+        <div className="index-page">
+            <Header />
+            <main className="main">
+                <About />
+            </main>
+            <Footer />
+            <a
+                href="#"
+                className="scroll-top d-flex align-items-center justify-content-center active"
+                onClick={(e) => {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+            >
+                <i className="bi bi-arrow-up-short"></i>
+            </a>
+        </div>
+    );
+};
+
+export default AboutPage;

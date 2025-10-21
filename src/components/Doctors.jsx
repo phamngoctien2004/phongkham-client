@@ -41,7 +41,7 @@ const Doctors = () => {
       <div className="container">
         <SectionTitle
           title="Doctors"
-          subtitle="Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit"
+          subtitle=""
         />
       </div>
 

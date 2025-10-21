@@ -1,12 +1,17 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import About from './components/About';
-import Services from './components/Services';
-import Doctors from './components/Doctors';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { AuthProvider } from './contexts/AuthContext';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import ServicesPage from './pages/ServicesPage';
+import DoctorsPage from './pages/DoctorsPage';
+import ContactPage from './pages/ContactPage';
+import NewsPage from './pages/NewsPage';
+import AppointmentPage from './pages/AppointmentPage';
+import PaymentPage from './pages/PaymentPage';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import ProfilePage from './pages/ProfilePage';
 
 // Import CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -15,52 +20,43 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import './assets/css/main.css';
 
 function App() {
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 100);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-
   return (
     <Router>
-      <div className="index-page">
-        <Header />
-        <main className="main">
-          <Hero />
-          <About />
-          <Services />
-          <Doctors />
-          <Contact />
-        </main>
-        <Footer />
+      <AuthProvider>
+        <Toaster position="top-right" richColors />
+        <Routes>
+          {/* Public Routes - Authentication */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Scroll Top Button */}
-        {showScrollTop && (
-          <a
-            href="#"
-            id="scroll-top"
-            className="scroll-top d-flex align-items-center justify-content-center"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTop();
-            }}
-          >
-            <i className="bi bi-arrow-up-short"></i>
-          </a>
-        )}
-      </div>
+          {/* Public Pages */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/doctors" element={<DoctorsPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/news" element={<NewsPage />} />
+
+          {/* Protected Routes - Appointment */}
+          <Route path="/dat-lich" element={<AppointmentPage />} />
+          <Route path="/dat-lich/thanh-toan/:id" element={<PaymentPage />} />
+
+          {/* Profile */}
+          <Route path="/profile" element={<ProfilePage />} />
+
+          {/* Protected Routes - Add your protected pages here */}
+          {/* Example:
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute>
+                <AppointmentsPage />
+              </ProtectedRoute>
+            }
+          />
+          */}
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

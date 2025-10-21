@@ -63,7 +63,7 @@ const Contact = () => {
       <div className="container">
         <SectionTitle
           title="Contact"
-          subtitle="Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit"
+          subtitle=""
         />
       </div>
 

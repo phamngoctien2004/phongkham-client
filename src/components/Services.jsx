@@ -47,11 +47,11 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="services section">
+    <section id="services" className="services section jutify-content-center ">
       <div className="container">
         <SectionTitle
           title="Services"
-          subtitle="Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit"
+          subtitle=""
         />
       </div>
 
