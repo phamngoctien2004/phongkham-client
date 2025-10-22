@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import appointmentService from '../services/appointmentService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ChangePasswordModal from '../components/Auth/ChangePasswordModal';
 import '../assets/css/profile.css';
 
 const ProfilePage = () => {
@@ -13,6 +14,7 @@ const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState('account'); // account, history, password, services
     const [appointments, setAppointments] = useState([]);
     const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+    const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 
     // Filters and Pagination
     const [filters, setFilters] = useState({
@@ -216,7 +218,16 @@ const ProfilePage = () => {
                                                     <label>Mật khẩu đăng nhập</label>
                                                     <div className="password-field">
                                                         <span>*********</span>
-                                                        <a href="#" className="link-primary">Đổi mật khẩu</a>
+                                                        <a
+                                                            href="#"
+                                                            className="link-primary"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setIsChangePasswordModalOpen(true);
+                                                            }}
+                                                        >
+                                                            Đổi mật khẩu
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -498,6 +509,13 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Change Password Modal */}
+            <ChangePasswordModal
+                isOpen={isChangePasswordModalOpen}
+                onClose={() => setIsChangePasswordModalOpen(false)}
+            />
+
             <Footer />
         </>
     );

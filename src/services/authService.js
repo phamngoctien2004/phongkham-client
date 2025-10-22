@@ -78,6 +78,16 @@ const authService = {
     isAuthenticated: () => {
         return !!localStorage.getItem('accessToken');
     },
+
+    // Đổi mật khẩu
+    changePassword: async (userId, oldPassword, newPassword, confirmPassword) => {
+        return await apiRequest('/auth/reset-password', 'POST', {
+            userId,
+            oldPassword,
+            password: newPassword,
+            confirmPassword,
+        });
+    },
 };
 
 export default authService;

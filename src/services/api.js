@@ -5,16 +5,26 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 
 // Helper function to handle API responses
 const handleResponse = async (response) => {
-    // Xử lý lỗi 401 - Unauthorized (token hết hạn hoặc không hợp lệ)
+    // Kiểm tra xem response có phải JSON không
+    const contentType = response.headers.get('content-type');
+
+    // Xử lý lỗi 401 - Unauthorized
     if (response.status === 401) {
-        // Xóa token và thông tin user
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+
+            // Nếu là lỗi đăng nhập (AUTH_401), không xóa token và redirect
+            if (data.data === 'AUTH_401') {
+                throw new Error(data.message || 'Đăng nhập thất bại');
+            }
+        }
+
+        // Các lỗi 401 khác -> Phiên hết hạn
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
 
-        // Hiển thị thông báo
         toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
 
-        // Redirect về trang đăng nhập sau 1 giây
         setTimeout(() => {
             window.location.href = '/login';
         }, 1000);
@@ -22,8 +32,6 @@ const handleResponse = async (response) => {
         throw new Error('Phiên đăng nhập đã hết hạn.');
     }
 
-    // Kiểm tra xem response có phải JSON không
-    const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
 

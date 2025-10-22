@@ -168,7 +168,23 @@
     "message": "Register successful"
 }
 ```
+### 1.7 Đổi mật khẩu
+**Endpoint:** `POST /api/auth/reset-password`
 
+**Mô tả:** Đổi mật khẩu
+
+**Request Body:**
+```json
+{
+    "userId": 1,
+    "oldPassword": "dskalfjlaskdf",
+    "name": "Tien dep trai",
+    "password": "1234456",
+    "confirmPassword": "1234456",
+}
+```
+
+```
 ---
 
 ## 2. Appointment API
@@ -797,7 +813,7 @@
 **Response:**
 ```json
 {
-  "data": [/api/services
+  "data": [
         {
             "id": 3,
             "fullName": "BS. PHAM VAN TIEN",

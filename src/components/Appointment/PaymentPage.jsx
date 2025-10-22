@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import appointmentService from '../../services/appointmentService';
+import websocketService from '../../services/websocketService';
 import './Appointment.css';
 
 const PaymentPage = () => {
@@ -9,16 +10,150 @@ const PaymentPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [appointment, setAppointment] = useState(null);
+    const subscriptionRef = useRef(null);
+    const wsConnectedRef = useRef(false);
 
     useEffect(() => {
         loadAppointmentDetail();
+
+        // Kiểm tra xem có pending appointment trong localStorage không
+        checkPendingAppointment();
+
+        // Kết nối WebSocket và subscribe đến thông báo thanh toán
+        connectWebSocket();
+
+        // Cleanup khi component unmount
+        return () => {
+            if (subscriptionRef.current) {
+                websocketService.unsubscribeFromAppointment(id);
+                subscriptionRef.current = null;
+            }
+        };
     }, [id]);
+
+    const checkPendingAppointment = () => {
+        try {
+            const pendingAppointments = JSON.parse(localStorage.getItem('pendingAppointments') || '[]');
+
+            // Xóa các appointment cũ hơn 24 giờ
+            const now = new Date();
+            const validAppointments = pendingAppointments.filter(apt => {
+                const timestamp = new Date(apt.timestamp);
+                const hoursDiff = (now - timestamp) / (1000 * 60 * 60);
+                return hoursDiff < 24; // Chỉ giữ lại appointment trong vòng 24 giờ
+            });
+
+            // Cập nhật lại localStorage nếu có thay đổi
+            if (validAppointments.length !== pendingAppointments.length) {
+                localStorage.setItem('pendingAppointments', JSON.stringify(validAppointments));
+            }
+
+            const currentAppointment = validAppointments.find(
+                apt => apt.id === parseInt(id)
+            );
+
+            if (currentAppointment) {
+                console.log('Found pending appointment in localStorage:', currentAppointment);
+                // Appointment vẫn đang chờ thanh toán, sẽ subscribe để nhận thông báo
+            }
+        } catch (error) {
+            console.error('Error checking pending appointment:', error);
+        }
+    };
+
+    const connectWebSocket = () => {
+        // Kết nối WebSocket
+        websocketService.connect(
+            () => {
+                console.log('[PaymentPage] ✅ WebSocket connected successfully');
+                wsConnectedRef.current = true;
+
+                console.log('[PaymentPage] Subscribing to appointment:', id);
+
+                // Subscribe đến topic nhận thông báo thanh toán
+                const subscription = websocketService.subscribeToAppointmentPayment(
+                    id,
+                    handlePaymentNotification
+                );
+                subscriptionRef.current = subscription;
+
+                console.log('[PaymentPage] Subscription created:', subscription ? 'SUCCESS' : 'FAILED');
+            },
+            (error) => {
+                console.error('[PaymentPage] ❌ WebSocket connection error:', error);
+                wsConnectedRef.current = false;
+
+                // Thử kết nối lại sau 5 giây
+                setTimeout(() => {
+                    if (!wsConnectedRef.current) {
+                        console.log('[PaymentPage] Attempting to reconnect...');
+                        connectWebSocket();
+                    }
+                }, 5000);
+            }
+        );
+    };
+
+    const handlePaymentNotification = (event) => {
+        console.log('[PaymentPage] 🎉 Payment notification received!');
+        console.log('[PaymentPage] Event object:', event);
+        console.log('[PaymentPage] Event type:', event.event);
+        console.log('[PaymentPage] Message:', event.message);
+        console.log('[PaymentPage] AppointmentId:', event.appointmentId);
+
+        // Kiểm tra event type - Backend gửi event: "SUCCESS"
+        if (event.event === 'SUCCESS' || event.event === 'PAYMENT_SUCCESS' || event.eventType === 'PAYMENT_SUCCESS') {
+            console.log('[PaymentPage] ✅ Payment SUCCESS detected!');
+            toast.success('Thanh toán thành công!');
+
+            // Xóa appointment khỏi localStorage
+            removePendingAppointment(id);
+
+            // Đợi 3 giây để user thấy toast, sau đó reload lại trang để cập nhật trạng thái
+            setTimeout(() => {
+                console.log('[PaymentPage] Reloading appointment detail...');
+                loadAppointmentDetail();
+
+                // Unsubscribe khỏi WebSocket vì đã thanh toán xong
+                if (subscriptionRef.current) {
+                    websocketService.unsubscribeFromAppointment(id);
+                    subscriptionRef.current = null;
+                }
+            }, 3000);
+        } else {
+            console.log('[PaymentPage] ⚠️ Unknown event type:', event.event);
+        }
+    };
+
+    const removePendingAppointment = (appointmentId) => {
+        try {
+            const pendingAppointments = JSON.parse(localStorage.getItem('pendingAppointments') || '[]');
+            const updatedAppointments = pendingAppointments.filter(
+                apt => apt.id !== parseInt(appointmentId)
+            );
+            localStorage.setItem('pendingAppointments', JSON.stringify(updatedAppointments));
+        } catch (error) {
+            console.error('Error removing pending appointment:', error);
+        }
+    };
 
     const loadAppointmentDetail = async () => {
         try {
             setLoading(true);
             const response = await appointmentService.getAppointmentDetail(id);
             setAppointment(response.data);
+
+            // Kiểm tra và xóa khỏi localStorage nếu đã thanh toán hoặc bị hủy
+            const status = response.data?.status;
+            if (status === 'DA_THANH_TOAN' || status === 'HUY' || status === 'DA_HUY' || status === 'HOAN_THANH') {
+                removePendingAppointment(id);
+
+                // Nếu đã thanh toán, có thể hiển thị thông báo
+                if (status === 'DA_THANH_TOAN') {
+                    // Không toast ở đây vì có thể đã toast từ WebSocket
+                    console.log('Appointment already paid');
+                }
+            }
 
             // Payment đã được tạo ở bước đặt lịch, chỉ cần hiển thị thông tin
             // Nếu có invoiceCode trong response thì đã có payment

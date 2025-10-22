@@ -274,6 +274,28 @@ const AppointmentForm = () => {
             // Bước 2: Tạo hóa đơn thanh toán
             await appointmentService.createPayment(appointmentId);
 
+            // Lưu thông tin appointment vào localStorage để subscribe WebSocket khi F5
+            const pendingAppointments = JSON.parse(localStorage.getItem('pendingAppointments') || '[]');
+
+            // Kiểm tra xem appointment đã tồn tại chưa
+            const existingIndex = pendingAppointments.findIndex(apt => apt.id === appointmentId);
+
+            const appointmentInfo = {
+                id: appointmentId,
+                status: 'CHO_THANH_TOAN',
+                timestamp: new Date().toISOString(),
+            };
+
+            if (existingIndex !== -1) {
+                // Cập nhật appointment hiện có
+                pendingAppointments[existingIndex] = appointmentInfo;
+            } else {
+                // Thêm appointment mới
+                pendingAppointments.push(appointmentInfo);
+            }
+
+            localStorage.setItem('pendingAppointments', JSON.stringify(pendingAppointments));
+
             // Bước 3: Chuyển sang trang thanh toán
             navigate(`/dat-lich/thanh-toan/${appointmentId}`);
         } catch (error) {
