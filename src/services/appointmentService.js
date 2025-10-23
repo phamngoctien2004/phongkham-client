@@ -8,13 +8,23 @@ const appointmentService = {
 
     // Lấy danh sách bác sĩ
     getDoctors: async () => {
-        return apiRequest('/doctors', 'GET');
+        return apiRequest('/doctors', 'GET', null, false);
+    },
+
+    // Lấy danh sách bằng cấp
+    getDegrees: async () => {
+        return apiRequest('/degrees', 'GET', null, false);
     },
 
     // Lấy danh sách dịch vụ/gói khám
     getServices: async (type = null) => {
         const url = type ? `/services?type=${type}` : '/services';
-        return apiRequest(url, 'GET');
+        return apiRequest(url, 'GET', null, false);
+    },
+
+    // Lấy chi tiết dịch vụ cho trang chi tiết
+    getServiceDetail: async (id) => {
+        return apiRequest(`/services/optional/${id}`, 'GET', null, false);
     },
 
     // Lấy lịch khả dụng
@@ -48,6 +58,31 @@ const appointmentService = {
         const queryString = new URLSearchParams(params).toString();
         const url = queryString ? `/appointments/me?${queryString}` : '/appointments/me';
         return apiRequest(url, 'GET');
+    },
+
+    // Lấy hồ sơ khám bệnh của tôi
+    getMedicalRecords: async () => {
+        return apiRequest('/medical-record/me', 'GET');
+    },
+
+    // Lấy hồ sơ khám bệnh theo bệnh nhân
+    getMedicalRecordsByPatient: async (patientId) => {
+        return apiRequest(`/medical-record/patient/${patientId}`, 'GET');
+    },
+
+    // Lấy chi tiết hồ sơ khám bệnh
+    getMedicalRecordDetail: async (id) => {
+        return apiRequest(`/medical-record/${id}`, 'GET');
+    },
+
+    // Lấy hóa đơn theo medical record ID
+    getInvoiceByMedicalRecord: async (medicalRecordId) => {
+        return apiRequest(`/medical-record/${medicalRecordId}/invoice`, 'GET');
+    },
+
+    // Lấy chi tiết phiếu xét nghiệm
+    getLabOrderDetail: async (id) => {
+        return apiRequest(`/lab-orders/${id}`, 'GET');
     },
 };
 

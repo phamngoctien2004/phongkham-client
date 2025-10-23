@@ -385,7 +385,7 @@ h6 {
   .navmenu a,
   .navmenu a:focus {
     color: var(--nav-color);
-    font-size: 15px;
+    font-size: 17px;
     padding: 0 2px;
     font-family: var(--nav-font);
     font-weight: 400;
@@ -755,7 +755,7 @@ h6 {
   border-radius: 50%;
   width: 60px;
   height: 60px;
-  animation: animate-preloader 1.5s linear infinite;
+  animation: animate-preloader 1s linear infinite;
 }
 
 @keyframes animate-preloader {
@@ -1129,6 +1129,7 @@ section,
   padding: 80px 20px;
   transition: all ease-in-out 0.3s;
   height: 100%;
+  border-radius: 12px;
 }
 
 .services .service-item .icon {
@@ -1144,6 +1145,28 @@ section,
   transition: 0.3s;
   transform-style: preserve-3d;
 }
+
+.services .service-item .service-image {
+  margin: 0 auto 20px;
+  width: 100%;
+  /* max-width: 300px; */
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.services .service-item .service-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.services .service-item:hover .service-image img {
+  transform: scale(1.05);
+}
+
 
 .services .service-item .icon i {
   color: var(--contrast-color);
@@ -1166,8 +1189,12 @@ section,
 
 .services .service-item h3 {
   font-weight: 700;
-  margin: 10px 0 15px 0;
+  margin: 10px 0 10px 0;
   font-size: 22px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .services .service-item p {
@@ -1176,12 +1203,22 @@ section,
   margin-bottom: 0;
 }
 
+.service-item {
+  padding: 0 !important;
+}
+
+.service-image {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* 
 .services .service-item:hover {
   background: var(--accent-color);
   border-color: var(--accent-color);
-}
+} */
 
-.services .service-item:hover .icon {
+/* .services .service-item:hover .icon {
   background: var(--surface-color);
 }
 
@@ -1196,6 +1233,190 @@ section,
 .services .service-item:hover h3,
 .services .service-item:hover p {
   color: var(--contrast-color);
+} */
+
+/*--------------------------------------------------------------
+# Modern Service Card
+--------------------------------------------------------------*/
+.service-card-modern {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-card-modern:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.service-card-image {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.service-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.service-card-modern:hover .service-card-image img {
+  transform: scale(1.1);
+}
+
+.service-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1977cc 0%, #4da3e8 100%);
+}
+
+.service-card-placeholder i {
+  font-size: 80px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.service-card-discount {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #ff5757;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(255, 87, 87, 0.3);
+}
+
+.service-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.service-card-modern:hover .service-card-overlay {
+  opacity: 1;
+}
+
+.btn-detail {
+  background: white;
+  color: #1977cc;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-detail:hover {
+  background: #f5f5f5;
+  transform: translateX(5px);
+}
+
+.service-card-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-card-price {
+  background: var(--accent-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(25, 119, 204, 0.2);
+}
+
+.service-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  min-height: 48px;
+  display: -webkit-box;
+  text-align: center;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.service-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.service-card-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.service-card-info i {
+  font-size: 14px;
+}
+
+.service-card-info span {
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .service-card-image {
+    height: 240px;
+  }
+}
+
+@media (max-width: 767px) {
+  .service-card-image {
+    height: 220px;
+  }
+
+  .service-card-body {
+    padding: 20px;
+  }
+
+  .service-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
 /*--------------------------------------------------------------
@@ -1328,6 +1549,7 @@ section,
   transition: 0.5s;
   padding: 30px;
   height: 100%;
+  overflow: hidden;
 }
 
 @media (max-width: 468px) {
@@ -1343,10 +1565,95 @@ section,
   width: 150px;
   border-radius: 50%;
   flex-shrink: 0;
+  position: relative;
 }
 
 .doctors .team-member .pic img {
   transition: ease-in-out 0.3s;
+}
+
+.doctors .team-member {
+  background-color: var(--surface-color);
+  box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  border-radius: 5px;
+  transition: 0.5s;
+  padding: 30px;
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 468px) {
+  .doctors .team-member {
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
+.doctors .team-member .pic {
+  overflow: hidden;
+  width: 150px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.doctors .team-member .pic img {
+  transition: ease-in-out 0.3s;
+}
+
+/* Doctor card overlay effect - covers entire card */
+.doctor-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.doctors .team-member:hover .doctor-card-overlay {
+  opacity: 1;
+}
+
+.btn-doctor-detail {
+  background: white;
+  color: var(--accent-color);
+  border: none;
+  padding: 14px 32px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.doctor-card-overlay:hover .btn-doctor-detail {
+  background: var(--accent-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+.btn-doctor-detail i {
+  transition: transform 0.3s ease;
+  font-size: 18px;
+}
+
+.doctor-card-overlay:hover .btn-doctor-detail i {
+  transform: translateX(5px);
 }
 
 .doctors .team-member:hover {
@@ -1398,6 +1705,21 @@ section,
 .doctors .team-member p {
   margin: 10px 0 0 0;
   font-size: 14px;
+}
+
+.doctors .team-member .examination-fee {
+  color: var(--accent-color);
+  font-size: 15px;
+  margin: 12px 0 0 0;
+}
+
+.doctors .team-member .examination-fee strong {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.doctors .team-member .examination-fee i {
+  color: var(--accent-color);
 }
 
 .doctors .team-member .social {

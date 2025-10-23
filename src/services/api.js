@@ -52,14 +52,15 @@ const handleResponse = async (response) => {
 };
 
 // Helper function to make API requests
-const apiRequest = async (endpoint, method = 'GET', body = null) => {
+const apiRequest = async (endpoint, method = 'GET', body = null, requireAuth = true) => {
     const token = localStorage.getItem('accessToken');
 
     const config = {
         method: method,
         headers: {
             'Content-Type': 'application/json',
-            ...(token && { Authorization: `Bearer ${token}` }),
+            // Chỉ gửi token nếu requireAuth = true
+            ...(requireAuth && token && { Authorization: `Bearer ${token}` }),
         },
     };
 

@@ -7,7 +7,7 @@ const ServicesPage = () => {
         <div className="index-page">
             <Header />
             <main className="main">
-                <Services />
+                <Services isHomePage={false} />
             </main>
             <Footer />
             <a

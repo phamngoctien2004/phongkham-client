@@ -166,7 +166,7 @@ import { InfoItem } from './ui';
   title="Gọi cho chúng tôi"
   description="+1 5589 55488 55"
   aos="fade-up"
-  aosDelay="300"
+  aosDelay="200"
 />
 
 // Props:

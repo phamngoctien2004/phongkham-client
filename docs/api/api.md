@@ -815,10 +815,15 @@
 {
   "data": [
         {
-            "id": 3,
-            "fullName": "BS. PHAM VAN TIEN",
-            "position": "ThS. PHAM VAN TIEN",
-            "examinationFee": 4000,
+            "id": 4,
+            "fullName": "BS. NGUYEN VAN A",
+            "degreeResponse": {
+                "degreeId": 3,
+                "degreeName": "Bác sĩ Chuyên khoa II",
+                "examinationFee": 5000
+            },
+            "position": "TS. NGUYEN VAN A",
+            "examinationFee": 5000,
             "available": true,
             "roomNumber": "101A",
             "roomName": "Phòng khám Nội tổng quát"
@@ -826,6 +831,11 @@
         {
             "id": 23,
             "fullName": "BS. TRAN VAN T",
+            "degreeResponse": {
+                "degreeId": 2,
+                "degreeName": "Thạc sĩ Y học",
+                "examinationFee": 4000
+            },
             "position": "ThS. TRAN VAN T",
             "examinationFee": 4000,
             "available": true,
@@ -836,6 +846,46 @@
   "message": "Fetched all doctors successfully"
 }
 ```
+
+### Api lấy danh sách bằng cấp
+
+**Endpoint:** `GET /api/degrees`
+response
+{
+    "data": [
+        {
+            "degreeId": 1,
+            "degreeName": "Bác sĩ Chuyên khoa I",
+            "examinationFee": 3000
+        },
+        {
+            "degreeId": 2,
+            "degreeName": "Thạc sĩ Y học",
+            "examinationFee": 4000
+        },
+        {
+            "degreeId": 3,
+            "degreeName": "Bác sĩ Chuyên khoa II",
+            "examinationFee": 5000
+        },
+        {
+            "degreeId": 4,
+            "degreeName": "Tiến sĩ Y học",
+            "examinationFee": 6000
+        },
+        {
+            "degreeId": 5,
+            "degreeName": "Phó Giáo sư",
+            "examinationFee": 6000
+        },
+        {
+            "degreeId": 6,
+            "degreeName": "Giáo sư",
+            "examinationFee": 6000
+        }
+    ],
+    "message": "Fetched all degrees successfully"
+}
 
 ---
 
@@ -1150,15 +1200,81 @@
 **Response:**
 ```json
 {
-  "data": [
-    {
-      "id": 1,
-      "name": "string",
-      "phone": "string",
-      "relationship": "string"
-    }
-  ],
-  "message": "Get all patients successfully"
+    "data": [
+        {
+            "id": 5,
+            "code": "BN1757508991380",
+            "bloodType": "A",
+            "weight": 65.50,
+            "height": 170.20,
+            "registrationDate": "2025-09-10T19:56:32",
+            "fullName": "Nguyen Van A",
+            "phone": "0395527082",
+            "address": "123 Đường ABC, Quận 1, TP.HCM",
+            "cccd": "012345678901",
+            "birth": "1995-08-15",
+            "gender": "NAM",
+            "profileImage": "https://cdn-media.sforum.vn/storage/app/media/thanhhuyen/%E1%BA%A3nh%20s%C6%A1n%20t%C3%B9ng%20mtp/anh-son-tung-mtp-thumb.jpg",
+            "relationship": "BAN_THAN",
+            "email": null,
+            "verified": true
+        },
+        {
+            "id": 7,
+            "code": "BN1757509934308",
+            "bloodType": "O",
+            "weight": 60.50,
+            "height": 176.20,
+            "registrationDate": "2025-09-10T20:12:14",
+            "fullName": "Pham ngoc C",
+            "phone": null,
+            "address": "123 Đường ABC, Quận 1, TP.HN",
+            "cccd": "012345678901",
+            "birth": "1994-08-15",
+            "gender": "NU",
+            "profileImage": "https://example.com/images/patient123.jpg",
+            "relationship": "CON",
+            "email": null,
+            "verified": true
+        },
+        {
+            "id": 8,
+            "code": "BN1757510034808",
+            "bloodType": "O",
+            "weight": 60.50,
+            "height": 176.20,
+            "registrationDate": "2025-09-10T20:13:55",
+            "fullName": "Pham ngoc CDEF",
+            "phone": null,
+            "address": "123 Đường ABC, Quận 1, TP.HN",
+            "cccd": "012345678901",
+            "birth": "1994-08-15",
+            "gender": "NU",
+            "profileImage": "https://example.com/images/patient123.jpg",
+            "relationship": "VO\n",
+            "email": null,
+            "verified": true
+        },
+        {
+            "id": 31,
+            "code": "BN1758265290687",
+            "bloodType": "O",
+            "weight": 60.50,
+            "height": 176.20,
+            "registrationDate": "2025-09-19T14:01:33",
+            "fullName": "Pham ngoc Tuan",
+            "phone": "0395527225",
+            "address": "PHU DIEN HUU HOA THANH TRI TP.HN",
+            "cccd": "001204020080",
+            "birth": "2030-08-15",
+            "gender": "NAM",
+            "profileImage": "https://example.com/images/patient123.jpg",
+            "relationship": "EM",
+            "email": null,
+            "verified": true
+        }
+    ],
+    "message": "Get all patients successfully"
 }
 ```
 
@@ -1234,7 +1350,7 @@
 
 **Query Parameters:**
 - `keyword` (optional): Từ khóa tìm kiếm
-
+- `type`(optional) : DICH_VU, XET_NGHIEM,_CHUYEN_KHOA
 **Response:**
 ```json
 [
@@ -1283,6 +1399,61 @@
     "details": []
   },
   "message": "success"
+}
+```
+### 6.2 Lấy chi tiết dịch vụ cho trang chi tiết
+**Endpoint:** `GET /api/services/optional/{id}`
+
+**Mô tả:** Lấy thông tin chi tiết của một dịch vụ
+
+**Path Parameters:**
+- `id`: ID của dịch vụ
+
+**Response:**
+```json
+{
+    "data": {
+        "id": 12,
+        "code": "DV_001",
+        "name": "Gói khám tổng quát",
+        "price": 5000.0,
+        "description": "Gói khám sức khỏe tổng quát là chương trình khám sức khỏe toàn diện, giúp phát hiện sớm các bệnh lý tiềm ẩn, đánh giá tình trạng sức khỏe hiện tại, tư vấn chế độ sinh hoạt và phòng ngừa bệnh tật. Gói khám bao gồm: Khám lâm sàng tổng quát (khám nội khoa, đo huyết áp, chiều cao, cân nặng, BMI, mạch, nhiệt độ), khám chuyên khoa (tai mũi họng, mắt, răng hàm mặt). Xét nghiệm máu tổng quát (công thức máu, hồng cầu, bạch cầu, tiểu cầu, hemoglobin), xét nghiệm sinh hóa (đường huyết đói, ure, creatinin, AST, ALT, bilirubin, cholesterol, triglycerid, HDL, LDL), xét nghiệm nước tiểu tổng quát. Chẩn đoán hình ảnh: X-quang phổi, điện tim đồ, siêu âm ổ bụng (gan, mật, tụy, lách, thận). Kết quả khám được bác sĩ chuyên khoa tư vấn chi tiết, giải thích các chỉ số, đưa ra khuyến nghị về chế độ ăn uống, tập luyện, sinh hoạt. Phát hiện sớm các bệnh lý về tim mạch, tiểu đường, gan, thận, ung thư để có phương án điều trị kịp thời. Gói khám phù hợp với mọi đối tượng, đặc biệt khuyến khích cho người trên 35 tuổi, người có tiền sử gia đình mắc bệnh mãn tính. Thời gian khám: khoảng 2-3 giờ, có kết quả đầy đủ trong ngày hoặc 1-2 ngày.",
+        "type": "DICH_VU",
+        "subPlans": [
+            {
+                "id": 17,
+                "code": "XN_NUOC_TIEU",
+                "name": "Xét nghiệm nước tiểu tổng quát",
+                "price": 2000.0,
+                "description": "Xét nghiệm nước tiểu tổng quát là xét nghiệm đơn giản, không xâm lấn, giúp đánh giá chức năng thận và phát hiện các bệnh lý về đường tiết niệu, chuyển hóa. Xét nghiệm gồm 2 phần: Thử nhanh bằng que thử (test strip): đo pH, tỷ trọng, protein niệu, glucose niệu, ketone, bilirubin, urobilinogen, máu trong nước tiểu, bạch cầu esterase, nitrite. Xét nghiệm vi thể (soi kính hiển vi): đếm số lượng hồng cầu, bạch cầu, biểu mô, trụ (trụ hồng cầu, trụ bạch cầu, trụ hạt), vi khuẩn, nấm men, tinh thể (acid uric, oxalate, phosphate). Xét nghiệm giúp chẩn đoán: nhiễm trùng đường tiết niệu (viêm bàng quang, viêm thận, viêm niệu đạo), sỏi thận, bệnh thận mạn, hội chứng thận hư, viêm cầu thận, đái tháo đường (glucose niệu, ketone niệu), bệnh gan mật (bilirubin niệu), máu trong nước tiểu (do sỏi, u bàng quang, chấn thương). Hướng dẫn lấy mẫu: lấy nước tiểu giữa dòng, rửa sạch vùng kín trước khi lấy mẫu, bỏ phần đầu và phần cuối của dòng tiểu, lấy khoảng 30-50ml nước tiểu vào lọ sạch. Tốt nhất là lấy nước tiểu buổi sáng sớm. Có kết quả trong 1-2 giờ.",
+                "type": "XET_NGHIEM"
+            },
+            {
+                "id": 19,
+                "code": "XN_DONG_MAU",
+                "name": "Xét nghiệm đông máu",
+                "price": 2000.0,
+                "description": "Xét nghiệm đông máu (coagulation test) đánh giá khả năng đông máu và chống đông của cơ thể, rất quan trọng trước phẫu thuật, theo dõi điều trị thuốc chống đông, chẩn đoán các bệnh lý về đông máu. Các xét nghiệm bao gồm: PT (Prothrombin Time - Thời gian prothrombin): đánh giá con đường đông máu ngoại sinh, bình thường 11-13 giây. INR (International Normalized Ratio): chỉ số chuẩn hóa PT, dùng theo dõi điều trị Warfarin, bình thường 0.8-1.2, mục tiêu điều trị 2-3. APTT (Activated Partial Thromboplastin Time - Thời gian thromboplastin từng phần hoạt hóa): đánh giá con đường đông máu nội sinh, bình thường 25-35 giây. Fibrinogen (yếu tố I): protein đông máu quan trọng, bình thường 200-400 mg/dL. D-Dimer: sản phẩm phân hủy fibrin, tăng cao trong huyết khối tĩnh mạch sâu, th栓 huyết phổi. Thời gian chảy máu (Bleeding time), số lượng tiểu cầu (Platelet count), chức năng tiểu cầu. Xét nghiệm giúp chẩn đoán: bệnh máu di truyền (hemophilia A, B, bệnh Von Willebrand), suy giảm Vitamin K, bệnh gan nặng (giảm tổng hợp các yếu tố đông máu), huyết khối tĩnh mạch sâu, thuyên tắc phổi, DIC (đông máu nội mạch lan tỏa). Theo dõi điều trị: thuốc chống đông (Warfarin, Heparin), đánh giá trước và sau phẫu thuật. Không cần nhịn đói, lấy máu tĩnh mạch vào ống chứa Citrate (nắp xanh). Có kết quả trong 2-4 giờ.",
+                "type": "XET_NGHIEM"
+            },
+            {
+                "id": 24,
+                "code": "ECG",
+                "name": "Điện tim đồ (ECG)",
+                "price": 2000.0,
+                "description": "Điện tim đồ (ECG - Electrocardiogram) là xét nghiệm ghi nhận hoạt động điện của tim, giúp chẩn đoán các bệnh lý tim mạch. Nguyên lý: ghi nhận sự thay đổi điện thế trên bề mặt da khi tim co bóp và dẫn truyền xung điện, thông qua các điện cực đặt trên ngực, tay, chân. Kết quả là đường ghi điện tim với các sóng đặc trưng: sóng P (nhĩ co), phức bộ QRS (tâm thất co), sóng T (tâm thất hồi phục). Các loại ECG: ECG thường (resting ECG): ghi điện tim khi nghỉ ngơi, 12 chuyển đạo chuẩn, thời gian 5-10 phút. ECG gắng sức (exercise stress test): ghi điện tim khi vận động (chạy trên máy chạy bộ hoặc đạp xe), đánh giá khả năng gắng sức của tim, phát hiện thiếu máu cơ tim khi gắng sức. Holter ECG: ghi điện tim liên tục 24-48 giờ trong sinh hoạt thường ngày, phát hiện rối loạn nhịp tim kịch phát. ECG giúp chẩn đoán: Nhồi máu cơ tim cấp (STEMI, NSTEMI): thay đổi đoạn ST, sóng Q bệnh lý. Đau thắt ngực, thiếu máu cơ tim: thay đổi đoạn ST-T khi gắng sức. Rối loạn nhịp tim: nhịp nhanh (tachycardia), nhịp chậm (bradycardia), rung nhĩ, cuồng nhĩ, ngoại tâm thu, block nhĩ thất. Phì đại tim: phì đại nhĩ, phì đại thất. Viêm cơ tim, viêm màng ngoài tim. Rối loạn điện giải (tăng/giảm Kali). Tác dụng phụ của thuốc trên tim. Chỉ định làm ECG: đau ngực, khó thở, hồi hộp đánh trống ngực, chóng mặt, ngất, tiền sử gia đình có bệnh tim, tiền sử bệnh tim mạch, trước phẫu thuật, khám sức khỏe định kỳ ở người trên 40 tuổi. Chuẩn bị: không cần nhịn đói, mặc quần áo thoải mái dễ cởi, không bôi kem dưỡng da vùng ngực. Thời gian: 5-10 phút. An toàn tuyệt đối, không đau, không xâm lấn. Có kết quả ngay.",
+                "type": "XET_NGHIEM"
+            },
+            {
+                "id": 1,
+                "code": "KB001",
+                "name": "khám bệnh",
+                "price": 0.0,
+                "type": "KHAC"
+            }
+        ]
+    },
+    "message": "Fetched service detail successfully"
 }
 ```
 
@@ -1538,6 +1709,7 @@
         "healthPlanName": "GOI DICH VU SIEU CAP VU TRU TAI NHA TAN RANG",
         "total": 5000,
         "paid": 5000,
+        "doctorName":"sdfasdg"
         "invoiceDetailsResponse": [
             {
                 "id": 256,
@@ -1629,6 +1801,25 @@
     },
     "message": "Get medical record by id successfully"
 }
+
+### lấy hóa đơn theo phiếu id
+/api/medical-record/224/invoice
+
+response
+{
+    "data": {
+        "id": 260,
+        "code": "HD1761223541",
+        "paymentMethod": "TIEN_MAT",
+        "totalAmount": 5000,
+        "paidAmount": 5000,
+        "status": "DA_THANH_TOAN",
+        "date": "2025-10-23T19:45:41"
+    },
+    "message": "Get invoice by medical record id successfully"
+}
+
+
 ### 7.3 Lấy hồ sơ bệnh án theo bệnh nhân
 **Endpoint:** `GET /api/medical-record/patient/{id}`
 
@@ -1786,16 +1977,19 @@
 **Response:**
 ```json
 {
-  "data": [
-    {
-      "id": 1,
-      "recordCode": "MR001",
-      "date": "2024-12-20",
-      "doctorName": "string",
-      "status": "COMPLETED"
-    }
-  ],
-  "message": "Get my medical record successfully"
+    "data": [
+        {
+            "id": "217",
+            "code": "PK1760685100",
+            "patientName": "Nguyen Van A",
+            "date": "2025-10-17T14:11:40",
+            "status": "CHO_KHAM",
+            "doctorName": "Bacs six tien",
+            "total": 2000,
+            "paid": 2000,
+        }
+    ],
+    "message": "Get my medical record successfully"
 }
 ```
 
@@ -3279,6 +3473,16 @@ files, type (xn,avatars)
     "message": "Upload files successfully"
 }
 ```
+## 19. send email
+**Endpoint:** ``/api/emails/contact ``
+request
+{
+    "name":"a",
+    "email": "b",
+    "title":"c",
+    "message":"d"
+}
+
 ## Thông tin chung
 
 ### Authentication

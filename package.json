@@ -15,6 +15,7 @@
     "aos": "^2.3.4",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "firebase": "^12.4.0",
     "glightbox": "^3.3.1",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",

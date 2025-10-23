@@ -12,10 +12,10 @@ const HomePage = () => {
             <Header />
             <main className="main">
                 <Hero />
-                <About />
-                <Services />
-                <Doctors />
-                <Contact />
+                <About isHomePage={true} />
+                <Services isHomePage={true} />
+                <Doctors isHomePage={true} />
+                <Contact isHomePage={true} />
             </main>
             <Footer />
             <a

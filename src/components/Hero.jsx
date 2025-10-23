@@ -1,16 +1,6 @@
-import { useEffect } from 'react';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 import heroImg from '../assets/images/hero-bg.jpg';
 
 const Hero = () => {
-  useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true,
-    });
-  }, []);
-
   return (
     <section id="hero" className="hero section light-background">
       <img src={heroImg} alt="" data-aos="fade-in" />

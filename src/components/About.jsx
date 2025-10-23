@@ -1,8 +1,18 @@
+import { PageBanner, SectionTitle } from './ui';
 import aboutImg from '../assets/images/about.jpg';
 
-const About = () => {
+const About = ({ isHomePage = false }) => {
   return (
     <section id="about" className="about section">
+      {!isHomePage && (
+        <PageBanner
+          title="GIỚI THIỆU VỀ CHÚNG TÔI"
+          breadcrumbs={[
+            { label: 'Trang chủ', link: '/' },
+            { label: 'Giới thiệu' }
+          ]}
+        />
+      )}
       <div className="container">
         <div className="row gy-4 gx-5">
           <div

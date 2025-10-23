@@ -5,6 +5,7 @@ import appointmentService from '../services/appointmentService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ChangePasswordModal from '../components/Auth/ChangePasswordModal';
+import InvoiceModal from '../components/MedicalRecord/InvoiceModal';
 import '../assets/css/profile.css';
 
 const ProfilePage = () => {
@@ -14,7 +15,21 @@ const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState('account'); // account, history, password, services
     const [appointments, setAppointments] = useState([]);
     const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+    const [medicalRecords, setMedicalRecords] = useState([]);
+    const [medicalRecordsLoading, setMedicalRecordsLoading] = useState(false);
+    const [familyMembers, setFamilyMembers] = useState([]);
+    const [familyMembersLoading, setFamilyMembersLoading] = useState(false);
     const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+
+    // Invoice Modal State
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    const [selectedRecordId, setSelectedRecordId] = useState(null);
+
+    // State for family member medical records view
+    const [showMemberRecords, setShowMemberRecords] = useState(false);
+    const [selectedMember, setSelectedMember] = useState(null);
+    const [memberRecords, setMemberRecords] = useState([]);
+    const [memberRecordsLoading, setMemberRecordsLoading] = useState(false);
 
     // Filters and Pagination
     const [filters, setFilters] = useState({
@@ -35,6 +50,10 @@ const ProfilePage = () => {
     useEffect(() => {
         if (activeTab === 'history') {
             loadAppointments();
+        } else if (activeTab === 'medical-records') {
+            loadMedicalRecords();
+        } else if (activeTab === 'family') {
+            loadFamilyMembers();
         }
     }, [activeTab, filters, pagination.currentPage]);
 
@@ -81,6 +100,32 @@ const ProfilePage = () => {
         }
     };
 
+    const loadMedicalRecords = async () => {
+        try {
+            setMedicalRecordsLoading(true);
+            const response = await appointmentService.getMedicalRecords();
+            setMedicalRecords(response.data || []);
+        } catch (error) {
+            toast.error('Không thể tải hồ sơ khám bệnh');
+            console.error(error);
+        } finally {
+            setMedicalRecordsLoading(false);
+        }
+    };
+
+    const loadFamilyMembers = async () => {
+        try {
+            setFamilyMembersLoading(true);
+            const response = await appointmentService.getPatients();
+            setFamilyMembers(response.data || []);
+        } catch (error) {
+            toast.error('Không thể tải danh sách thành viên gia đình');
+            console.error(error);
+        } finally {
+            setFamilyMembersLoading(false);
+        }
+    };
+
     const handleFilterChange = (field, value) => {
         setFilters(prev => ({ ...prev, [field]: value }));
         setPagination(prev => ({ ...prev, currentPage: 1 })); // Reset to page 1 when filter changes
@@ -97,6 +142,48 @@ const ProfilePage = () => {
         localStorage.removeItem('user');
         toast.success('Đăng xuất thành công');
         navigate('/login');
+    };
+
+    const handleViewMedicalRecordDetail = (recordId) => {
+        navigate(`/ho-so/${recordId}`);
+    };
+
+    const handleViewInvoice = (recordId) => {
+        setSelectedRecordId(recordId);
+        setIsInvoiceModalOpen(true);
+    };
+
+    const handleCloseInvoiceModal = () => {
+        setIsInvoiceModalOpen(false);
+        setSelectedRecordId(null);
+    };
+
+    const handleViewMemberDetail = async (memberId) => {
+        const member = familyMembers.find(m => m.id === memberId);
+        if (member) {
+            setSelectedMember(member);
+            setShowMemberRecords(true);
+            await loadMemberRecords(memberId);
+        }
+    };
+
+    const handleBackToFamilyList = () => {
+        setShowMemberRecords(false);
+        setSelectedMember(null);
+        setMemberRecords([]);
+    };
+
+    const loadMemberRecords = async (patientId) => {
+        try {
+            setMemberRecordsLoading(true);
+            const response = await appointmentService.getMedicalRecordsByPatient(patientId);
+            setMemberRecords(response.data || []);
+        } catch (error) {
+            toast.error('Không thể tải hồ sơ khám bệnh');
+            console.error(error);
+        } finally {
+            setMemberRecordsLoading(false);
+        }
     };
 
     if (loading) {
@@ -175,11 +262,18 @@ const ProfilePage = () => {
                                         <span>Lịch sử đặt lịch</span>
                                     </button>
                                     <button
-                                        className={`menu-item ${activeTab === 'password' ? 'active' : ''}`}
-                                        onClick={() => setActiveTab('password')}
+                                        className={`menu-item ${activeTab === 'medical-records' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('medical-records')}
                                     >
-                                        <i className="bi bi-shield-lock"></i>
-                                        <span>Quản lý tài khoản</span>
+                                        <i className="bi bi-file-medical"></i>
+                                        <span>Hồ sơ khám bệnh</span>
+                                    </button>
+                                    <button
+                                        className={`menu-item ${activeTab === 'family' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('family')}
+                                    >
+                                        <i className="bi bi-people"></i>
+                                        <span>Thành viên gia đình</span>
                                     </button>
                                     <button
                                         className={`menu-item ${activeTab === 'services' ? 'active' : ''}`}
@@ -201,7 +295,7 @@ const ProfilePage = () => {
                             <div className="profile-content">
                                 {activeTab === 'account' && (
                                     <div className="content-section">
-                                        <h2 className="section-title">Quản lý tài khoản</h2>
+                                        <h2 className="section-title">Thông tin tài khoản</h2>
 
                                         {/* Đăng nhập */}
                                         <div className="info-card">
@@ -483,14 +577,286 @@ const ProfilePage = () => {
                                     </div>
                                 )}
 
-                                {activeTab === 'password' && (
+                                {activeTab === 'medical-records' && (
                                     <div className="content-section">
-                                        <h2 className="section-title">Quản lý tài khoản</h2>
-                                        <div className="info-card">
-                                            <div className="card-body">
-                                                <p className="text-muted">Chức năng đang được phát triển...</p>
+                                        <h2 className="section-title">Hồ sơ khám bệnh</h2>
+
+                                        {medicalRecordsLoading ? (
+                                            <div className="appointments-loading">
+                                                <i className="bi bi-hourglass-split"></i>
+                                                <p>Đang tải hồ sơ khám bệnh...</p>
                                             </div>
-                                        </div>
+                                        ) : medicalRecords.length === 0 ? (
+                                            <div className="appointments-empty">
+                                                <i className="bi bi-file-medical-fill"></i>
+                                                <p>Chưa có hồ sơ khám bệnh nào</p>
+                                            </div>
+                                        ) : (
+                                            <div className="appointments-table-container">
+                                                <table className="appointments-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Mã hồ sơ</th>
+                                                            <th>Ngày khám</th>
+                                                            <th>Bác sĩ khám</th>
+                                                            <th>Trạng thái</th>
+                                                            <th>Thao tác</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {medicalRecords.map((record) => (
+                                                            <tr key={record.id}>
+
+                                                                <td className="td-code">{record.code || '--'}</td>
+                                                                <td className="td-date">
+                                                                    {record.date ? new Date(record.date).toLocaleDateString('vi-VN') : '--'}
+                                                                </td>
+                                                                <td className="td-doctor">
+                                                                    {record.doctorName || '--'}
+                                                                </td>
+                                                                <td className="td-status">
+                                                                    <span className={`status-badge status-${record.status}`}>
+                                                                        {record.status === 'CHO_KHAM' ? 'Chờ khám' :
+                                                                            record.status === 'DANG_KHAM' ? 'Đang khám' :
+                                                                                record.status === 'HOAN_THANH' ? 'Hoàn thành' :
+                                                                                    record.status === 'HUY' ? 'Đã hủy' :
+                                                                                        record.status}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="td-actions">
+                                                                    <div className="action-buttons">
+                                                                        <button
+                                                                            className="btn-view-detail"
+                                                                            onClick={() => handleViewMedicalRecordDetail(record.id)}
+                                                                            title="Xem chi tiết"
+                                                                        >
+                                                                            <i className="bi bi-eye"></i> Chi tiết
+                                                                        </button>
+                                                                        <button
+                                                                            className="btn-view-invoice"
+                                                                            onClick={() => handleViewInvoice(record.id)}
+                                                                            title="Xem hóa đơn"
+                                                                        >
+                                                                            <i className="bi bi-receipt"></i> Hóa đơn
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {activeTab === 'family' && (
+                                    <div className="content-section">
+                                        {!showMemberRecords ? (
+                                            <>
+                                                <h2 className="section-title">Thành viên gia đình</h2>
+
+                                                {familyMembersLoading ? (
+                                                    <div className="appointments-loading">
+                                                        <i className="bi bi-hourglass-split"></i>
+                                                        <p>Đang tải danh sách thành viên...</p>
+                                                    </div>
+                                                ) : familyMembers.filter(member => member.relationship !== 'BAN_THAN').length === 0 ? (
+                                                    <div className="appointments-empty">
+                                                        <i className="bi bi-people-fill"></i>
+                                                        <p>Chưa có thành viên gia đình nào</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="medical-records-grid">
+                                                        {familyMembers.filter(member => member.relationship !== 'BAN_THAN').map((member) => (
+                                                            <div key={member.id} className="medical-record-card">
+                                                                {/* Avatar Section */}
+                                                                <div className="record-card-avatar">
+                                                                    <div className="record-avatar-wrapper">
+                                                                        {member.profileImage ? (
+                                                                            <img src={member.profileImage} alt={member.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                                                                        ) : (
+                                                                            <div className="record-avatar-placeholder">
+                                                                                <i className="bi bi-person-circle"></i>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="record-status-badge">
+                                                                        <i className="bi bi-check"></i>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Content Section */}
+                                                                <div className="record-card-content">
+                                                                    {/* Header */}
+                                                                    <div className="record-card-header">
+                                                                        <div className="record-card-title">
+                                                                            <h3 className="record-patient-name">{member.fullName}</h3>
+                                                                            <div className="record-code">{member.code}</div>
+                                                                        </div>
+                                                                        <button className="record-edit-btn" onClick={() => toast.info('Chức năng đang phát triển')}>
+                                                                            <i className="bi bi-pencil"></i> EDIT
+                                                                        </button>
+                                                                    </div>
+
+                                                                    {/* Body - Info Grid */}
+                                                                    <div className="record-card-body">
+                                                                        <div className="record-info-row">
+                                                                            <i className="bi bi-envelope"></i>
+                                                                            <div className="record-info-text">
+                                                                                <div className="record-info-label">Email</div>
+                                                                                <div className="record-info-value">{member.email || profile?.email || '--'}</div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="record-info-row">
+                                                                            <i className="bi bi-geo-alt"></i>
+                                                                            <div className="record-info-text">
+                                                                                <div className="record-info-label">City</div>
+                                                                                <div className="record-info-value">{member.address || profile?.address || '--'}</div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="record-info-row">
+                                                                            <i className="bi bi-calendar-event"></i>
+                                                                            <div className="record-info-text">
+                                                                                <div className="record-info-label">Ngày sinh</div>
+                                                                                <div className="record-info-value">
+                                                                                    {member.birth ? new Date(member.birth).toLocaleDateString('vi-VN') : '--'}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="record-info-row">
+                                                                            <i className="bi bi-telephone"></i>
+                                                                            <div className="record-info-text">
+                                                                                <div className="record-info-label">Phone</div>
+                                                                                <div className="record-info-value">{member.phone || profile?.phone || '--'}</div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="record-info-row">
+                                                                            <i className="bi bi-person-badge"></i>
+                                                                            <div className="record-info-text">
+                                                                                <div className="record-info-label">Quan hệ</div>
+                                                                                <div className="record-info-value">
+                                                                                    {member.relationship === 'BAN_THAN' ? 'Bản thân' :
+                                                                                        member.relationship === 'BO' ? 'Bố' :
+                                                                                            member.relationship === 'ME' ? 'Mẹ' :
+                                                                                                member.relationship === 'CON' ? 'Con' :
+                                                                                                    member.relationship === 'VO' ? 'Vợ' :
+                                                                                                        member.relationship === 'CHONG' ? 'Chồng' :
+                                                                                                            member.relationship || '--'}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="record-info-row">
+                                                                            <i className="bi bi-flag"></i>
+                                                                            <div className="record-info-text">
+                                                                                <div className="record-info-label">Country</div>
+                                                                                <div className="record-info-value">Việt Nam</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Footer - Actions */}
+                                                                    <div className="record-card-footer">
+                                                                        <button
+                                                                            className="btn-view-detail"
+                                                                            onClick={() => handleViewMemberDetail(member.id)}
+                                                                            title="Xem hồ sơ khám bệnh"
+                                                                        >
+                                                                            <i className="bi bi-file-medical-fill"></i> Hồ sơ khám bệnh
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* Header with back button */}
+                                                <div className="member-records-header">
+
+                                                    <h2 className="section-title border-unset pb-0" style={{ textAlign: 'left', border: 'none' }}>
+                                                        Hồ sơ khám bệnh - {selectedMember?.fullName}
+                                                    </h2>
+                                                    <button className="btn-back" onClick={handleBackToFamilyList}>
+                                                        <i className="bi bi-arrow-left"></i>
+                                                        Quay lại
+                                                    </button>
+                                                </div>
+
+                                                {/* Member Records List */}
+                                                {memberRecordsLoading ? (
+                                                    <div className="appointments-loading">
+                                                        <i className="bi bi-hourglass-split"></i>
+                                                        <p>Đang tải hồ sơ...</p>
+                                                    </div>
+                                                ) : memberRecords.length === 0 ? (
+                                                    <div className="appointments-empty">
+                                                        <i className="bi bi-file-medical-fill"></i>
+                                                        <p>Chưa có hồ sơ khám bệnh nào</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="appointments-table-container">
+                                                        <table className="appointments-table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Mã hồ sơ</th>
+                                                                    <th>Ngày khám</th>
+                                                                    <th>Bác sĩ khám</th>
+                                                                    <th>Trạng thái</th>
+                                                                    <th>Thao tác</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {memberRecords.map((record) => (
+                                                                    <tr key={record.id}>
+                                                                        <td className="td-code">{record.code || '--'}</td>
+                                                                        <td className="td-date">
+                                                                            {record.date ? new Date(record.date).toLocaleDateString('vi-VN') : '--'}
+                                                                        </td>
+                                                                        <td className="td-doctor">{record.doctorName || '--'}</td>
+                                                                        <td className="td-status">
+                                                                            <span className={`status-badge status-${record.status}`}>
+                                                                                {record.status === 'CHO_KHAM' ? 'Chờ khám' :
+                                                                                    record.status === 'DANG_KHAM' ? 'Đang khám' :
+                                                                                        record.status === 'HOAN_THANH' ? 'Hoàn thành' :
+                                                                                            record.status === 'HUY' ? 'Đã hủy' :
+                                                                                                record.status === 'CHO_XET_NGHIEM' ? 'Chờ xét nghiệm' :
+                                                                                                    record.status}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="td-actions">
+                                                                            <div className="action-buttons">
+                                                                                <button
+                                                                                    className="btn-view-detail"
+                                                                                    onClick={() => handleViewMedicalRecordDetail(record.id)}
+                                                                                    title="Xem chi tiết hồ sơ"
+                                                                                >
+                                                                                    <i className="bi bi-eye"></i> Chi tiết
+                                                                                </button>
+                                                                                <button
+                                                                                    className="btn-view-invoice"
+                                                                                    onClick={() => handleViewInvoice(record.id)}
+                                                                                    title="Xem hóa đơn"
+                                                                                >
+                                                                                    <i className="bi bi-receipt"></i> Hóa đơn
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                 )}
 
@@ -514,6 +880,13 @@ const ProfilePage = () => {
             <ChangePasswordModal
                 isOpen={isChangePasswordModalOpen}
                 onClose={() => setIsChangePasswordModalOpen(false)}
+            />
+
+            {/* Invoice Modal */}
+            <InvoiceModal
+                isOpen={isInvoiceModalOpen}
+                onClose={handleCloseInvoiceModal}
+                medicalRecordId={selectedRecordId}
             />
 
             <Footer />

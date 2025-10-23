@@ -7,7 +7,7 @@ const AboutPage = () => {
         <div className="index-page">
             <Header />
             <main className="main">
-                <About />
+                <About isHomePage={false} />
             </main>
             <Footer />
             <a

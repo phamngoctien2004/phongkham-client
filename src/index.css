@@ -49,3 +49,7 @@ body>div>section:not([id]) {
   transform: translateY(-2px) !important;
   box-shadow: 0 4px 12px rgba(25, 119, 204, 0.4) !important;
 }
+
+.container {
+  max-width: 1500px !important;
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import appointmentService from '../../services/appointmentService';
 import './Appointment.css';
@@ -49,6 +49,7 @@ const TIME_SLOTS_EVENING = generateTimeSlots(17, 0, 23, 0);
 
 const AppointmentForm = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -75,10 +76,32 @@ const AppointmentForm = () => {
     const [availableSlots, setAvailableSlots] = useState([]); // Lưu dữ liệu từ API (tất cả các ca)
 
     // Triệu chứng
-    const [symptoms, setSymptoms] = useState('');    // Load danh sách bệnh nhân khi component mount
+    const [symptoms, setSymptoms] = useState('');
+
+    // Load danh sách bệnh nhân khi component mount
     useEffect(() => {
         loadPatients();
     }, []);
+
+    // Auto-select doctor if coming from doctor card
+    useEffect(() => {
+        if (location.state?.selectedDoctor) {
+            const doctor = location.state.selectedDoctor;
+            setAppointmentType('DOCTOR');
+            setSelectedDoctor(doctor);
+            toast.success(`Đã chọn bác sĩ: ${doctor.fullName}`);
+        }
+    }, [location.state]);
+
+    // Auto-select service if coming from service detail page
+    useEffect(() => {
+        if (location.state?.selectedService) {
+            const service = location.state.selectedService;
+            setAppointmentType(service.type);
+            setSelectedService(service);
+            toast.success(`Đã chọn dịch vụ: ${service.name}`);
+        }
+    }, [location.state]);
 
     const loadPatients = async () => {
         try {

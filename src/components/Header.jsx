@@ -79,7 +79,7 @@ const Header = () => {
       </div>
 
       <div className="branding d-flex align-items-center">
-        <div className="container position-relative d-flex align-items-center justify-content-between">
+        <div className="container position-relative d-flex align-items-center justify-content-between bx">
           <Link to="/" className="logo d-flex align-items-center me-auto2">
             <h1 className="sitename">Medilab</h1>
           </Link>
@@ -103,7 +103,7 @@ const Header = () => {
               </li>
               <li>
                 <Link to="/doctors" onClick={closeMobileNav}>
-                  Đội ngũ chuyên khoa
+                  Đội ngũ Bác sĩ
                 </Link>
               </li>
               <li>

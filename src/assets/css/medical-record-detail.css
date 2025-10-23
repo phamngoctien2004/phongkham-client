@@ -1,0 +1,466 @@
+.medical-record-detail-page {
+    min-height: calc(100vh - 200px);
+    padding: 40px 0;
+    background: #f8f9fa;
+}
+
+.loading-container,
+.error-container {
+    text-align: center;
+    padding: 100px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-container i,
+.error-container i {
+    font-size: 80px;
+    color: #1977cc;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.loading-container i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-container i {
+    color: #f44336;
+}
+
+.error-container p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.page-header {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-back {
+    background: #f0f0f0;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: #e0e0e0;
+    transform: translateX(-4px);
+}
+
+.btn-back i {
+    font-size: 18px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1977cc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-header h1 i {
+    font-size: 32px;
+}
+
+.detail-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detail-section .section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1977cc;
+    margin: 0 0 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e3f2fd;
+}
+
+.detail-section .section-title i {
+    font-size: 24px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-item label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-item .detail-value {
+    font-size: 16px;
+    color: #212529;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.invoice-detail-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.invoice-detail-card:last-child {
+    margin-bottom: 0;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.invoice-header h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.invoice-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.invoice-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.invoice-info .label {
+    font-weight: 500;
+    color: #666;
+    font-size: 15px;
+}
+
+.invoice-info .price {
+    font-weight: 600;
+    color: #1977cc;
+    font-size: 16px;
+}
+
+.lab-services {
+    /* margin-top: 20px; */
+    /* padding-top: 20px; */
+    /* border-top: 2px dashed #dee2e6; */
+}
+
+.lab-services h5 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #555;
+    margin: 0 0 16px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.lab-services-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lab-service-item {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    /* border-left: 4px solid #1977cc; */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.lab-name {
+    font-weight: 600;
+    color: #212529;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lab-name i {
+    color: #1977cc;
+    font-size: 18px;
+}
+
+.lab-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-view-result {
+    background: var(--accent-color, #1977cc);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s;
+}
+
+.btn-view-result:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 119, 204, 0.3);
+}
+
+.btn-view-result i {
+    font-size: 14px;
+}
+
+.lab-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+}
+
+.lab-info span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lab-info i {
+    color: #1977cc;
+    font-size: 15px;
+}
+
+.invoice-section {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+    border: 2px solid #1977cc;
+}
+
+.invoice-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.invoice-summary-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.invoice-summary-content i {
+    font-size: 48px;
+    color: #1977cc;
+}
+
+.invoice-summary-content h4 {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.invoice-summary-content p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px !important;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--accent-color) !important;
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(25, 119, 204, 0.4);
+}
+
+/* Status badges */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.status-badge.status-CHO_KHAM,
+.status-badge.status-CHO_THUC_HIEN {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.status-DANG_KHAM,
+.status-badge.status-DANG_THUC_HIEN {
+    background: #cfe2ff;
+    color: #084298;
+}
+
+.status-badge.status-HOAN_THANH,
+.status-badge.status-DA_THANH_TOAN {
+    background: #d1e7dd;
+    color: #0a3622;
+}
+
+.status-badge.status-HUY {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.status-badge.status-CHUA_THANH_TOAN {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .medical-record-detail-page {
+        padding: 20px 0;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+    }
+
+    .detail-section {
+        padding: 20px;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-item.full-width {
+        grid-column: 1;
+    }
+
+    .lab-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .lab-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .lab-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .invoice-summary {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .invoice-summary-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

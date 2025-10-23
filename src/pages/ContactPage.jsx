@@ -7,7 +7,7 @@ const ContactPage = () => {
         <div className="index-page">
             <Header />
             <main className="main">
-                <Contact />
+                <Contact isHomePage={false} />
             </main>
             <Footer />
             <a
