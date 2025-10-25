@@ -139,8 +139,10 @@ const AppointmentForm = () => {
         try {
             setLoading(true);
             const response = await appointmentService.getServices(type);
+            // Handle response structure - could be array or object with data property
+            let processedData = Array.isArray(response) ? response : (response?.data || []);
             // Lọc theo type để đảm bảo chỉ hiển thị đúng loại dịch vụ
-            const filteredServices = response?.filter(service => service.type === type) || [];
+            const filteredServices = processedData.filter(service => service.type === type);
             setServices(filteredServices);
         } catch (error) {
             toast.error('Không thể tải danh sách dịch vụ');
