@@ -5,7 +5,6 @@ import appointmentService from '../../services/appointmentService';
 import './Appointment.css';
 
 const APPOINTMENT_TYPES = [
-    { value: 'DOCTOR', label: 'Khám với bác sĩ', icon: 'bi-person-badge' },
     { value: 'CHUYEN_KHOA', label: 'Khám chuyên khoa', icon: 'bi-hospital' },
     { value: 'XET_NGHIEM', label: 'Xét nghiệm', icon: 'bi-clipboard-pulse' },
     { value: 'DICH_VU', label: 'Gói khám', icon: 'bi-boxes' },
@@ -59,18 +58,16 @@ const AppointmentForm = () => {
 
     // Step 2: Chọn loại khám
     const [appointmentType, setAppointmentType] = useState('');
+    const [departments, setDepartments] = useState([]);
+    const [selectedDepartment, setSelectedDepartment] = useState(null);
     const [doctors, setDoctors] = useState([]);
     const [services, setServices] = useState([]);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [selectedService, setSelectedService] = useState(null);
 
     // Step 3: Chọn ngày giờ
-    // Set ngày mặc định là ngày mai (hôm nay + 1)
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const defaultDate = tomorrow.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-
-    const [selectedDate, setSelectedDate] = useState(defaultDate);
+    // Ngày mặc định là trống (không chọn)
+    const [selectedDate, setSelectedDate] = useState('');
     const [selectedShift, setSelectedShift] = useState(''); // Tự động xác định dựa trên giờ chọn
     const [selectedTime, setSelectedTime] = useState('');
     const [availableSlots, setAvailableSlots] = useState([]); // Lưu dữ liệu từ API (tất cả các ca)
@@ -83,15 +80,15 @@ const AppointmentForm = () => {
         loadPatients();
     }, []);
 
-    // Auto-select doctor if coming from doctor card
-    useEffect(() => {
-        if (location.state?.selectedDoctor) {
-            const doctor = location.state.selectedDoctor;
-            setAppointmentType('DOCTOR');
-            setSelectedDoctor(doctor);
-            toast.success(`Đã chọn bác sĩ: ${doctor.fullName}`);
-        }
-    }, [location.state]);
+    // Auto-select doctor if coming from doctor card - removed since no DOCTOR type
+    // useEffect(() => {
+    //     if (location.state?.selectedDoctor) {
+    //         const doctor = location.state.selectedDoctor;
+    //         setAppointmentType('DOCTOR');
+    //         setSelectedDoctor(doctor);
+    //         toast.success(`Đã chọn bác sĩ: ${doctor.fullName}`);
+    //     }
+    // }, [location.state]);
 
     // Auto-select service if coming from service detail page
     useEffect(() => {
@@ -115,21 +112,44 @@ const AppointmentForm = () => {
 
     // Load danh sách bác sĩ hoặc dịch vụ khi chọn loại khám
     useEffect(() => {
-        if (appointmentType === 'DOCTOR') {
-            loadDoctors();
+        if (appointmentType === 'CHUYEN_KHOA') {
+            loadDepartments();
         } else if (appointmentType) {
             loadServices(appointmentType);
         }
     }, [appointmentType]);
 
-    const loadDoctors = async () => {
+    const loadDepartments = async () => {
         try {
             setLoading(true);
-            const response = await appointmentService.getDoctors();
-            setDoctors(response.data || []);
+            const response = await appointmentService.getDepartments();
+            setDepartments(response || []);
+        } catch (error) {
+            toast.error('Không thể tải danh sách chuyên khoa');
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Load doctors when department is selected
+    useEffect(() => {
+        if (appointmentType === 'CHUYEN_KHOA' && selectedDepartment) {
+            loadDoctorsByDepartment();
+        }
+    }, [selectedDepartment, appointmentType]);
+
+    const loadDoctorsByDepartment = async () => {
+        try {
+            setLoading(true);
+            // Gọi API lấy bác sĩ theo khoa cụ thể
+            const response = await appointmentService.getDoctorsByDepartment(selectedDepartment.id);
+            // API trả về array trực tiếp, không có wrapper data
+            setDoctors(Array.isArray(response) ? response : []);
         } catch (error) {
             toast.error('Không thể tải danh sách bác sĩ');
             console.error(error);
+            setDoctors([]);
         } finally {
             setLoading(false);
         }
@@ -152,34 +172,51 @@ const AppointmentForm = () => {
         }
     };
 
-    // Load time slots khi chọn bác sĩ và ngày
+    // Load time slots when date or time changes for CHUYEN_KHOA
     useEffect(() => {
-        if (appointmentType === 'DOCTOR' && selectedDoctor && selectedDate) {
-            loadTimeSlotsForDoctor();
+        if (appointmentType === 'CHUYEN_KHOA' && selectedDepartment && (selectedDate || selectedTime)) {
+            loadAvailableDoctorsForDepartment();
         }
-    }, [selectedDoctor, selectedDate, appointmentType]);
+    }, [selectedDate, selectedTime, selectedShift, appointmentType, selectedDepartment, selectedDoctor]);
 
-    // Load slots cho bác sĩ đã chọn - lấy tất cả ca trong ngày
-    const loadTimeSlotsForDoctor = async () => {
+    // Load available doctors for department based on date/time selection
+    const loadAvailableDoctorsForDepartment = async () => {
         try {
             const params = {
                 startDate: selectedDate,
                 endDate: selectedDate,
-                doctorId: selectedDoctor.id,
             };
+
+            // Nếu đã chọn bác sĩ → dùng doctorId, nếu chưa → dùng departmentId
+            if (selectedDoctor) {
+                params.doctorId = selectedDoctor.id;
+            } else {
+                params.departmentId = selectedDepartment.id;
+            }
+
+            // Add shift if time is selected
+            if (selectedTime) {
+                const hour = parseInt(selectedTime.split(':')[0]);
+                if (hour >= 7 && hour < 13) {
+                    params.shift = 'SANG';
+                } else if (hour >= 13 && hour < 17) {
+                    params.shift = 'CHIEU';
+                } else {
+                    params.shift = 'TOI';
+                }
+            }
 
             const response = await appointmentService.getAvailableSchedules(params);
             if (response.data && response.data.length > 0) {
                 const dayData = response.data[0];
-                // Lưu tất cả slots của bác sĩ (có thể có nhiều ca: SANG, CHIEU, TOI)
+                // Lưu tất cả doctors available trong ngày
                 setAvailableSlots(dayData.doctors || []);
             } else {
                 setAvailableSlots([]);
             }
         } catch (error) {
-            toast.error('Không thể tải giờ khả dụng');
-            console.error(error);
-            setAvailableSlots([]); // Lỗi -> disable toàn bộ
+            console.error('Error loading available doctors:', error);
+            setAvailableSlots([]);
         }
     };
 
@@ -206,38 +243,64 @@ const AppointmentForm = () => {
         }
     };
 
-    // Kiểm tra xem time slot có available không (dựa vào API response)
-    const isTimeSlotAvailable = (timeValue, shift) => {
-        // Nếu không có bác sĩ được chọn -> cho phép chọn (chưa load API)
-        if (!selectedDoctor) return true;
+    // Check if doctor is available (for CHUYEN_KHOA flow)
+    const isDoctorAvailable = (doctorId) => {
+        // If no date selected yet, all doctors are available (not grayed out)
+        if (!selectedDate || appointmentType !== 'CHUYEN_KHOA') {
+            return true;
+        }
 
-        // Nếu đã chọn bác sĩ và ngày NHƯNG availableSlots rỗng -> disable toàn bộ (bác sĩ không làm ngày đó)
-        if (selectedDoctor && selectedDate && availableSlots.length === 0) return false;
+        // If availableSlots is empty, all doctors unavailable
+        if (availableSlots.length === 0) {
+            return false;
+        }
 
-        // Tìm slot data cho bác sĩ và ca hiện tại
-        const slotData = availableSlots.find(s =>
-            s.id === selectedDoctor?.id &&
-            (s.shift === shift || s.shift === convertShiftToVietnamese(shift))
-        );
+        // Check if doctor exists in available slots
+        const doctorSlot = availableSlots.find(slot => slot.id === doctorId);
+        
+        if (!doctorSlot) {
+            return false;
+        }
 
-        // Không tìm thấy slot data cho ca này -> disable (bác sĩ không làm ca này)
-        if (!slotData) return false;
+        // If time is selected, also check invalidTimes
+        if (selectedTime && doctorSlot.invalidTimes) {
+            return !doctorSlot.invalidTimes.includes(selectedTime);
+        }
 
-        // Ca làm không available -> disable toàn bộ ca
-        if (!slotData.available) return false;
-
-        // Kiểm tra xem time có trong invalidTimes không
-        return !slotData.invalidTimes.includes(timeValue);
+        // Just check available flag
+        return doctorSlot.available;
     };
 
-    // Convert shift tiếng Anh sang tiếng Việt cho API
-    const convertShiftToVietnamese = (shift) => {
-        const mapping = {
-            'MORNING': 'SANG',
-            'AFTERNOON': 'CHIEU',
-            'EVENING': 'TOI'
-        };
-        return mapping[shift] || shift;
+    // Check if time slot is available (khi đã chọn bác sĩ và ngày)
+    const isTimeSlotAvailable = (timeValue, shift) => {
+        // Nếu chưa chọn bác sĩ và ngày → tất cả giờ available
+        if (!selectedDoctor || !selectedDate) {
+            return true;
+        }
+
+        // Nếu availableSlots rỗng → tất cả giờ unavailable
+        if (availableSlots.length === 0) {
+            return false;
+        }
+
+        // Tìm slot của bác sĩ trong ca này
+        const doctorSlot = availableSlots.find(s => 
+            s.id === selectedDoctor.id && 
+            (s.shift === shift || s.shift === shift.toUpperCase())
+        );
+
+        // Không tìm thấy slot cho ca này → unavailable
+        if (!doctorSlot) {
+            return false;
+        }
+
+        // Ca không available → unavailable
+        if (!doctorSlot.available) {
+            return false;
+        }
+
+        // Kiểm tra xem giờ có trong invalidTimes không
+        return !doctorSlot.invalidTimes.includes(timeValue);
     };
 
     const handleSubmit = () => {
@@ -250,11 +313,17 @@ const AppointmentForm = () => {
             toast.error('Vui lòng chọn loại khám');
             return;
         }
-        if (appointmentType === 'DOCTOR' && !selectedDoctor) {
-            toast.error('Vui lòng chọn bác sĩ');
-            return;
+        if (appointmentType === 'CHUYEN_KHOA') {
+            if (!selectedDepartment) {
+                toast.error('Vui lòng chọn chuyên khoa');
+                return;
+            }
+            if (!selectedDoctor) {
+                toast.error('Vui lòng chọn bác sĩ');
+                return;
+            }
         }
-        if (appointmentType !== 'DOCTOR' && !selectedService) {
+        if (appointmentType !== 'CHUYEN_KHOA' && !selectedService) {
             toast.error('Vui lòng chọn dịch vụ');
             return;
         }
@@ -282,7 +351,7 @@ const AppointmentForm = () => {
                 symptoms: symptoms || '',
             };
 
-            if (appointmentType === 'DOCTOR') {
+            if (appointmentType === 'CHUYEN_KHOA') {
                 appointmentData.doctorId = selectedDoctor.id;
                 appointmentData.healthPlanId = null;
             } else {
@@ -332,7 +401,7 @@ const AppointmentForm = () => {
     };
 
     const getSelectedDoctorOrServiceName = () => {
-        if (appointmentType === 'DOCTOR' && selectedDoctor) {
+        if (appointmentType === 'CHUYEN_KHOA' && selectedDoctor) {
             return selectedDoctor.fullName;
         } else if (selectedService) {
             return selectedService.name;
@@ -444,10 +513,10 @@ const AppointmentForm = () => {
                                             setAppointmentType(e.target.value);
                                             setSelectedDoctor(null);
                                             setSelectedService(null);
-                                            setSelectedDate(defaultDate);
-                                            setSelectedTime('');
-                                            setSelectedShift('');
+                                            setSelectedDepartment(null);
+                                            setDoctors([]);
                                             setAvailableSlots([]);
+                                            // DON'T reset date and time - they should persist
                                         }}
                                         required
                                     >
@@ -460,36 +529,71 @@ const AppointmentForm = () => {
                                     </select>
                                 </div>
 
-                                {/* Chọn dịch vụ - Hiển thị luôn */}
+                                {/* Chọn chuyên khoa (only for CHUYEN_KHOA) */}
+                                {appointmentType === 'CHUYEN_KHOA' && (
+                                    <div className="form-group">
+                                        <label>Chọn chuyên khoa <span className="required">*</span></label>
+                                        <select
+                                            className="form-control"
+                                            value={selectedDepartment?.id || ''}
+                                            onChange={(e) => {
+                                                const dept = departments.find(d => d.id === parseInt(e.target.value));
+                                                setSelectedDepartment(dept);
+                                                setSelectedDoctor(null);
+                                                setDoctors([]); // Reset doctors list
+                                                setAvailableSlots([]); // Reset available slots
+                                                // DON'T reset date and time
+                                            }}
+                                            required
+                                        >
+                                            <option value="">-- Chọn chuyên khoa --</option>
+                                            {departments.map((dept) => (
+                                                <option key={dept.id} value={dept.id}>
+                                                    {dept.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+
+                                {/* Chọn bác sĩ hoặc dịch vụ - Hiển thị luôn */}
                                 <div className="form-group">
                                     <label>
-                                        {appointmentType === 'DOCTOR' ? 'Chọn bác sĩ' :
-                                            appointmentType === 'CHUYEN_KHOA' ? 'Chọn chuyên khoa' :
-                                                appointmentType === 'XET_NGHIEM' ? 'Chọn xét nghiệm' :
-                                                    appointmentType === 'DICH_VU' ? 'Chọn gói khám' :
-                                                        'Chọn dịch vụ'}
+                                        {appointmentType === 'CHUYEN_KHOA' ? 'Chọn bác sĩ' :
+                                            appointmentType === 'XET_NGHIEM' ? 'Chọn xét nghiệm' :
+                                                appointmentType === 'DICH_VU' ? 'Chọn gói khám' :
+                                                    'Chọn dịch vụ'}
                                         <span className="required">*</span>
                                     </label>
-                                    {appointmentType === 'DOCTOR' ? (
+                                    {appointmentType === 'CHUYEN_KHOA' ? (
                                         <select
                                             className="form-control"
                                             value={selectedDoctor?.id || ''}
                                             onChange={(e) => {
                                                 const doctor = doctors.find(d => d.id === parseInt(e.target.value));
                                                 setSelectedDoctor(doctor);
-                                                setSelectedTime('');
-                                                setAvailableSlots([]); // Reset slots khi đổi bác sĩ
-                                                setSelectedShift(''); // Reset shift
                                             }}
                                             required
-                                            disabled={!appointmentType}
+                                            disabled={!appointmentType || (appointmentType === 'CHUYEN_KHOA' && !selectedDepartment)}
                                         >
                                             <option value="">-- Chọn bác sĩ --</option>
-                                            {doctors.map((doctor) => (
-                                                <option key={doctor.id} value={doctor.id}>
-                                                    {doctor.position}
-                                                </option>
-                                            ))}
+                                            {doctors.map((doctor) => {
+                                                const isAvailable = isDoctorAvailable(doctor.id);
+                                                return (
+                                                    <option 
+                                                        key={doctor.id} 
+                                                        value={doctor.id}
+                                                        disabled={!isAvailable}
+                                                        style={!isAvailable ? { 
+                                                            color: '#999', 
+                                                            backgroundColor: '#f5f5f5',
+                                                            textDecoration: 'line-through'
+                                                        } : {}}
+                                                    >
+                                                        {doctor.position} {!isAvailable ? '(Không khả dụng)' : ''}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     ) : (
                                         <select
@@ -498,17 +602,14 @@ const AppointmentForm = () => {
                                             onChange={(e) => {
                                                 const service = services.find(s => s.id === parseInt(e.target.value));
                                                 setSelectedService(service);
-                                                setSelectedDate('');
-                                                setSelectedTime('');
                                             }}
                                             required
-                                            disabled={!appointmentType || appointmentType === 'DOCTOR'}
+                                            disabled={!appointmentType || appointmentType === 'CHUYEN_KHOA'}
                                         >
                                             <option value="">
-                                                {appointmentType === 'CHUYEN_KHOA' ? '-- Chọn chuyên khoa --' :
-                                                    appointmentType === 'XET_NGHIEM' ? '-- Chọn xét nghiệm --' :
-                                                        appointmentType === 'DICH_VU' ? '-- Chọn gói khám --' :
-                                                            '-- Chọn dịch vụ --'}
+                                                {appointmentType === 'XET_NGHIEM' ? '-- Chọn xét nghiệm --' :
+                                                    appointmentType === 'DICH_VU' ? '-- Chọn gói khám --' :
+                                                        '-- Chọn dịch vụ --'}
                                             </option>
                                             {services.map((service) => (
                                                 <option key={service.id} value={service.id}>
@@ -534,7 +635,6 @@ const AppointmentForm = () => {
                                                 max={formatDate(new Date(Date.now() + 8 * 24 * 60 * 60 * 1000))}
                                                 onChange={(e) => {
                                                     setSelectedDate(e.target.value);
-                                                    setSelectedTime('');
                                                 }}
                                                 required
                                             />
@@ -553,61 +653,57 @@ const AppointmentForm = () => {
                                                     // Tự động xác định ca khám dựa trên giờ được chọn
                                                     const hour = parseInt(time.split(':')[0]);
                                                     if (hour >= 7 && hour < 13) {
-                                                        setSelectedShift('MORNING');
+                                                        setSelectedShift('SANG');
                                                     } else if (hour >= 13 && hour < 17) {
-                                                        setSelectedShift('AFTERNOON');
+                                                        setSelectedShift('CHIEU');
                                                     } else {
-                                                        setSelectedShift('EVENING');
+                                                        setSelectedShift('TOI');
                                                     }
                                                 }}
                                                 required
-                                                disabled={appointmentType === 'DOCTOR' && !selectedDoctor}
                                             >
                                                 <option value="">-- Chọn giờ khám --</option>
                                                 <optgroup label="Buổi sáng (7:00 - 12:00)">
                                                     {TIME_SLOTS_MORNING.map((slot) => {
-                                                        const isDisabled = appointmentType === 'DOCTOR' && selectedDoctor &&
-                                                            !isTimeSlotAvailable(slot.value, 'MORNING');
+                                                        const isAvailable = isTimeSlotAvailable(slot.value, 'SANG');
                                                         return (
                                                             <option
                                                                 key={slot.value}
                                                                 value={slot.value}
-                                                                disabled={isDisabled}
-                                                                style={isDisabled ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
+                                                                disabled={!isAvailable}
+                                                                style={!isAvailable ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
                                                             >
-                                                                {slot.label} {isDisabled ? '' : ''}
+                                                                {slot.label}
                                                             </option>
                                                         );
                                                     })}
                                                 </optgroup>
                                                 <optgroup label="Buổi chiều (13:00 - 17:00)">
                                                     {TIME_SLOTS_AFTERNOON.map((slot) => {
-                                                        const isDisabled = appointmentType === 'DOCTOR' && selectedDoctor &&
-                                                            !isTimeSlotAvailable(slot.value, 'AFTERNOON');
+                                                        const isAvailable = isTimeSlotAvailable(slot.value, 'CHIEU');
                                                         return (
                                                             <option
                                                                 key={slot.value}
                                                                 value={slot.value}
-                                                                disabled={isDisabled}
-                                                                style={isDisabled ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
+                                                                disabled={!isAvailable}
+                                                                style={!isAvailable ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
                                                             >
-                                                                {slot.label} {isDisabled ? '' : ''}
+                                                                {slot.label}
                                                             </option>
                                                         );
                                                     })}
                                                 </optgroup>
                                                 <optgroup label="Buổi tối (17:00 - 23:00)">
                                                     {TIME_SLOTS_EVENING.map((slot) => {
-                                                        const isDisabled = appointmentType === 'DOCTOR' && selectedDoctor &&
-                                                            !isTimeSlotAvailable(slot.value, 'EVENING');
+                                                        const isAvailable = isTimeSlotAvailable(slot.value, 'TOI');
                                                         return (
                                                             <option
                                                                 key={slot.value}
                                                                 value={slot.value}
-                                                                disabled={isDisabled}
-                                                                style={isDisabled ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
+                                                                disabled={!isAvailable}
+                                                                style={!isAvailable ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
                                                             >
-                                                                {slot.label} {isDisabled ? '' : ''}
+                                                                {slot.label}
                                                             </option>
                                                         );
                                                     })}
@@ -680,7 +776,7 @@ const AppointmentForm = () => {
                                         <span>{APPOINTMENT_TYPES.find(t => t.value === appointmentType)?.label}</span>
                                     </div>
                                     <div className="confirm-item">
-                                        <strong>{appointmentType === 'DOCTOR' ? 'Bác sĩ' : 'Dịch vụ'}:</strong>
+                                        <strong>{appointmentType === 'CHUYEN_KHOA' ? 'Bác sĩ' : 'Dịch vụ'}:</strong>
                                         <span>{getSelectedDoctorOrServiceName()}</span>
                                     </div>
                                     <div className="confirm-item">

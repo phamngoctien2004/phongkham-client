@@ -650,3 +650,13 @@ response
 }
 
 
+
+
+Luồng hiển thị bác sĩ, khung giờ hợp lệ
+Khi người dùng bấm chọn chuyên khoa sẽ load tất cả chuyên khoa
+Người dùng chọn chuyên khoa 
+Hiển thị bác sĩ
+Nếu người dùng đã chọn ngày hoặc ngày và giờ dựa vào kết quả từ /schedules/available
+tô đen những bác sĩ không hợp lệ (available = false hoặc trường hợp đã chọn giờ thì dựa thêm cả vào invalidTimes để tô đen bác sĩ)
+- lưu ý ngày và giờ không reset giá trị mỗi khi chọn các chuyên khoa hay bác sĩ khác (mà chỉ thay đổi khi người dùng thao tác)
+ 

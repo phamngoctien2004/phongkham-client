@@ -11,6 +11,16 @@ const appointmentService = {
         return apiRequest('/doctors', 'GET', null, false);
     },
 
+    // Lấy danh sách bác sĩ theo khoa/chuyên khoa
+    getDoctorsByDepartment: async (departmentId) => {
+        return apiRequest(`/departments/${departmentId}/doctors`, 'GET', null, false);
+    },
+
+    // Lấy danh sách chuyên khoa
+    getDepartments: async () => {
+        return apiRequest('/departments', 'GET', null, false);
+    },
+
     // Lấy danh sách bằng cấp
     getDegrees: async () => {
         return apiRequest('/degrees', 'GET', null, false);
