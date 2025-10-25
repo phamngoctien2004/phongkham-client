@@ -183,6 +183,37 @@ const AppointmentForm = () => {
         }
     }, [selectedDate, appointmentType, selectedDoctor]);
 
+    // ⭐ Kiểm tra giờ đã chọn có còn hợp lệ không sau khi availableSlots thay đổi
+    useEffect(() => {
+        if (appointmentType === 'CHUYEN_KHOA' && selectedDoctor && selectedDate && selectedTime && availableSlots.length > 0) {
+            const hour = parseInt(selectedTime.split(':')[0]);
+            let shift;
+            if (hour >= 7 && hour < 13) {
+                shift = 'SANG';
+            } else if (hour >= 13 && hour < 17) {
+                shift = 'CHIEU';
+            } else {
+                shift = 'TOI';
+            }
+
+            const doctorSlot = availableSlots.find(s =>
+                s.id === selectedDoctor.id && s.shift === shift
+            );
+
+            if (doctorSlot) {
+                const isInvalid = !doctorSlot.available || doctorSlot.invalidTimes.includes(selectedTime);
+                if (isInvalid) {
+                    toast.warning(`Khung giờ ${selectedTime.substring(0, 5)} không hợp lệ cho bác sĩ này. Vui lòng chọn khung giờ khác.`);
+                    setSelectedTime(''); // Reset time
+                }
+            } else {
+                // Không tìm thấy ca này
+                toast.warning(`Bác sĩ không có lịch làm việc trong ca này. Vui lòng chọn khung giờ khác.`);
+                setSelectedTime('');
+            }
+        }
+    }, [availableSlots, appointmentType, selectedDoctor, selectedDate, selectedTime]);
+
     // Load available schedules based on current selections
     const loadAvailableSchedules = async () => {
         try {
@@ -294,6 +325,35 @@ const AppointmentForm = () => {
             if (!selectedDoctor) {
                 toast.error('Vui lòng chọn bác sĩ');
                 return;
+            }
+
+            // ⭐ VALIDATION MỚI: Kiểm tra giờ có hợp lệ với bác sĩ không
+            if (selectedDate && selectedTime) {
+                const hour = parseInt(selectedTime.split(':')[0]);
+                let shift;
+                if (hour >= 7 && hour < 13) {
+                    shift = 'SANG';
+                } else if (hour >= 13 && hour < 17) {
+                    shift = 'CHIEU';
+                } else {
+                    shift = 'TOI';
+                }
+
+                const doctorSlot = availableSlots.find(s =>
+                    s.id === selectedDoctor.id && s.shift === shift
+                );
+
+                if (doctorSlot) {
+                    const isInvalid = !doctorSlot.available || doctorSlot.invalidTimes.includes(selectedTime);
+                    if (isInvalid) {
+                        toast.error('Khung giờ đã chọn không hợp lệ cho bác sĩ này. Vui lòng chọn khung giờ khác.');
+                        return;
+                    }
+                } else if (availableSlots.length > 0) {
+                    // Có availableSlots nhưng không tìm thấy ca này → bác sĩ không làm ca này
+                    toast.error('Bác sĩ không có lịch làm việc trong ca này. Vui lòng chọn khung giờ khác.');
+                    return;
+                }
             }
         }
         if (appointmentType !== 'CHUYEN_KHOA' && !selectedService) {
@@ -555,33 +615,7 @@ const AppointmentForm = () => {
                                                 const doctor = doctors.find(d => d.id === parseInt(doctorId));
                                                 setSelectedDoctor(doctor);
 
-                                                // Nếu đã chọn giờ trước, kiểm tra giờ đó có hợp lệ với bác sĩ mới không
-                                                if (selectedDate && selectedTime && doctor) {
-                                                    const hour = parseInt(selectedTime.split(':')[0]);
-                                                    let shift;
-                                                    if (hour >= 7 && hour < 13) {
-                                                        shift = 'SANG';
-                                                    } else if (hour >= 13 && hour < 17) {
-                                                        shift = 'CHIEU';
-                                                    } else {
-                                                        shift = 'TOI';
-                                                    }
-
-                                                    // Đợi API response từ useEffect
-                                                    setTimeout(() => {
-                                                        const doctorSlot = availableSlots.find(s =>
-                                                            s.id === doctor.id && s.shift === shift
-                                                        );
-
-                                                        if (doctorSlot) {
-                                                            const isInvalid = !doctorSlot.available || doctorSlot.invalidTimes.includes(selectedTime);
-                                                            if (isInvalid) {
-                                                                toast.warning('Khung giờ đã chọn không hợp lệ cho bác sĩ này. Vui lòng chọn khung giờ khác.');
-                                                                setSelectedTime(''); // Reset time
-                                                            }
-                                                        }
-                                                    }, 500); // Đợi API response
-                                                }
+                                                // useEffect sẽ tự động kiểm tra và cảnh báo nếu giờ không hợp lệ
                                             }}
                                             required
                                             disabled={!appointmentType || (appointmentType === 'CHUYEN_KHOA' && !selectedDepartment)}
