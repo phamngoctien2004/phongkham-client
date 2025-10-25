@@ -485,7 +485,7 @@ const AppointmentForm = () => {
                                             <option value="">-- Chọn bác sĩ --</option>
                                             {doctors.map((doctor) => (
                                                 <option key={doctor.id} value={doctor.id}>
-                                                    {doctor.fullName} - {doctor.position}
+                                                    {doctor.position}
                                                 </option>
                                             ))}
                                         </select>
@@ -510,7 +510,7 @@ const AppointmentForm = () => {
                                             </option>
                                             {services.map((service) => (
                                                 <option key={service.id} value={service.id}>
-                                                    {service.name} - {service.price?.toLocaleString('vi-VN')}đ
+                                                    {service.name}
                                                 </option>
                                             ))}
                                         </select>
