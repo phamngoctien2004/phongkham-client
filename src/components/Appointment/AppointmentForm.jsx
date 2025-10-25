@@ -258,7 +258,7 @@ const AppointmentForm = () => {
             return false;
         }
 
-        const doctorSlot = availableSlots.find(s => 
+        const doctorSlot = availableSlots.find(s =>
             s.id === selectedDoctor.id && s.shift === shiftName
         );
 
@@ -544,17 +544,17 @@ const AppointmentForm = () => {
                                             value={selectedDoctor?.id || ''}
                                             onChange={(e) => {
                                                 const doctorId = e.target.value;
-                                                
+
                                                 // Nếu chọn "-- Chọn bác sĩ --" (value = "")
                                                 if (!doctorId) {
                                                     setSelectedDoctor(null);
                                                     setAvailableSlots([]); // Clear slots → tất cả giờ available
                                                     return;
                                                 }
-                                                
+
                                                 const doctor = doctors.find(d => d.id === parseInt(doctorId));
                                                 setSelectedDoctor(doctor);
-                                                
+
                                                 // Nếu đã chọn giờ trước, kiểm tra giờ đó có hợp lệ với bác sĩ mới không
                                                 if (selectedDate && selectedTime && doctor) {
                                                     const hour = parseInt(selectedTime.split(':')[0]);
@@ -566,13 +566,13 @@ const AppointmentForm = () => {
                                                     } else {
                                                         shift = 'TOI';
                                                     }
-                                                    
+
                                                     // Đợi API response từ useEffect
                                                     setTimeout(() => {
-                                                        const doctorSlot = availableSlots.find(s => 
+                                                        const doctorSlot = availableSlots.find(s =>
                                                             s.id === doctor.id && s.shift === shift
                                                         );
-                                                        
+
                                                         if (doctorSlot) {
                                                             const isInvalid = !doctorSlot.available || doctorSlot.invalidTimes.includes(selectedTime);
                                                             if (isInvalid) {
@@ -588,8 +588,8 @@ const AppointmentForm = () => {
                                         >
                                             <option value="">-- Chọn bác sĩ --</option>
                                             {doctors.map((doctor) => (
-                                                <option 
-                                                    key={doctor.id} 
+                                                <option
+                                                    key={doctor.id}
                                                     value={doctor.id}
                                                 >
                                                     {doctor.fullName} - {doctor.position}
@@ -650,7 +650,7 @@ const AppointmentForm = () => {
                                                 value={selectedTime}
                                                 onChange={(e) => {
                                                     const time = e.target.value;
-                                                    
+
                                                     // Nếu đã chọn bác sĩ, kiểm tra khung giờ mới có hợp lệ không
                                                     if (selectedDoctor && selectedDate && time) {
                                                         const hour = parseInt(time.split(':')[0]);
@@ -662,12 +662,12 @@ const AppointmentForm = () => {
                                                         } else {
                                                             shift = 'TOI';
                                                         }
-                                                        
+
                                                         // Kiểm tra khung giờ có hợp lệ không
-                                                        const doctorSlot = availableSlots.find(s => 
+                                                        const doctorSlot = availableSlots.find(s =>
                                                             s.id === selectedDoctor.id && s.shift === shift
                                                         );
-                                                        
+
                                                         if (doctorSlot) {
                                                             const isInvalid = !doctorSlot.available || doctorSlot.invalidTimes.includes(time);
                                                             if (isInvalid) {
@@ -676,7 +676,7 @@ const AppointmentForm = () => {
                                                             }
                                                         }
                                                     }
-                                                    
+
                                                     setSelectedTime(time);
                                                     // Tự động xác định ca khám dựa trên giờ được chọn
                                                     const hour = parseInt(time.split(':')[0]);
