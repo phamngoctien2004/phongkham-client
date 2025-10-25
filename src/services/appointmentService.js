@@ -18,7 +18,7 @@ const appointmentService = {
 
     // Lấy danh sách dịch vụ/gói khám
     getServices: async (type = null) => {
-        const url = type ? `/services?type=${type}` : '/services';
+        const url = type ? `/services/optional?type=${type}` : '/services';
         return apiRequest(url, 'GET', null, false);
     },
 
