@@ -822,6 +822,10 @@
                 "degreeName": "Bác sĩ Chuyên khoa II",
                 "examinationFee": 5000
             },
+            "departmentResponse": {
+                "id": 3,
+                "name": "abc"
+            }
             "position": "TS. NGUYEN VAN A",
             "examinationFee": 5000,
             "available": true,
@@ -836,6 +840,10 @@
                 "degreeName": "Thạc sĩ Y học",
                 "examinationFee": 4000
             },
+              "departmentResponse": {
+                "id": 3,
+                "name": "abc"
+            }
             "position": "ThS. TRAN VAN T",
             "examinationFee": 4000,
             "available": true,

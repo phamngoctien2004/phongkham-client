@@ -15,6 +15,7 @@ const Services = ({ isHomePage = false }) => {
   const [error, setError] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedType, setSelectedType] = useState('');
+  const [selectedPriceRange, setSelectedPriceRange] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +27,11 @@ const Services = ({ isHomePage = false }) => {
 
         // Handle response structure - could be array or object with data property
         let processedData = Array.isArray(data) ? data : (data?.data || []);
+
+        // Lọc bỏ các dịch vụ có tên "Khám bệnh"
+        processedData = processedData.filter(service =>
+          service.name.toLowerCase() !== 'khám bệnh'
+        );
 
         // Nếu là trang chủ, chỉ lấy 3 dịch vụ loại DICH_VU
         if (isHomePage) {
@@ -48,7 +54,7 @@ const Services = ({ isHomePage = false }) => {
     fetchServices();
   }, [isHomePage]);
 
-  // Filter services based on search keyword and type (chỉ cho trang /services)
+  // Filter services based on search keyword, type, and price range (chỉ cho trang /services)
   useEffect(() => {
     if (isHomePage) {
       // Trang chủ không cần filter
@@ -62,6 +68,23 @@ const Services = ({ isHomePage = false }) => {
       filtered = filtered.filter(service => service.type === selectedType);
     }
 
+    // Filter by price range
+    if (selectedPriceRange) {
+      filtered = filtered.filter(service => {
+        const price = service.price || 0;
+        switch (selectedPriceRange) {
+          case 'under1m':
+            return price < 1000000;
+          case '1m-3m':
+            return price >= 1000000 && price <= 3000000;
+          case 'over3m':
+            return price > 3000000;
+          default:
+            return true;
+        }
+      });
+    }
+
     // Filter by keyword
     if (searchKeyword.trim()) {
       filtered = filtered.filter(service =>
@@ -71,7 +94,7 @@ const Services = ({ isHomePage = false }) => {
     }
 
     setFilteredServices(filtered);
-  }, [searchKeyword, selectedType, services, isHomePage]);
+  }, [searchKeyword, selectedType, selectedPriceRange, services, isHomePage]);
 
   // Icon mapping based on service type
   const getServiceIcon = (type) => {
@@ -105,6 +128,7 @@ const Services = ({ isHomePage = false }) => {
   const handleReset = () => {
     setSearchKeyword('');
     setSelectedType('');
+    setSelectedPriceRange('');
   };
 
   return (
@@ -121,7 +145,7 @@ const Services = ({ isHomePage = false }) => {
       ) : (
         <div className="container">
           <SectionTitle
-            title="Dịch vụ khám"
+            title="Gói khám"
             subtitle=""
             disableAnimation={!isHomePage}
           />
@@ -136,7 +160,7 @@ const Services = ({ isHomePage = false }) => {
               <div className="">
                 <div className="card-body">
                   <div className="row g-3">
-                    <div className="col-md-5">
+                    <div className="col-md-4">
                       <label className="form-label fw-bold">
                         <i className="fas fa-search me-2"></i>
                         Tìm kiếm dịch vụ
@@ -149,7 +173,7 @@ const Services = ({ isHomePage = false }) => {
                         onChange={(e) => setSearchKeyword(e.target.value)}
                       />
                     </div>
-                    <div className="col-md-5">
+                    <div className="col-md-3">
                       <label className="form-label fw-bold">
                         <i className="fas fa-filter me-2"></i>
                         Loại dịch vụ
@@ -160,9 +184,24 @@ const Services = ({ isHomePage = false }) => {
                         onChange={(e) => setSelectedType(e.target.value)}
                       >
                         <option value="">Tất cả loại dịch vụ</option>
-                        <option value="DICH_VU">Dịch vụ khám</option>
+                        <option value="DICH_VU">Gói khám</option>
                         <option value="XET_NGHIEM">Xét nghiệm</option>
-                        <option value="CHUYEN_KHOA">Chuyên khoa</option>
+                      </select>
+                    </div>
+                    <div className="col-md-3">
+                      <label className="form-label fw-bold">
+                        <i className="fas fa-dollar-sign me-2"></i>
+                        Khoảng giá
+                      </label>
+                      <select
+                        className="form-select"
+                        value={selectedPriceRange}
+                        onChange={(e) => setSelectedPriceRange(e.target.value)}
+                      >
+                        <option value="">Tất cả mức giá</option>
+                        <option value="under1m">Dưới 1 triệu</option>
+                        <option value="1m-3m">1 - 3 triệu</option>
+                        <option value="over3m">Trên 3 triệu</option>
                       </select>
                     </div>
                     <div className="col-md-2 d-flex align-items-end">
@@ -175,7 +214,7 @@ const Services = ({ isHomePage = false }) => {
                       </button>
                     </div>
                   </div>
-                  {(searchKeyword || selectedType) && (
+                  {(searchKeyword || selectedType || selectedPriceRange) && (
                     <div className="mt-3">
                       <small className="text-muted">
                         <i className="fas fa-info-circle me-1"></i>

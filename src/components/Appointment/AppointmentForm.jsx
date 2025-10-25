@@ -80,15 +80,24 @@ const AppointmentForm = () => {
         loadPatients();
     }, []);
 
-    // Auto-select doctor if coming from doctor card - removed since no DOCTOR type
-    // useEffect(() => {
-    //     if (location.state?.selectedDoctor) {
-    //         const doctor = location.state.selectedDoctor;
-    //         setAppointmentType('DOCTOR');
-    //         setSelectedDoctor(doctor);
-    //         toast.success(`Đã chọn bác sĩ: ${doctor.fullName}`);
-    //     }
-    // }, [location.state]);
+    // Auto-select doctor if coming from doctor card
+    useEffect(() => {
+        if (location.state?.selectedDoctor) {
+            const doctor = location.state.selectedDoctor;
+            // Tự động chọn loại khám chuyên khoa
+            setAppointmentType('CHUYEN_KHOA');
+
+            // Nếu bác sĩ có thông tin khoa, tự động chọn khoa
+            if (doctor.departmentResponse) {
+                setSelectedDepartment(doctor.departmentResponse);
+            }
+
+            // Tự động chọn bác sĩ
+            setSelectedDoctor(doctor);
+            // Chỉ hiển thị 1 thông báo duy nhất
+            toast.success(`Đặt lịch khám với ${doctor.fullName}`);
+        }
+    }, [location.state]);
 
     // Auto-select service if coming from service detail page
     useEffect(() => {
@@ -132,12 +141,12 @@ const AppointmentForm = () => {
         }
     };
 
-    // Load doctors when department is selected
+    // Load doctors when department is selected OR when coming from doctor card
     useEffect(() => {
-        if (appointmentType === 'CHUYEN_KHOA' && selectedDepartment) {
+        if (appointmentType === 'CHUYEN_KHOA' && selectedDepartment && departments.length > 0) {
             loadDoctorsByDepartment();
         }
-    }, [selectedDepartment, appointmentType]);
+    }, [selectedDepartment, appointmentType, departments]);
 
     const loadDoctorsByDepartment = async () => {
         try {
@@ -543,11 +552,15 @@ const AppointmentForm = () => {
                                         className="form-control"
                                         value={appointmentType}
                                         onChange={(e) => {
-                                            setAppointmentType(e.target.value);
-                                            setSelectedDoctor(null);
+                                            const newType = e.target.value;
+                                            setAppointmentType(newType);
+                                            // Chỉ reset nếu thay đổi type khác với type đã auto-select
+                                            if (!location.state?.selectedDoctor || newType !== 'CHUYEN_KHOA') {
+                                                setSelectedDoctor(null);
+                                                setSelectedDepartment(null);
+                                                setDoctors([]);
+                                            }
                                             setSelectedService(null);
-                                            setSelectedDepartment(null);
-                                            setDoctors([]);
                                             setAvailableSlots([]);
                                             // DON'T reset date and time - they should persist
                                         }}
@@ -572,8 +585,11 @@ const AppointmentForm = () => {
                                             onChange={(e) => {
                                                 const dept = departments.find(d => d.id === parseInt(e.target.value));
                                                 setSelectedDepartment(dept);
-                                                setSelectedDoctor(null);
-                                                setDoctors([]); // Reset doctors list
+                                                // Chỉ reset doctor nếu người dùng thay đổi department khác
+                                                if (!location.state?.selectedDoctor || dept?.id !== location.state.selectedDoctor.departmentResponse?.id) {
+                                                    setSelectedDoctor(null);
+                                                }
+                                                setDoctors([]); // Reset doctors list to reload
                                                 setAvailableSlots([]); // Reset available slots
                                                 // DON'T reset date and time
                                             }}

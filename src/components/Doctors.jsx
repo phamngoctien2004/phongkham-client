@@ -12,10 +12,12 @@ const Doctors = ({ isHomePage = false }) => {
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [degrees, setDegrees] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedDegree, setSelectedDegree] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState('');
   const navigate = useNavigate();
 
   // Placeholder images
@@ -40,11 +42,15 @@ const Doctors = ({ isHomePage = false }) => {
         setDoctors(doctorsArray);
         setFilteredDoctors(doctorsArray);
 
-        // Fetch degrees (only on full page, not homepage)
+        // Fetch degrees and departments (only on full page, not homepage)
         if (!isHomePage) {
           const degreesData = await appointmentService.getDegrees();
           const degreesArray = Array.isArray(degreesData) ? degreesData : (degreesData?.data || []);
           setDegrees(degreesArray);
+
+          const departmentsData = await appointmentService.getDepartments();
+          const departmentsArray = Array.isArray(departmentsData) ? departmentsData : (departmentsData?.data || []);
+          setDepartments(departmentsArray);
         }
       } catch (err) {
         console.error('Error fetching doctors:', err);
@@ -58,7 +64,7 @@ const Doctors = ({ isHomePage = false }) => {
     fetchData();
   }, [isHomePage]);
 
-  // Filter doctors based on search and degree
+  // Filter doctors based on search, degree, and department
   useEffect(() => {
     if (isHomePage) {
       // Homepage: no filtering
@@ -74,6 +80,13 @@ const Doctors = ({ isHomePage = false }) => {
       );
     }
 
+    // Filter by department
+    if (selectedDepartment) {
+      filtered = filtered.filter(
+        (doctor) => doctor.departmentResponse?.id === parseInt(selectedDepartment)
+      );
+    }
+
     // Filter by name
     if (searchKeyword.trim()) {
       filtered = filtered.filter((doctor) =>
@@ -82,7 +95,7 @@ const Doctors = ({ isHomePage = false }) => {
     }
 
     setFilteredDoctors(filtered);
-  }, [searchKeyword, selectedDegree, doctors, isHomePage]);
+  }, [searchKeyword, selectedDegree, selectedDepartment, doctors, isHomePage]);
 
   // Get doctor image - use placeholder if not available
   const getDoctorImage = (doctor, index) => {
@@ -95,11 +108,12 @@ const Doctors = ({ isHomePage = false }) => {
   const handleReset = () => {
     setSearchKeyword('');
     setSelectedDegree('');
+    setSelectedDepartment('');
   };
 
   const handleDoctorDetail = (doctor) => {
-    toast.success(`Đặt lịch khám với ${doctor.fullName}`);
     // Navigate to appointment page with selected doctor
+    // Thông báo sẽ được hiển thị ở trang đặt lịch
     navigate('/dat-lich', {
       state: {
         selectedDoctor: doctor,
@@ -137,7 +151,7 @@ const Doctors = ({ isHomePage = false }) => {
               <div className="">
                 <div className="card-body">
                   <div className="row g-3">
-                    <div className="col-md-5">
+                    <div className="col-md-4">
                       <label className="form-label fw-bold">
                         <i className="fas fa-search me-2"></i>
                         Tìm kiếm bác sĩ
@@ -150,7 +164,25 @@ const Doctors = ({ isHomePage = false }) => {
                         onChange={(e) => setSearchKeyword(e.target.value)}
                       />
                     </div>
-                    <div className="col-md-5">
+                    <div className="col-md-3">
+                      <label className="form-label fw-bold">
+                        <i className="fas fa-hospital me-2"></i>
+                        Chuyên khoa
+                      </label>
+                      <select
+                        className="form-select"
+                        value={selectedDepartment}
+                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                      >
+                        <option value="">Tất cả chuyên khoa</option>
+                        {departments.map((department) => (
+                          <option key={department.id} value={department.id}>
+                            {department.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-3">
                       <label className="form-label fw-bold">
                         <i className="fas fa-graduation-cap me-2"></i>
                         Bằng cấp
@@ -180,7 +212,7 @@ const Doctors = ({ isHomePage = false }) => {
                   </div>
 
                   {/* Filter results info */}
-                  {(searchKeyword || selectedDegree) && (
+                  {(searchKeyword || selectedDegree || selectedDepartment) && (
                     <div className="mt-3">
                       <small className="text-muted">
                         <i className="fas fa-info-circle me-1"></i>
