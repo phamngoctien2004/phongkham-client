@@ -1,51 +1,3 @@
-### 14.3 Lấy lịch khả dụng
-**Endpoint:** `GET /api/schedules/available`
-
-**Mô tả:** Lọc lịch làm việc khả dụng
-
-**Query Parameters:**
-- `startDate` (required): Ngày bắt đầu (yyyy-MM-dd)
-- `endDate` (required): Ngày kết thúc (yyyy-MM-dd)
-- `departmentId` (optional): ID khoa
-- `doctorId` (optional): ID bác sĩ
-- `shift` (optional): Ca làm việc (MORNING, AFTERNOON, EVENING)
-
-**Response:**
-```json
-{
-    "data": [
-        {
-            "date": "2025-10-20",
-            "dateName": "MONDAY",
-            "totalSlot": 2,
-            "doctors": [
-                {
-                    "id": 1,
-                    "fullName": "tien",
-                    "position": "PGS. Phạm Tiến",
-                    "available": true,
-                    "invalidTimes": [
-                        "09:00:00"
-                    ],
-                    "shift": "SANG"
-                },
-                {
-                    "id": 1,
-                    "fullName": "tien",
-                    "position": "PGS. Phạm Tiến",
-                    "available": true,
-                    "invalidTimes": [
-                        "15:00:00"
-                    ],
-                    "shift": "CHIEU"
-                }
-            ]
-        }
-    ],
-    "message": "get available slots success"
-}
-```
-
 
 
 ### Base URL: `/api/appointments`
@@ -650,13 +602,3 @@ response
 }
 
 
-
-
-Luồng hiển thị bác sĩ, khung giờ hợp lệ
-Khi người dùng bấm chọn chuyên khoa sẽ load tất cả chuyên khoa
-Người dùng chọn chuyên khoa 
-Hiển thị bác sĩ
-Nếu người dùng đã chọn ngày hoặc ngày và giờ dựa vào kết quả từ /schedules/available
-tô đen những bác sĩ không hợp lệ (available = false hoặc trường hợp đã chọn giờ thì dựa thêm cả vào invalidTimes để tô đen bác sĩ)
-- lưu ý ngày và giờ không reset giá trị mỗi khi chọn các chuyên khoa hay bác sĩ khác (mà chỉ thay đổi khi người dùng thao tác)
- 
