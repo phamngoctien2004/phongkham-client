@@ -13,3 +13,5 @@ export { default as ServiceCard } from './ServiceCard';
 export { default as DoctorCard } from './DoctorCard';
 export { default as Modal } from './Modal';
 export { default as PageBanner } from './PageBanner';
+
+export { default as ChatButton } from './ChatButton';

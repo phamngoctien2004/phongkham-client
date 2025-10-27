@@ -1,0 +1,33 @@
+.chat-button-wrapper {
+    position: fixed;
+    right: 10px;
+    bottom: 100px;
+    z-index: 1000;
+}
+
+.chat-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 28px;
+    color: #007bff;
+    position: relative;
+    text-decoration: none;
+}
+
+.chat-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 14px;
+    height: 14px;
+    background: #e53935;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e53935;
+}
