@@ -8,7 +8,11 @@ const ChatWindow = () => {
     const { user } = useAuth();
 
     const getConversationTitle = () => {
-        if (!activeConversation) return '';
+        if (!activeConversation) {
+            // Nếu chưa có conversation, hiển thị tiêu đề mặc định
+            const userFromStorage = JSON.parse(localStorage.getItem('user') || '{}');
+            return userFromStorage?.role === 'BENH_NHAN' ? 'Nhân viên tư vấn' : 'Chat';
+        }
 
         // Lấy user từ localStorage để check role
         const userFromStorage = JSON.parse(localStorage.getItem('user') || '{}');
@@ -21,18 +25,7 @@ const ChatWindow = () => {
         return activeConversation.patientName || 'Nhân viên tư vấn';
     };
 
-    if (!activeConversation) {
-        return (
-            <div className="chat-window-empty">
-                <div className="empty-state">
-                    <i className="bi bi-chat-square-text"></i>
-                    <h3>Chào mừng đến với Chat</h3>
-                    <p>Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu</p>
-                </div>
-            </div>
-        );
-    }
-
+    // Luôn hiển thị chat window, ngay cả khi chưa có conversation
     return (
         <div className="chat-window">
             <div className="chat-header">
@@ -57,7 +50,22 @@ const ChatWindow = () => {
                 </div>
             </div>
 
-            <MessageList />
+            {activeConversation ? (
+                <MessageList />
+            ) : (
+                <div className="message-list" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#65676b',
+                    fontSize: '14px'
+                }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <i className="bi bi-chat-dots" style={{ fontSize: '48px', marginBottom: '12px', display: 'block' }}></i>
+                        <p>Bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn</p>
+                    </div>
+                </div>
+            )}
 
             <MessageInput />
         </div>

@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ChatProvider, useChat } from './contexts/ChatContext';
 import { useAuth } from './contexts/AuthContext';
 import { ChatButton } from './components/ui';
+import ChatPopup from './components/Chat/ChatPopup';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
@@ -32,12 +33,19 @@ import AOS from 'aos';
 
 function ChatButtonWrapper() {
   const { isAuthenticated } = useAuth();
-  const { isChatOpen, conversations } = useChat();
+  const { isChatOpen, isChatPopupOpen, toggleChatPopup, conversations } = useChat();
+
   // Tính có tin nhắn mới ở bất kỳ conversation nào
   const hasUnread = conversations.some((conv) => conv.newMessage);
-  // Hiển thị khi đã đăng nhập và không ở phòng chat
+  // Đếm số conversation có tin nhắn mới
+  const unreadCount = conversations.filter((conv) => conv.newMessage).length;
+
+  console.log('[ChatButtonWrapper] conversations:', conversations);
+  console.log('[ChatButtonWrapper] hasUnread:', hasUnread, 'unreadCount:', unreadCount);
+
+  // Hiển thị khi đã đăng nhập và không ở phòng chat page
   if (!isAuthenticated || isChatOpen) return null;
-  return <ChatButton hasUnread={hasUnread} />;
+  return <ChatButton hasUnread={hasUnread} unreadCount={unreadCount} onClick={toggleChatPopup} isOpen={isChatPopupOpen} />;
 }
 
 function App() {
@@ -59,6 +67,7 @@ function App() {
         <ChatProvider>
           <Toaster position="top-right" richColors />
           <ChatButtonWrapper />
+          <ChatPopup />
           <Routes>
             {/* Public Routes - Authentication */}
             <Route path="/login" element={<Login />} />

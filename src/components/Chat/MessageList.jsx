@@ -68,8 +68,17 @@ const MessageList = () => {
 
     // Auto scroll to unread divider when conversation first loads
     useEffect(() => {
-        // Chỉ hiển thị divider nếu chưa từng hiển thị lần nào
+        // Chỉ hiển thị divider nếu chưa từng hiển thị lần nào VÀ có tin nhắn chưa đọc
         if (messages.length > 0 && lastReadId && !hasScrolledToUnread.current && !dividerShownOnceRef.current) {
+            // Kiểm tra xem có tin nhắn nào chưa đọc không
+            const hasUnreadMessages = messages.some(msg => msg.id > lastReadId);
+
+            if (!hasUnreadMessages) {
+                console.log('[Unread Divider] No unread messages, skipping divider');
+                dividerShownOnceRef.current = true; // Đánh dấu để không hiển thị nữa
+                return;
+            }
+
             // Scroll to unread divider after a short delay to ensure DOM is ready
             setTimeout(() => {
                 if (unreadDividerRef.current) {
@@ -91,13 +100,22 @@ const MessageList = () => {
             }, 200);
         }
 
+        // Nếu lastReadId thay đổi (ví dụ sau khi gửi tin nhắn), ẩn divider
+        if (dividerShownOnceRef.current && lastReadId) {
+            const hasUnreadMessages = messages.some(msg => msg.id > lastReadId);
+            if (!hasUnreadMessages && showUnreadDivider) {
+                console.log('[Unread Divider] lastReadId updated, hiding divider');
+                setShowUnreadDivider(false);
+            }
+        }
+
         // Cleanup timeout khi component unmount hoặc conversation thay đổi
         return () => {
             if (hideDividerTimeoutRef.current) {
                 clearTimeout(hideDividerTimeoutRef.current);
             }
         };
-    }, [messages, lastReadId]);
+    }, [messages, lastReadId, showUnreadDivider]);
 
     // Auto scroll to bottom when new message arrives
     useEffect(() => {
@@ -202,6 +220,10 @@ const MessageList = () => {
         if (!lastReadId || lastReadId === 0) return false;
 
         const currentId = currentMessage.id;
+        const isMine = isMyMessage(currentMessage);
+
+        // Không hiển thị divider cho tin nhắn của chính mình
+        if (isMine) return false;
 
         // Show divider if:
         // 1. Current message is the first unread (id > lastReadId)
@@ -260,13 +282,14 @@ const MessageList = () => {
                             </div>
                         )}
 
-                        {showUnreadDividerBefore && showUnreadDivider && (
+                        {/* Đã tắt dòng phân cách "Tin nhắn chưa đọc" */}
+                        {/* {showUnreadDividerBefore && showUnreadDivider && (
                             <div className="unread-divider" ref={unreadDividerRef}>
                                 <div className="unread-divider-line"></div>
                                 <span className="unread-divider-text">Tin nhắn chưa đọc</span>
                                 <div className="unread-divider-line"></div>
                             </div>
-                        )}
+                        )} */}
 
                         <div className={`message-wrapper ${isMine ? 'mine' : 'theirs'}`}>
                             {!isMine && (

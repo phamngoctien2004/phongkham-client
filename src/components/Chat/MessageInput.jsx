@@ -55,7 +55,6 @@ const MessageInput = () => {
 
     const handleSend = async () => {
         if (!messageText.trim() && uploadedImageUrls.length === 0) return;
-        if (!activeConversation) return;
 
         try {
             // Send message with uploaded URLs
@@ -77,10 +76,7 @@ const MessageInput = () => {
         }
     };
 
-    if (!activeConversation) {
-        return null;
-    }
-
+    // Luôn hiển thị input, ngay cả khi chưa có conversation
     return (
         <div className="message-input-container">
             {uploadedImageUrls.length > 0 && (

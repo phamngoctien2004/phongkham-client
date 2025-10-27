@@ -1,0 +1,177 @@
+/* ========== Chat Popup Container (Facebook Messenger Style) ========== */
+.chat-popup-container {
+    position: fixed;
+    bottom: 0;
+    right: 100px;
+    /* Dịch sang trái để không đè lên nút chat và scroll to top */
+    z-index: 9998;
+    /* Thấp hơn chat button (9999) */
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+/* ========== Chat Popup Window ========== */
+.chat-popup-window {
+    width: 360px;
+    height: 520px;
+    background: white;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ========== Chat Popup Header ========== */
+.chat-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #0084ff, #00c6ff);
+    color: white;
+    cursor: move;
+    /* Có thể drag nếu muốn thêm tính năng */
+}
+
+.chat-popup-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-popup-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-popup-action-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+}
+
+.chat-popup-action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ========== Chat Popup Body ========== */
+.chat-popup-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #f0f2f5;
+}
+
+/* Adjust ChatWindow for popup */
+.chat-popup-body .chat-window {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    width: 100%;
+    height: 100%;
+}
+
+.chat-popup-body .chat-header {
+    display: none;
+    /* Ẩn header của ChatWindow vì đã có header ở popup */
+}
+
+.chat-popup-body .message-list {
+    background: white;
+}
+
+/* ========== Empty State ========== */
+.chat-popup-body .chat-window-empty {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.chat-popup-body .empty-state {
+    text-align: center;
+    padding: 20px;
+}
+
+.chat-popup-body .empty-state i {
+    font-size: 48px;
+    color: #65676b;
+    margin-bottom: 12px;
+}
+
+.chat-popup-body .empty-state h3 {
+    font-size: 18px;
+    color: #050505;
+    margin-bottom: 8px;
+}
+
+.chat-popup-body .empty-state p {
+    font-size: 14px;
+    color: #65676b;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+    .chat-popup-container {
+        right: 80px;
+        /* Giảm khoảng cách trên tablet */
+        left: 10px;
+    }
+
+    .chat-popup-window {
+        width: 100%;
+        max-width: 360px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-popup-container {
+        right: 0;
+        left: 0;
+    }
+
+    .chat-popup-window {
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .chat-popup-header {
+        border-radius: 0;
+    }
+}

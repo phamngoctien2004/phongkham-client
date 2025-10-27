@@ -143,23 +143,6 @@ const Header = () => {
           {isAuthenticated ? (
             <div className="d-none d-sm-flex align-items-center" style={{ gap: '10px' }}>
               <Link
-                to="/chat"
-                className="cta-btn"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  whiteSpace: 'nowrap',
-                  background: 'transparent',
-                  border: '2px solid var(--accent-color)',
-                  color: 'var(--accent-color)'
-                }}
-              >
-                <i className="bi bi-chat-dots"></i>
-                Chat
-              </Link>
-
-              <Link
                 to="/dat-lich"
                 className="cta-btn cta-btn-appointment"
                 style={{
