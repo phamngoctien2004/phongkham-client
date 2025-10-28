@@ -58,14 +58,20 @@ const apiRequest = async (endpoint, method = 'GET', body = null, requireAuth = t
     const config = {
         method: method,
         headers: {
-            'Content-Type': 'application/json',
             // Chỉ gửi token nếu requireAuth = true
             ...(requireAuth && token && { Authorization: `Bearer ${token}` }),
         },
     };
 
-    if (body && method !== 'GET') {
-        config.body = JSON.stringify(body);
+    // Kiểm tra nếu body là FormData thì không set Content-Type (browser tự động set với boundary)
+    if (body instanceof FormData) {
+        config.body = body;
+    } else {
+        // Với JSON data
+        config.headers['Content-Type'] = 'application/json';
+        if (body && method !== 'GET') {
+            config.body = JSON.stringify(body);
+        }
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);

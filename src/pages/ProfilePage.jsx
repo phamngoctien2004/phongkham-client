@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import appointmentService from '../services/appointmentService';
@@ -6,11 +6,16 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ChangePasswordModal from '../components/Auth/ChangePasswordModal';
 import InvoiceModal from '../components/MedicalRecord/InvoiceModal';
+import EditProfileModal from '../components/Profile/EditProfileModal';
+import AddFamilyMemberModal from '../components/Profile/AddFamilyMemberModal';
+import EditFamilyMemberModal from '../components/Profile/EditFamilyMemberModal';
 import '../assets/css/profile.css';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
+    const fileInputRef = useRef(null);
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
     const [profile, setProfile] = useState(null);
     const [activeTab, setActiveTab] = useState('account'); // account, history, password, services
     const [appointments, setAppointments] = useState([]);
@@ -25,11 +30,18 @@ const ProfilePage = () => {
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const [selectedRecordId, setSelectedRecordId] = useState(null);
 
+    // Profile Edit Modal State
+    const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+    const [isAddFamilyMemberModalOpen, setIsAddFamilyMemberModalOpen] = useState(false);
+    const [isEditFamilyMemberModalOpen, setIsEditFamilyMemberModalOpen] = useState(false);
+    const [selectedFamilyMember, setSelectedFamilyMember] = useState(null);
+
     // State for family member medical records view
     const [showMemberRecords, setShowMemberRecords] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [memberRecords, setMemberRecords] = useState([]);
     const [memberRecordsLoading, setMemberRecordsLoading] = useState(false);
+    const [openMenuId, setOpenMenuId] = useState(null);
 
     // Filters and Pagination
     const [filters, setFilters] = useState({
@@ -56,6 +68,20 @@ const ProfilePage = () => {
             loadFamilyMembers();
         }
     }, [activeTab, filters, pagination.currentPage]);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (openMenuId && !event.target.closest('.member-dropdown-menu') && !event.target.closest('.record-edit-btn')) {
+                setOpenMenuId(null);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [openMenuId]);
 
     const loadProfile = async () => {
         try {
@@ -186,6 +212,100 @@ const ProfilePage = () => {
         }
     };
 
+    const handleEditProfile = () => {
+        setIsEditProfileModalOpen(true);
+    };
+
+    const handleEditProfileSuccess = () => {
+        loadProfile();
+    };
+
+    const handleAddFamilyMember = () => {
+        setIsAddFamilyMemberModalOpen(true);
+    };
+
+    const handleAddFamilyMemberSuccess = () => {
+        loadFamilyMembers();
+    };
+
+    const handleEditFamilyMember = (member) => {
+        setSelectedFamilyMember(member);
+        setIsEditFamilyMemberModalOpen(true);
+    };
+
+    const handleEditFamilyMemberSuccess = () => {
+        loadFamilyMembers();
+        if (showMemberRecords && selectedMember) {
+            loadMemberRecords(selectedMember.id);
+        }
+    };
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Vui lòng chọn file ảnh');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Kích thước ảnh không được vượt quá 5MB');
+            return;
+        }
+
+        try {
+            setUploading(true);
+            const response = await appointmentService.uploadFile(file, 'avatars');
+
+            // API trả về mảng URLs, lấy URL đầu tiên
+            const imageUrl = response.data?.[0];
+
+            if (imageUrl) {
+                // Update profile image via API
+                await appointmentService.updatePatient({
+                    id: profile.id,
+                    profileImage: imageUrl
+                });
+
+                // Reload profile to get updated data
+                await loadProfile();
+                toast.success('Cập nhật ảnh đại diện thành công!');
+            }
+        } catch (error) {
+            toast.error(error.message || 'Tải ảnh lên thất bại');
+            console.error(error);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const toggleMenu = (memberId) => {
+        setOpenMenuId(openMenuId === memberId ? null : memberId);
+    };
+
+    const handleDeleteFamilyMember = async (memberId, memberName) => {
+        if (!window.confirm(`Bạn có chắc chắn muốn xóa thành viên "${memberName}" khỏi danh sách?`)) {
+            return;
+        }
+
+        try {
+            await appointmentService.deleteFamilyMember(memberId);
+            toast.success('Xóa thành viên thành công!');
+            loadFamilyMembers();
+            setOpenMenuId(null);
+        } catch (error) {
+            toast.error(error.message || 'Xóa thành viên thất bại');
+            console.error(error);
+        }
+    };
+
     if (loading) {
         return (
             <>
@@ -234,15 +354,39 @@ const ProfilePage = () => {
                                                 <i className="bi bi-person-circle"></i>
                                             </div>
                                         )}
-                                        <button className="avatar-edit-btn">
+                                        {uploading && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: 'white',
+                                                borderRadius: '50%',
+                                                fontSize: '24px'
+                                            }}>
+                                                <i className="bi bi-hourglass-split"></i>
+                                            </div>
+                                        )}
+                                        <button className="avatar-edit-btn" onClick={handleAvatarClick} disabled={uploading}>
                                             <i className="bi bi-camera"></i>
                                         </button>
                                     </div>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        style={{ display: 'none' }}
+                                    />
                                     <div className="profile-user-email">
                                         <i className="bi bi-envelope"></i>
                                         <span>{profile.email || profile.phone}</span>
                                     </div>
-                                    <button className="btn btn-light btn-sid">Nhập SID</button>
                                 </div>
 
                                 {/* Menu */}
@@ -295,7 +439,16 @@ const ProfilePage = () => {
                             <div className="profile-content">
                                 {activeTab === 'account' && (
                                     <div className="content-section">
-                                        <h2 className="section-title">Thông tin tài khoản</h2>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                            <h2 className="section-title" style={{ marginBottom: 0 }}>Thông tin tài khoản</h2>
+                                            <button
+                                                className="btn btn-primary"
+                                                onClick={handleEditProfile}
+                                                style={{ padding: '8px 20px', fontSize: '14px' }}
+                                            >
+                                                <i className="bi bi-pencil-square"></i> Chỉnh sửa
+                                            </button>
+                                        </div>
 
                                         {/* Đăng nhập */}
                                         <div className="info-card">
@@ -654,7 +807,16 @@ const ProfilePage = () => {
                                     <div className="content-section">
                                         {!showMemberRecords ? (
                                             <>
-                                                <h2 className="section-title">Thành viên gia đình</h2>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                                    <h2 className="section-title" style={{ marginBottom: 0 }}>Thành viên gia đình</h2>
+                                                    <button
+                                                        className="btn btn-primary"
+                                                        onClick={handleAddFamilyMember}
+                                                        style={{ padding: '8px 20px', fontSize: '14px' }}
+                                                    >
+                                                        <i className="bi bi-person-plus"></i> Thêm thành viên
+                                                    </button>
+                                                </div>
 
                                                 {familyMembersLoading ? (
                                                     <div className="appointments-loading">
@@ -694,9 +856,40 @@ const ProfilePage = () => {
                                                                             <h3 className="record-patient-name">{member.fullName}</h3>
                                                                             <div className="record-code">{member.code}</div>
                                                                         </div>
-                                                                        <button className="record-edit-btn" onClick={() => toast.info('Chức năng đang phát triển')}>
-                                                                            <i className="bi bi-pencil"></i> EDIT
-                                                                        </button>
+                                                                        <div style={{ position: 'relative' }}>
+                                                                            <button
+                                                                                className="record-edit-btn"
+                                                                                onClick={() => toggleMenu(member.id)}
+                                                                                style={{ padding: '5px 10px' }}
+                                                                            >
+                                                                                <i className="bi bi-three-dots-vertical"></i>
+                                                                            </button>
+                                                                            {openMenuId === member.id && (
+                                                                                <div className="member-dropdown-menu">
+                                                                                    <button onClick={() => {
+                                                                                        handleViewMemberDetail(member.id);
+                                                                                        setOpenMenuId(null);
+                                                                                    }}>
+                                                                                        <i className="bi bi-file-medical"></i>
+                                                                                        Xem hồ sơ khám bệnh
+                                                                                    </button>
+                                                                                    <button onClick={() => {
+                                                                                        handleEditFamilyMember(member);
+                                                                                        setOpenMenuId(null);
+                                                                                    }}>
+                                                                                        <i className="bi bi-pencil"></i>
+                                                                                        Cập nhật thông tin
+                                                                                    </button>
+                                                                                    <button
+                                                                                        onClick={() => handleDeleteFamilyMember(member.id, member.fullName)}
+                                                                                        style={{ color: '#dc3545' }}
+                                                                                    >
+                                                                                        <i className="bi bi-trash"></i>
+                                                                                        Xóa thành viên
+                                                                                    </button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
                                                                     </div>
 
                                                                     {/* Body - Info Grid */}
@@ -705,7 +898,7 @@ const ProfilePage = () => {
                                                                             <i className="bi bi-envelope"></i>
                                                                             <div className="record-info-text">
                                                                                 <div className="record-info-label">Email</div>
-                                                                                <div className="record-info-value">{member.email || profile?.email || '--'}</div>
+                                                                                <div className="record-info-value">{member.email || '-'}</div>
                                                                             </div>
                                                                         </div>
 
@@ -713,7 +906,7 @@ const ProfilePage = () => {
                                                                             <i className="bi bi-geo-alt"></i>
                                                                             <div className="record-info-text">
                                                                                 <div className="record-info-label">City</div>
-                                                                                <div className="record-info-value">{member.address || profile?.address || '--'}</div>
+                                                                                <div className="record-info-value">{member.address || '-'}</div>
                                                                             </div>
                                                                         </div>
 
@@ -722,7 +915,7 @@ const ProfilePage = () => {
                                                                             <div className="record-info-text">
                                                                                 <div className="record-info-label">Ngày sinh</div>
                                                                                 <div className="record-info-value">
-                                                                                    {member.birth ? new Date(member.birth).toLocaleDateString('vi-VN') : '--'}
+                                                                                    {member.birth ? new Date(member.birth).toLocaleDateString('vi-VN') : '-'}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -731,7 +924,7 @@ const ProfilePage = () => {
                                                                             <i className="bi bi-telephone"></i>
                                                                             <div className="record-info-text">
                                                                                 <div className="record-info-label">Phone</div>
-                                                                                <div className="record-info-value">{member.phone || profile?.phone || '--'}</div>
+                                                                                <div className="record-info-value">{member.phone || '-'}</div>
                                                                             </div>
                                                                         </div>
 
@@ -746,7 +939,11 @@ const ProfilePage = () => {
                                                                                                 member.relationship === 'CON' ? 'Con' :
                                                                                                     member.relationship === 'VO' ? 'Vợ' :
                                                                                                         member.relationship === 'CHONG' ? 'Chồng' :
-                                                                                                            member.relationship || '--'}
+                                                                                                            member.relationship === 'ANH_TRAI' ? 'Anh trai' :
+                                                                                                                member.relationship === 'CHI_GAI' ? 'Chị gái' :
+                                                                                                                    member.relationship === 'EM_TRAI' ? 'Em trai' :
+                                                                                                                        member.relationship === 'EM_GAI' ? 'Em gái' :
+                                                                                                                            member.relationship || '--'}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -758,17 +955,6 @@ const ProfilePage = () => {
                                                                                 <div className="record-info-value">Việt Nam</div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-
-                                                                    {/* Footer - Actions */}
-                                                                    <div className="record-card-footer">
-                                                                        <button
-                                                                            className="btn-view-detail"
-                                                                            onClick={() => handleViewMemberDetail(member.id)}
-                                                                            title="Xem hồ sơ khám bệnh"
-                                                                        >
-                                                                            <i className="bi bi-file-medical-fill"></i> Hồ sơ khám bệnh
-                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -887,6 +1073,29 @@ const ProfilePage = () => {
                 isOpen={isInvoiceModalOpen}
                 onClose={handleCloseInvoiceModal}
                 medicalRecordId={selectedRecordId}
+            />
+
+            {/* Edit Profile Modal */}
+            <EditProfileModal
+                isOpen={isEditProfileModalOpen}
+                onClose={() => setIsEditProfileModalOpen(false)}
+                profile={profile}
+                onSuccess={handleEditProfileSuccess}
+            />
+
+            {/* Add Family Member Modal */}
+            <AddFamilyMemberModal
+                isOpen={isAddFamilyMemberModalOpen}
+                onClose={() => setIsAddFamilyMemberModalOpen(false)}
+                onSuccess={handleAddFamilyMemberSuccess}
+            />
+
+            {/* Edit Family Member Modal */}
+            <EditFamilyMemberModal
+                isOpen={isEditFamilyMemberModalOpen}
+                onClose={() => setIsEditFamilyMemberModalOpen(false)}
+                member={selectedFamilyMember}
+                onSuccess={handleEditFamilyMemberSuccess}
             />
 
             <Footer />

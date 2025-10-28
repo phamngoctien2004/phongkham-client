@@ -35,6 +35,20 @@ export const ChatProvider = ({ children }) => {
 
             // Load conversations khi user đăng nhập
             loadConversations();
+        } else {
+            // Khi user logout (user = null), đóng chat popup và reset state
+            setIsChatPopupOpen(false);
+            setIsChatOpen(false);
+            setActiveConversation(null);
+            setConversations([]);
+            setMessages([]);
+            setWsConnected(false);
+
+            // Ngắt kết nối WebSocket
+            if (activeConversation) {
+                websocketService.unsubscribeFromChatConversation(activeConversation.id);
+            }
+            websocketService.disconnect();
         }
 
         return () => {

@@ -1114,7 +1114,7 @@ response
 ### 5.4 Cập nhật thông tin bệnh nhân
 **Endpoint:** `PUT /api/patients`
 
-**Mô tả:** Cập nhật thông tin bệnh nhân
+**Mô tả:** Cập nhật thông tin bệnh nhân và tài khoản (nếu số điện thoại khác sdt cũ)
 
 **Request Body:**
 ```json
@@ -1151,9 +1151,7 @@ response
         "birth": "2030-08-15",
         "gender": "NAM",
         "profileImage": null,
-        "relationship": null,
         "email": null,
-        "verified": false
     },
     "message": "Update patient successfully"
 }
@@ -1296,16 +1294,39 @@ response
 **Request Body:**
 ```json
 {
-  "cccd": "string",
-  "relationship": "string"
+  "phone": 1111111111,
+  "email": "tuan@gmail.com",
+  "fullName": "Pham ngoc Tuan",
+  "address": "PHU DIEN HUU HOA THANH TRI TP.HN",
+  "cccd": "001204020080",
+  "birth": "2030-08-15",
+  "gender": "NAM",
+  "bloodType": "O",
+  "weight": 60.5,
+  "height": 176.2,
 }
 ```
 
 **Response:**
 ```json
 {
-  "data": "",
-  "message": "Add relationship successfully"
+    "data": {
+        "id": 49,
+        "code": "BN1758267777182",
+        "bloodType": "O",
+        "weight": 60.5,
+        "height": 176.2,
+        "registrationDate": "2025-09-19T14:42:57",
+        "fullName": "Pham ngoc Tuan",
+        "phone": "1111111111",
+        "address": "PHU DIEN HUU HOA THANH TRI TP.HN",
+        "cccd": "001204020080",
+        "birth": "2030-08-15",
+        "gender": "NAM",
+        "profileImage": null,
+        "email": null,
+    },
+    "message": "adđ relatinship successfully"
 }
 ```
 
@@ -3464,9 +3485,24 @@ response
 ---
 
 
-## 18. upload image api
+## 18. upload images api
 **Endpoint:** ``/api/files/multiple ``
 **mô tả** upload nhiều ảnh
+
+body dạng form data
+files, type (xn,avatars)
+
+**response**
+```
+{
+    "https://files.tienpndev.id.vn/phongkham/xn/xn/af3a6cd8-0015-4836-ae5e-6621f2644d9f.png",
+    "message": "Upload files successfully"
+}
+```
+
+## 18.1 upload image api
+**Endpoint:** ``/api/files``
+**mô tả** upload 1 ảnh
 
 body dạng form data
 files, type (xn,avatars)

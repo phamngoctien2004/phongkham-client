@@ -345,7 +345,6 @@ const PaymentPage = () => {
 
                                     {/* Thanh toán */}
                                     <div className="detail-section payment-summary">
-                                        <h4><i className="bi bi-cash-coin"></i> Thanh toán</h4>
                                         <div className="total-amount">
                                             <span>Tổng tiền:</span>
                                             <strong>{totalAmount.toLocaleString('vi-VN')}đ</strong>
@@ -355,9 +354,11 @@ const PaymentPage = () => {
                                             <span className={`status-badge ${status}`}>
                                                 {status === 'CHO_THANH_TOAN' ? 'Chờ thanh toán' :
                                                     status === 'DA_THANH_TOAN' ? 'Đã thanh toán' :
-                                                        status === 'HUY' || status === 'DA_HUY' ? 'Đã hủy' :
-                                                            status === 'HOAN_THANH' ? 'Hoàn thành' :
-                                                                status}
+                                                        status === 'DA_XAC_NHAN' ? 'Đã xác nhận' :
+                                                            status === 'DANG_KHAM' ? 'Đang khám' :
+                                                                status === 'HUY' || status === 'DA_HUY' ? 'Đã hủy' :
+                                                                    status === 'HOAN_THANH' ? 'Hoàn thành' :
+                                                                        status}
                                             </span>
                                         </div>
                                         {(status === 'HUY' || status === 'DA_HUY') && (

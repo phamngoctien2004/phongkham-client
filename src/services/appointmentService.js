@@ -94,6 +94,40 @@ const appointmentService = {
     getLabOrderDetail: async (id) => {
         return apiRequest(`/lab-orders/${id}`, 'GET');
     },
+
+    // Xác nhận/Thay đổi trạng thái lịch hẹn
+    confirmAppointment: async (id, status) => {
+        return apiRequest('/appointments/confirm', 'PUT', { id, status });
+    },
+
+    // Cập nhật thông tin bệnh nhân
+    updatePatient: async (patientData) => {
+        return apiRequest('/patients', 'PUT', patientData);
+    },
+
+    // Thêm quan hệ bệnh nhân (thành viên gia đình)
+    addFamilyMember: async (memberData) => {
+        return apiRequest('/patients/relationships', 'POST', memberData);
+    },
+
+    // Xác thực quan hệ bệnh nhân với OTP
+    verifyFamilyMember: async (phone, otp) => {
+        return apiRequest('/patients/relationships/verify', 'POST', { phone, otp });
+    },
+
+    // Xóa quan hệ bệnh nhân
+    deleteFamilyMember: async (patientId) => {
+        return apiRequest(`/patients/relationships/${patientId}`, 'DELETE');
+    },
+
+    // Upload file (image)
+    uploadFile: async (file, type = 'avatars') => {
+        const formData = new FormData();
+        formData.append('files', file);
+        formData.append('type', type);
+
+        return apiRequest('/files', 'POST', formData, true);
+    },
 };
 
 export default appointmentService;

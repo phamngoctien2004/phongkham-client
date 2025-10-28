@@ -1,0 +1,125 @@
+/* Profile Modals Styles */
+.profile-modal {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.profile-modal .modal-body {
+    padding: 25px 30px;
+}
+
+.profile-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.profile-modal .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.profile-modal .form-group .required {
+    color: #dc3545;
+    margin-left: 2px;
+}
+
+.profile-modal .form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.profile-modal .form-control:focus {
+    outline: none;
+    border-color: #1e88e5;
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
+
+.profile-modal textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.profile-modal select.form-control {
+    cursor: pointer;
+}
+
+/* OTP Section */
+.otp-section {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.otp-section p {
+    color: #666;
+    font-size: 15px;
+}
+
+.otp-section .form-group {
+    max-width: 300px;
+    margin: 20px auto 0;
+}
+
+/* Modal Footer */
+.profile-modal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px 30px;
+    border-top: 1px solid #eee;
+}
+
+.profile-modal .modal-footer .btn {
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-modal .modal-footer .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.profile-modal .modal-footer .btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.profile-modal .modal-footer .btn-primary {
+    background-color: #1e88e5;
+    color: white;
+}
+
+.profile-modal .modal-footer .btn-primary:hover {
+    background-color: #1976d2;
+}
+
+.profile-modal .modal-footer .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-modal {
+        max-width: 95%;
+        margin: 10px;
+    }
+
+    .profile-modal .modal-body {
+        padding: 20px 15px;
+    }
+
+    .profile-modal .modal-footer {
+        padding: 15px;
+    }
+}
