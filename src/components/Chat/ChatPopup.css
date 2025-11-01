@@ -112,6 +112,16 @@
     background: white;
 }
 
+/* ========== Loading State for Popup ========== */
+.chat-popup-body .chat-loading-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    animation: fadeIn 0.3s ease-in;
+}
+
 /* ========== Empty State ========== */
 .chat-popup-body .chat-window-empty {
     background: white;

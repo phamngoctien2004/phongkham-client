@@ -4,7 +4,7 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
 const ChatWindow = () => {
-    const { activeConversation, wsConnected } = useChat();
+    const { activeConversation, wsConnected, loading } = useChat();
     const { user } = useAuth();
 
     const getConversationTitle = () => {
@@ -50,7 +50,16 @@ const ChatWindow = () => {
                 </div>
             </div>
 
-            {activeConversation ? (
+            {loading && activeConversation ? (
+                <div className="chat-loading-container">
+                    <div className="chat-loading-spinner">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="chat-loading-text">Đang tải tin nhắn...</p>
+                    </div>
+                </div>
+            ) : activeConversation ? (
                 <MessageList />
             ) : (
                 <div className="message-list" style={{

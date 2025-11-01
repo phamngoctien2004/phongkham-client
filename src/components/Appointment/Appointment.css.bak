@@ -1,0 +1,834 @@
+/* Appointment Page Styles - MediLab Theme */
+
+.appointment-page,
+.payment-page {
+    min-height: 100vh;
+    background: var(--background-color, #f8f9fa);
+    padding: 40px 0 60px;
+    font-family: var(--default-font, "Roboto", sans-serif);
+}
+
+/* Header */
+.appointment-header,
+.payment-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.appointment-header h1,
+.payment-header h1 {
+    color: #1e88e5;
+    font-family: var(--heading-font, "Raleway", sans-serif);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.appointment-header p,
+.payment-header p {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Form Container */
+.appointment-form-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.appointment-form {
+    background: var(--surface-color, #ffffff);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Section */
+.form-section {
+    margin-bottom: 25px;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-title {
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.section-title i {
+    display: none;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    color: #333;
+    font-weight: 400;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.required {
+    color: #dc3545;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #1e88e5;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.1);
+}
+
+.form-control:read-only {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.form-control::placeholder {
+    color: #999;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-color, #1977cc);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color, #1977cc), transparent 90%);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Patient Info Display */
+.patient-info {
+    background: color-mix(in srgb, var(--accent-color, #1977cc), transparent 95%);
+    border-left: 4px solid var(--accent-color, #1977cc);
+    border-radius: 6px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.info-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 12px;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-item label {
+    color: color-mix(in srgb, var(--default-color, #444), transparent 30%);
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.info-item span {
+    color: var(--heading-color, #2c4964);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Appointment Types */
+.appointment-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.type-card {
+    background: var(--surface-color, #ffffff);
+    border: 2px solid color-mix(in srgb, var(--default-color, #444), transparent 85%);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.type-card i {
+    font-size: 32px;
+    color: color-mix(in srgb, var(--default-color, #444), transparent 40%);
+    transition: all 0.3s;
+}
+
+.type-card span {
+    color: var(--default-color, #444444);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.type-card:hover {
+    border-color: var(--accent-color, #1977cc);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(25, 119, 204, 0.2);
+}
+
+.type-card:hover i {
+    color: var(--accent-color, #1977cc);
+}
+
+.type-card.active {
+    border-color: var(--accent-color, #1977cc);
+    background: color-mix(in srgb, var(--accent-color, #1977cc), transparent 95%);
+}
+
+.type-card.active i {
+    color: var(--accent-color, #1977cc);
+}
+
+.type-card.active span {
+    color: var(--accent-color, #1977cc);
+}
+
+/* Shift Selector */
+.shift-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.shift-card {
+    background: var(--surface-color, #ffffff);
+    border: 2px solid color-mix(in srgb, var(--default-color, #444), transparent 85%);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.shift-label {
+    color: var(--heading-color, #2c4964);
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.shift-time {
+    color: color-mix(in srgb, var(--default-color, #444), transparent 30%);
+    font-size: 13px;
+}
+
+.shift-card:hover {
+    border-color: var(--accent-color, #1977cc);
+    transform: translateY(-2px);
+}
+
+.shift-card.active {
+    border-color: var(--accent-color, #1977cc);
+    background: color-mix(in srgb, var(--accent-color, #1977cc), transparent 95%);
+}
+
+.shift-card.active .shift-label {
+    color: var(--accent-color, #1977cc);
+}
+
+/* Time Slots */
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+}
+
+.time-slot {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+    font-size: 13px;
+    color: #333;
+}
+
+.time-slot:hover:not(:disabled) {
+    border-color: #1e88e5;
+    background-color: #e3f2fd;
+    color: #1e88e5;
+}
+
+.time-slot.selected {
+    border-color: #1e88e5;
+    background: #1e88e5;
+    color: #ffffff;
+}
+
+.time-slot.disabled {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Form Actions */
+.form-actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 12px 35px;
+    border: none;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--accent-color, #1977cc);
+    color: var(--contrast-color, #ffffff);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent-color, #1977cc), transparent 15%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 119, 204, 0.4);
+}
+
+.btn-primary:disabled {
+    background: color-mix(in srgb, var(--default-color, #444), transparent 60%);
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: color-mix(in srgb, var(--default-color, #444), transparent 85%);
+    color: var(--default-color, #444444);
+}
+
+.btn-secondary:hover {
+    background: color-mix(in srgb, var(--default-color, #444), transparent 75%);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 2px solid var(--accent-color, #1977cc);
+    color: var(--accent-color, #1977cc);
+}
+
+.btn-outline-primary:hover {
+    background: var(--accent-color, #1977cc);
+    color: var(--contrast-color, #ffffff);
+}
+
+.btn-lg {
+    padding: 15px 45px;
+    font-size: 16px;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.modal-content {
+    background: var(--surface-color, #ffffff);
+    border-radius: 10px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid color-mix(in srgb, var(--default-color, #444), transparent 90%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: var(--heading-color, #2c4964);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: color-mix(in srgb, var(--default-color, #444), transparent 30%);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.btn-close:hover {
+    background: color-mix(in srgb, var(--default-color, #444), transparent 90%);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.confirm-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.confirm-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.confirm-item:last-child {
+    border-bottom: none;
+}
+
+.confirm-item strong {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 120px;
+}
+
+.confirm-item span {
+    color: #2c4964;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 20px 30px;
+    border-top: 1px solid color-mix(in srgb, var(--default-color, #444), transparent 90%);
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Payment Page */
+.payment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.qr-section,
+.appointment-details {
+    background: var(--surface-color, #ffffff);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+    height: 100%;
+}
+
+.qr-header,
+.details-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid color-mix(in srgb, var(--accent-color, #1977cc), transparent 90%);
+}
+
+.qr-header i,
+.details-header i {
+    font-size: 40px;
+    color: var(--accent-color, #1977cc);
+    display: block;
+    margin-bottom: 10px;
+}
+
+.qr-header h3,
+.details-header h3 {
+    color: var(--heading-color, #2c4964);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.qr-code-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.qr-code-image {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border: 3px solid color-mix(in srgb, var(--accent-color, #1977cc), transparent 80%);
+    border-radius: 10px;
+    padding: 15px;
+    background: var(--surface-color, #ffffff);
+}
+
+.qr-instructions {
+    margin-top: 20px;
+    text-align: left;
+    background: color-mix(in srgb, var(--accent-color, #1977cc), transparent 95%);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.qr-instructions p {
+    margin: 10px 0;
+    color: var(--default-color, #444444);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.qr-instructions i {
+    color: var(--accent-color, #1977cc);
+    font-size: 20px;
+}
+
+.qr-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: color-mix(in srgb, var(--default-color, #444), transparent 30%);
+}
+
+.qr-loading i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    display: block;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.payment-info-box {
+    background: color-mix(in srgb, var(--accent-color, #1977cc), transparent 95%);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.payment-info-box .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--default-color, #444), transparent 90%);
+}
+
+.payment-info-box .info-row:last-child {
+    border-bottom: none;
+}
+
+.payment-info-box span {
+    color: color-mix(in srgb, var(--default-color, #444), transparent 30%);
+    font-size: 14px;
+}
+
+.payment-info-box strong {
+    color: var(--heading-color, #2c4964);
+    font-size: 15px;
+}
+
+/* Appointment Details */
+.details-content {
+    margin-top: 20px;
+}
+
+.detail-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid color-mix(in srgb, var(--default-color, #444), transparent 90%);
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-section h4 {
+    color: var(--heading-color, #2c4964);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-section h4 i {
+    color: var(--accent-color, #1977cc);
+    font-size: 18px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-item label {
+    color: color-mix(in srgb, var(--default-color, #444), transparent 30%);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.detail-item span {
+    color: var(--heading-color, #2c4964);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.payment-summary {
+    background: color-mix(in srgb, var(--accent-color, #1977cc), transparent 95%);
+    border-radius: 8px;
+    padding: 20px;
+    border: none;
+}
+
+.total-amount {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 2px solid var(--accent-color, #1977cc);
+    margin-bottom: 15px;
+}
+
+.total-amount span {
+    color: var(--default-color, #444444);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.total-amount strong {
+    color: var(--accent-color, #1977cc);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.payment-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-badge.CHO_THANH_TOAN {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.DA_THANH_TOAN {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.HUY,
+.status-badge.DA_HUY {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.HOAN_THANH {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-badge.DANG_KHAM {
+    background: #cff4fc;
+    color: #055160;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.payment-actions .btn {
+    flex: 1;
+    min-width: 150px;
+    justify-content: center;
+}
+
+/* Loading & Error States */
+.loading-spinner,
+.error-message {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--surface-color, #ffffff);
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+}
+
+.loading-spinner i {
+    font-size: 48px;
+    color: var(--accent-color, #1977cc);
+    display: block;
+    margin-bottom: 20px;
+    animation: spin 2s linear infinite;
+}
+
+.loading-spinner p {
+    color: var(--default-color, #444444);
+    font-size: 16px;
+}
+
+.error-message i {
+    font-size: 64px;
+    color: #dc3545;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.error-message h3 {
+    color: var(--heading-color, #2c4964);
+    margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-actions {
+        flex-direction: column;
+    }
+
+    .payment-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .appointment-page,
+    .payment-page {
+        padding: 60px 0 40px;
+    }
+
+    .appointment-form {
+        padding: 25px;
+    }
+
+    .appointment-header h1,
+    .payment-header h1 {
+        font-size: 28px;
+    }
+
+    .appointment-types {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .shift-selector {
+        grid-template-columns: 1fr;
+    }
+
+    .time-slots {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    }
+
+    .info-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .qr-section,
+    .appointment-details {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .appointment-types {
+        grid-template-columns: 1fr;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

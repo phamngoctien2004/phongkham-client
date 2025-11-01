@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import appointmentService from '../../services/appointmentService';
+import TimePickerModal from './TimePickerModal';
 import './Appointment.css';
 
 const APPOINTMENT_TYPES = [
@@ -51,6 +52,7 @@ const AppointmentForm = () => {
     const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showTimePickerModal, setShowTimePickerModal] = useState(false);
 
     // Step 1: Chọn bệnh nhân
     const [patients, setPatients] = useState([]);
@@ -410,13 +412,51 @@ const AppointmentForm = () => {
 
             toast.success('Đặt lịch thành công!');
 
-            // Bước 3: Chuyển sang trang chi tiết lịch hẹn
+            // Chuyển sang trang thanh toán
             navigate(`/dat-lich/thanh-toan/${appointmentId}`);
         } catch (error) {
             toast.error(error.message || 'Đặt lịch thất bại. Vui lòng thử lại.');
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSelectTime = (timeValue) => {
+        // Kiểm tra validation trước khi set time
+        if (selectedDoctor && selectedDate && timeValue) {
+            const hour = parseInt(timeValue.split(':')[0]);
+            let shift;
+            if (hour >= 7 && hour < 13) {
+                shift = 'SANG';
+            } else if (hour >= 13 && hour < 17) {
+                shift = 'CHIEU';
+            } else {
+                shift = 'TOI';
+            }
+
+            const doctorSlot = availableSlots.find(s =>
+                s.id === selectedDoctor.id && s.shift === shift
+            );
+
+            if (doctorSlot) {
+                const isInvalid = !doctorSlot.available || doctorSlot.invalidTimes.includes(timeValue);
+                if (isInvalid) {
+                    toast.warning('Khung giờ này không hợp lệ cho bác sĩ đã chọn. Vui lòng chọn khung giờ khác.');
+                    return;
+                }
+            }
+        }
+
+        setSelectedTime(timeValue);
+        // Tự động xác định ca khám dựa trên giờ được chọn
+        const hour = parseInt(timeValue.split(':')[0]);
+        if (hour >= 7 && hour < 13) {
+            setSelectedShift('SANG');
+        } else if (hour >= 13 && hour < 17) {
+            setSelectedShift('CHIEU');
+        } else {
+            setSelectedShift('TOI');
         }
     };
 
@@ -673,98 +713,35 @@ const AppointmentForm = () => {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <label>Giờ khám</label>
-                                            <select
-                                                className="form-control"
-                                                value={selectedTime}
-                                                onChange={(e) => {
-                                                    const time = e.target.value;
-
-                                                    // Nếu đã chọn bác sĩ, kiểm tra khung giờ mới có hợp lệ không
-                                                    if (selectedDoctor && selectedDate && time) {
-                                                        const hour = parseInt(time.split(':')[0]);
-                                                        let shift;
-                                                        if (hour >= 7 && hour < 13) {
-                                                            shift = 'SANG';
-                                                        } else if (hour >= 13 && hour < 17) {
-                                                            shift = 'CHIEU';
-                                                        } else {
-                                                            shift = 'TOI';
-                                                        }
-
-                                                        // Kiểm tra khung giờ có hợp lệ không
-                                                        const doctorSlot = availableSlots.find(s =>
-                                                            s.id === selectedDoctor.id && s.shift === shift
-                                                        );
-
-                                                        if (doctorSlot) {
-                                                            const isInvalid = !doctorSlot.available || doctorSlot.invalidTimes.includes(time);
-                                                            if (isInvalid) {
-                                                                toast.warning('Khung giờ này không hợp lệ cho bác sĩ đã chọn. Vui lòng chọn khung giờ khác.');
-                                                                return; // Không set time
-                                                            }
-                                                        }
-                                                    }
-
-                                                    setSelectedTime(time);
-                                                    // Tự động xác định ca khám dựa trên giờ được chọn
-                                                    const hour = parseInt(time.split(':')[0]);
-                                                    if (hour >= 7 && hour < 13) {
-                                                        setSelectedShift('SANG');
-                                                    } else if (hour >= 13 && hour < 17) {
-                                                        setSelectedShift('CHIEU');
-                                                    } else {
-                                                        setSelectedShift('TOI');
-                                                    }
-                                                }}
-                                                required
-                                            >
-                                                <option value="">-- Chọn giờ khám --</option>
-                                                <optgroup label="Buổi sáng (7:00 - 12:00)">
-                                                    {TIME_SLOTS_MORNING.map((slot) => {
-                                                        const isAvailable = isTimeSlotAvailable(slot.value, 'SANG');
-                                                        return (
-                                                            <option
-                                                                key={slot.value}
-                                                                value={slot.value}
-                                                                disabled={!isAvailable}
-                                                                style={!isAvailable ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
-                                                            >
-                                                                {slot.label}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </optgroup>
-                                                <optgroup label="Buổi chiều (13:00 - 17:00)">
-                                                    {TIME_SLOTS_AFTERNOON.map((slot) => {
-                                                        const isAvailable = isTimeSlotAvailable(slot.value, 'CHIEU');
-                                                        return (
-                                                            <option
-                                                                key={slot.value}
-                                                                value={slot.value}
-                                                                disabled={!isAvailable}
-                                                                style={!isAvailable ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
-                                                            >
-                                                                {slot.label}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </optgroup>
-                                                <optgroup label="Buổi tối (17:00 - 23:00)">
-                                                    {TIME_SLOTS_EVENING.map((slot) => {
-                                                        const isAvailable = isTimeSlotAvailable(slot.value, 'TOI');
-                                                        return (
-                                                            <option
-                                                                key={slot.value}
-                                                                value={slot.value}
-                                                                disabled={!isAvailable}
-                                                                style={!isAvailable ? { color: '#999', backgroundColor: '#f0f0f0' } : {}}
-                                                            >
-                                                                {slot.label}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </optgroup>
-                                            </select>
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="-- Chọn giờ khám --"
+                                                    value={selectedTime ? (() => {
+                                                        const allSlots = [...TIME_SLOTS_MORNING, ...TIME_SLOTS_AFTERNOON, ...TIME_SLOTS_EVENING];
+                                                        const slot = allSlots.find(s => s.value === selectedTime);
+                                                        return slot ? slot.label : selectedTime.substring(0, 5);
+                                                    })() : ''}
+                                                    readOnly
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={() => setShowTimePickerModal(true)}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary"
+                                                    onClick={() => setShowTimePickerModal(true)}
+                                                    style={{
+                                                        backgroundColor: '#1e88e5',
+                                                        border: 'none',
+                                                        padding: '0 20px',
+                                                        borderRadius: '4px',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
+                                                    <i className="bi bi-clock"></i> Chọn giờ
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -876,6 +853,18 @@ const AppointmentForm = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Time Picker Modal */}
+                <TimePickerModal
+                    isOpen={showTimePickerModal}
+                    onClose={() => setShowTimePickerModal(false)}
+                    onSelectTime={handleSelectTime}
+                    morningSlots={TIME_SLOTS_MORNING}
+                    afternoonSlots={TIME_SLOTS_AFTERNOON}
+                    eveningSlots={TIME_SLOTS_EVENING}
+                    isTimeSlotAvailable={isTimeSlotAvailable}
+                    selectedTime={selectedTime}
+                />
             </div>
         </section>
     );

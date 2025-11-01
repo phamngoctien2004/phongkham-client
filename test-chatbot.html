@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chatbot Y Tế - PageIndex</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .animate-bounce {
+      animation: bounce 1.4s infinite;
+    }
+
+    .animate-bounce:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .animate-bounce:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    // Simplified Icons (sử dụng emoji thay vì lucide-react)
+    const Send = ({ className }) => <span className={className}>📤</span>;
+    const Bot = ({ className }) => <span className={className}>🤖</span>;
+    const User = ({ className }) => <span className={className}>👤</span>;
+    const AlertCircle = ({ className }) => <span className={className}>⚠️</span>;
+    const Calendar = ({ className }) => <span className={className}>📅</span>;
+    const Stethoscope = ({ className }) => <span className={className}>🩺</span>;
+
+    function MedicalChatbot() {
+      const [messages, setMessages] = useState([
+        {
+          role: 'assistant',
+          content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
+        }
+      ]);
+      const [input, setInput] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [expandedSlots, setExpandedSlots] = useState({}); // Track which doctor's slots are expanded
+      const [selectedSlot, setSelectedSlot] = useState(null); // Track selected time slot {doctorId, date, shift, time, messageIndex}
+      const messagesEndRef = useRef(null);
+
+      const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      };
+
+      useEffect(() => {
+        scrollToBottom();
+      }, [messages]);
+
+      const sendMessage = async () => {
+        if (!input.trim() || loading) return;
+
+        const userMessage = { role: 'user', content: input };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setLoading(true);
+
+        try {
+          const response = await fetch('http://localhost:8000/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: input,
+              conversation_history: messages
+            })
+          });
+
+          if (!response.ok) throw new Error('API request failed');
+
+          const data = await response.json();
+
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content: data.response,
+            sources: data.sources,
+            needsAppointment: data.needs_appointment,
+            recommendedDoctors: data.recommended_doctors || []
+          }]);
+
+        } catch (error) {
+          console.error('API Error:', error);
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content: '⚠️ Không thể kết nối đến server backend.\n\nVui lòng đảm bảo:\n1. Backend đang chạy tại http://localhost:8000\n2. Chạy: python chatbot_backend.py\n\nLỗi: ' + error.message,
+            error: true
+          }]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      };
+
+      const handleSlotSelection = (messageIdx, doctorId, date, shift, time, doctorName) => {
+        const slotKey = `${messageIdx}_${doctorId}_${date}_${shift}_${time}`;
+        setSelectedSlot({
+          key: slotKey,
+          messageIndex: messageIdx,
+          doctorId,
+          doctorName,
+          date,
+          shift,
+          time
+        });
+      };
+
+      const handleBookAppointment = (doctor, messageIdx) => {
+        const slotInfo = selectedSlot;
+        if (!slotInfo || slotInfo.messageIndex !== messageIdx || slotInfo.doctorId !== doctor.doctor_id) {
+          alert('⚠️ Vui lòng chọn khung giờ khám trước!');
+          return;
+        }
+
+        const dateObj = new Date(slotInfo.date);
+        const dateStr = dateObj.toLocaleDateString('vi-VN', {
+          weekday: 'long',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const shiftName = slotInfo.shift === 'SANG' ? 'Sáng' :
+          slotInfo.shift === 'CHIEU' ? 'Chiều' : 'Tối';
+
+        const confirmation = confirm(
+          `📅 XÁC NHẬN ĐẶT LỊCH KHÁM\n\n` +
+          `👨‍⚕️ Bác sĩ: ${slotInfo.doctorName}\n` +
+          `🏥 Chuyên khoa: ${doctor.specialty}\n` +
+          `📅 Ngày: ${dateStr}\n` +
+          `⏰ Ca: ${shiftName}\n` +
+          `🕐 Giờ: ${slotInfo.time}\n` +
+          `💰 Phí khám: ${doctor.examination_fee?.toLocaleString('vi-VN')} VNĐ\n\n` +
+          `Xác nhận đặt lịch?`
+        );
+
+        if (confirmation) {
+          // TODO: Call API to book appointment
+          alert('✅ Đặt lịch thành công!\n\nChúng tôi sẽ gửi xác nhận qua SMS/Email.');
+          // Reset selection after booking
+          setSelectedSlot(null);
+        }
+      };
+
+      return (
+        <div className="flex h-screen bg-gradient-to-br from-blue-50 to-cyan-50 justify-center">
+          {/* Main Chat Area - 3/4 Width */}
+          <div className="flex flex-col w-3/4 max-w-[75vw]">{/* 3/4 width with explicit max-width */}
+            {/* Header */}
+            <div className="bg-white shadow-sm border-b border-blue-100 p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-500 p-2 rounded-full">
+                  <Stethoscope className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-800">AI Tư Vấn Y Tế - PageIndex</h1>
+                  <p className="text-sm text-gray-500">Trợ lý thông minh của phòng khám</p>
+                </div>
+              </div>
+              <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-yellow-800">
+                  <strong>Lưu ý:</strong> Đây là tư vấn tham khảo, không thay thế chẩn đoán y khoa. Vui lòng gặp bác sĩ để được khám chính xác.
+                </p>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                >
+                  {/* Avatar */}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user'
+                    ? 'bg-blue-500'
+                    : msg.error
+                      ? 'bg-red-500'
+                      : 'bg-cyan-500'
+                    }`}>
+                    {msg.role === 'user' ? (
+                      <User className="w-5 h-5 text-white" />
+                    ) : (
+                      <Bot className="w-5 h-5 text-white" />
+                    )}
+                  </div>
+
+                  {/* Message Content */}
+                  <div className={`flex-1 ${msg.role === 'user' ? 'text-right' : ''}`}>
+                    <div className={`inline-block p-4 rounded-2xl max-w-full ${msg.role === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : msg.error
+                        ? 'bg-red-50 text-red-800 border border-red-200'
+                        : 'bg-white text-gray-800 shadow-sm border border-gray-100'
+                      }`}>
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+
+                      {/* Appointment Badge */}
+                      {msg.needsAppointment && (
+                        <div className="mt-3 flex items-center gap-2 text-sm bg-orange-100 text-orange-700 px-3 py-2 rounded-lg">
+                          <Calendar className="w-4 h-4" />
+                          <span>Nên đặt lịch khám</span>
+                        </div>
+                      )}
+
+                      {/* Sources */}
+                      {msg.sources && msg.sources.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-xs text-gray-500 mb-1">📚 Nguồn tham khảo (click để xem PDF):</p>
+                          {msg.sources.map((source, i) => {
+                            // Nếu backend cung cấp pdf_filename thì dùng, không thì fallback
+                            const pdfFilename = source.pdf_filename ||
+                              source.document_name.replace(/_structure$/, '') + '.pdf';
+                            const pdfUrl = `http://localhost:8000/api/pdfs/${pdfFilename}`;
+
+                            return (
+                              <a
+                                key={i}
+                                href={pdfUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block text-xs text-blue-600 hover:text-blue-800 hover:underline mb-1 cursor-pointer transition-colors"
+                                title="Click để mở PDF trong tab mới"
+                              >
+                                📄 {source.document_name} (Trang {source.page})
+                              </a>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Recommended Doctors - Display in message */}
+                      {msg.recommendedDoctors && msg.recommendedDoctors.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <Stethoscope className="w-4 h-4 text-blue-500" />
+                            Bác Sĩ Đề Xuất ({msg.recommendedDoctors.length})
+                          </h3>
+
+                          <div className="space-y-3">
+                            {msg.recommendedDoctors.map((doctor, doctorIdx) => {
+                              const doctorKey = `msg${idx}_doctor${doctorIdx}`;
+
+                              return (
+                                <div key={doctorIdx} className="bg-gradient-to-br from-blue-50 to-cyan-50 p-3 rounded-lg border border-blue-200">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold text-gray-800 text-sm">
+                                        {doctor.position || 'BS. ' + doctor.doctor_name}
+                                      </h4>
+                                      <p className="text-xs text-gray-600 mt-0.5">{doctor.specialty}</p>
+                                    </div>
+                                    <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-medium">
+                                      {Math.round(doctor.confidence * 100)}%
+                                    </span>
+                                  </div>
+
+                                  <p className="text-xs text-gray-600 mb-2 italic">💡 {doctor.reason}</p>
+
+                                  {doctor.examination_fee && (
+                                    <p className="text-sm font-semibold text-green-600 mb-3">
+                                      💰 Phí khám: {doctor.examination_fee.toLocaleString('vi-VN')} VNĐ
+                                    </p>
+                                  )}
+
+                                  {/* Available Slots */}
+                                  {doctor.available_slots && doctor.available_slots.length > 0 && (() => {
+                                    // Group slots by date
+                                    const slotsByDate = {};
+                                    doctor.available_slots.forEach(slot => {
+                                      if (!slotsByDate[slot.date]) {
+                                        slotsByDate[slot.date] = [];
+                                      }
+                                      slotsByDate[slot.date].push(slot);
+                                    });
+
+                                    const dateEntries = Object.entries(slotsByDate);
+                                    const dateExpandKey = `${doctorKey}_dates`;
+                                    const visibleDates = expandedSlots[dateExpandKey] ? dateEntries : dateEntries.slice(0, 3);
+
+                                    return (
+                                      <div className="space-y-2">
+                                        <p className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+                                          <Calendar className="w-3 h-3" />
+                                          Lịch khả dụng ({Object.keys(slotsByDate).length} ngày):
+                                        </p>
+
+                                        {visibleDates.map(([date, shifts], dateIdx) => {
+                                          const dateObj = new Date(date);
+                                          const dateStr = dateObj.toLocaleDateString('vi-VN', {
+                                            weekday: 'short',
+                                            day: '2-digit',
+                                            month: '2-digit'
+                                          });
+                                          const totalSlotsInDay = shifts.reduce((sum, s) => sum + s.total_slots, 0);
+
+                                          return (
+                                            <div key={dateIdx} className="bg-white px-2.5 py-2 rounded border border-gray-200">
+                                              <div className="flex items-center justify-between mb-1.5">
+                                                <span className="text-xs font-semibold text-gray-800">
+                                                  📅 {dateStr}
+                                                </span>
+                                                <span className="text-xs text-green-600 font-semibold">
+                                                  {totalSlotsInDay} slots
+                                                </span>
+                                              </div>
+
+                                              {/* Shifts for this date */}
+                                              <div className="space-y-1.5">
+                                                {shifts.map((shift, shiftIdx) => {
+                                                  const shiftName = shift.shift === 'SANG' ? '🌅 Sáng' :
+                                                    shift.shift === 'CHIEU' ? '☀️ Chiều' : '🌙 Tối';
+
+                                                  return (
+                                                    <div key={shiftIdx} className="pl-2 border-l-2 border-blue-300">
+                                                      <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-xs font-medium text-gray-700">{shiftName}</span>
+                                                        <span className="text-xs text-gray-500">{shift.total_slots} slots</span>
+                                                      </div>
+
+                                                      {shift.available_times && shift.available_times.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1">
+                                                          {shift.available_times.map((time, timeIdx) => {
+                                                            const slotKey = `${idx}_${doctor.doctor_id}_${date}_${shift.shift}_${time}`;
+                                                            const isSelected = selectedSlot?.key === slotKey;
+
+                                                            return (
+                                                              <button
+                                                                key={timeIdx}
+                                                                onClick={() => handleSlotSelection(idx, doctor.doctor_id, date, shift.shift, time, doctor.doctor_name)}
+                                                                className={`text-xs px-2 py-1 rounded border transition-all font-medium ${isSelected
+                                                                  ? 'bg-blue-600 text-white border-blue-700 shadow-lg scale-105'
+                                                                  : 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100 hover:border-green-400 hover:shadow-md'
+                                                                  }`}
+                                                              >
+                                                                {time}
+                                                              </button>
+                                                            );
+                                                          })}
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  );
+                                                })}
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+
+                                        {/* Show More Dates Button */}
+                                        {dateEntries.length > 3 && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              setExpandedSlots(prev => ({ ...prev, [dateExpandKey]: !prev[dateExpandKey] }));
+                                            }}
+                                            className="w-full text-xs text-blue-600 hover:text-blue-700 py-1.5 text-center font-semibold hover:underline bg-blue-50 rounded border border-blue-200"
+                                          >
+                                            {expandedSlots[dateExpandKey]
+                                              ? '▲ Thu gọn'
+                                              : `▼ Xem thêm ${dateEntries.length - 3} ngày`
+                                            }
+                                          </button>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
+
+                                  {/* Book Appointment Button */}
+                                  <button
+                                    onClick={() => handleBookAppointment(doctor, idx)}
+                                    className={`mt-3 w-full py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg ${selectedSlot?.messageIndex === idx && selectedSlot?.doctorId === doctor.doctor_id
+                                      ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
+                                      : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                                      }`}
+                                  >
+                                    <Calendar className="w-4 h-4" />
+                                    {selectedSlot?.messageIndex === idx && selectedSlot?.doctorId === doctor.doctor_id
+                                      ? `✓ Đặt lịch: ${selectedSlot.time} - ${new Date(selectedSlot.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}`
+                                      : '📅 Chọn giờ & Đặt lịch'
+                                    }
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {loading && (
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex gap-2">
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Area */}
+            <div className="bg-white border-t border-gray-200 p-4">
+              <div className="flex gap-2">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Mô tả triệu chứng của bạn..."
+                  className="flex-1 p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows="2"
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={!input.trim() || loading}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                >
+                  <Send className="w-5 h-5" />
+                  {loading && <span className="text-sm">Đang trả lời...</span>}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Render app
+    ReactDOM.render(<MedicalChatbot />, document.getElementById('root'));
+  </script>
+</body>
+
+</html>

@@ -7,6 +7,7 @@ class WebSocketService {
     constructor() {
         this.client = null;
         this.subscriptions = new Map();
+        this.callbacks = new Map(); // Lưu callbacks để có thể update
         this.connected = false;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
@@ -135,9 +136,21 @@ class WebSocketService {
             return null;
         }
 
+        const subscriptionKey = `chat_${conversationId}`;
+
+        // Nếu đã subscribe rồi, chỉ cần update callback
+        if (this.subscriptions.has(subscriptionKey)) {
+            console.log(`[WebSocket] Already subscribed to conversation ${conversationId}, updating callback...`);
+            this.callbacks.set(subscriptionKey, callback);
+            return this.subscriptions.get(subscriptionKey);
+        }
+
         const token = localStorage.getItem('accessToken');
         const destination = `/topic/chat/${conversationId}`;
         console.log(`[WebSocket] Subscribing to chat: ${destination}`);
+
+        // Lưu callback vào Map
+        this.callbacks.set(subscriptionKey, callback);
 
         const subscription = this.client.subscribe(
             destination,
@@ -146,7 +159,12 @@ class WebSocketService {
                 try {
                     const chatMessage = JSON.parse(message.body);
                     console.log('[WebSocket] Chat message:', chatMessage);
-                    if (callback) callback(chatMessage);
+
+                    // Lấy callback mới nhất từ Map
+                    const currentCallback = this.callbacks.get(subscriptionKey);
+                    if (currentCallback) {
+                        currentCallback(chatMessage);
+                    }
                 } catch (error) {
                     console.error('[WebSocket] Error parsing chat message:', error);
                 }
@@ -158,7 +176,7 @@ class WebSocketService {
         );
 
         // Lưu subscription với key là "chat_{conversationId}"
-        this.subscriptions.set(`chat_${conversationId}`, subscription);
+        this.subscriptions.set(subscriptionKey, subscription);
         return subscription;
     }
 
@@ -166,10 +184,12 @@ class WebSocketService {
      * Hủy subscribe khỏi một conversation chat
      */
     unsubscribeFromChatConversation(conversationId) {
-        const subscription = this.subscriptions.get(`chat_${conversationId}`);
+        const subscriptionKey = `chat_${conversationId}`;
+        const subscription = this.subscriptions.get(subscriptionKey);
         if (subscription) {
             subscription.unsubscribe();
-            this.subscriptions.delete(`chat_${conversationId}`);
+            this.subscriptions.delete(subscriptionKey);
+            this.callbacks.delete(subscriptionKey); // Xóa callback
             console.log(`Unsubscribed from chat conversation ${conversationId}`);
         }
     }
@@ -208,6 +228,7 @@ class WebSocketService {
                 subscription.unsubscribe();
             });
             this.subscriptions.clear();
+            this.callbacks.clear(); // Xóa tất cả callbacks
 
             // Deactivate client
             this.client.deactivate();

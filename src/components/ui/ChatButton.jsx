@@ -12,10 +12,8 @@ const ChatButton = ({ hasUnread, unreadCount = 0, onClick, isOpen = false }) => 
                 aria-label={isOpen ? "Đóng chat" : "Mở chat"}
             >
                 <i className="bi bi-chat-dots"></i>
-                {hasUnread && !isOpen && unreadCount > 0 && (
-                    <span className="chat-badge">
-                        {unreadCount <= 99 ? unreadCount : '99+'}
-                    </span>
+                {hasUnread && !isOpen && (
+                    <span className="chat-badge-dot"></span>
                 )}
             </button>
         </div>

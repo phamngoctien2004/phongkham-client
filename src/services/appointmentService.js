@@ -53,6 +53,11 @@ const appointmentService = {
         return apiRequest(`/appointments/${id}`, 'GET');
     },
 
+    // Alias cho getAppointmentDetail
+    getAppointmentById: async (id) => {
+        return apiRequest(`/appointments/${id}`, 'GET');
+    },
+
     // Tạo thanh toán cho lịch hẹn
     createPayment: async (appointmentId) => {
         return apiRequest(`/payments/appointment/${appointmentId}`, 'POST', {});

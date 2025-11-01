@@ -1,0 +1,340 @@
+/* Time Picker Modal Styles */
+
+.time-picker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.time-picker-modal {
+    background: #ffffff;
+    border-radius: 12px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.time-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
+}
+
+.time-picker-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.time-picker-body {
+    padding: 25px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Shift Tabs */
+.shift-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.shift-tab {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 15px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.shift-tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.shift-tab i {
+    font-size: 24px;
+    color: #666;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.shift-tab span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.shift-tab small {
+    font-size: 12px;
+    color: #666;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.shift-tab:hover {
+    border-color: #1e88e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.15);
+}
+
+.shift-tab.active {
+    border-color: #1e88e5;
+    box-shadow: 0 4px 16px rgba(30, 136, 229, 0.25);
+}
+
+.shift-tab.active::before {
+    opacity: 1;
+}
+
+.shift-tab.active i,
+.shift-tab.active span,
+.shift-tab.active small {
+    color: #ffffff;
+}
+
+/* Time Slots Grid */
+.time-slots-container {
+    min-height: 250px;
+}
+
+.time-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.time-slot-btn {
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.time-slot-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.time-slot-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+.time-slot-btn:hover:not(.disabled) {
+    border-color: #1e88e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.2);
+}
+
+.time-slot-btn.selected {
+    border-color: #1e88e5;
+    box-shadow: 0 4px 16px rgba(30, 136, 229, 0.3);
+}
+
+.time-slot-btn.selected::before {
+    opacity: 1;
+}
+
+.time-slot-btn.selected {
+    color: #ffffff;
+}
+
+.time-slot-btn.disabled {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.time-slot-btn.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Time Picker Footer */
+.time-picker-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f8f9fa;
+}
+
+.btn-cancel {
+    background: #6c757d;
+    border: none;
+    color: #ffffff;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .time-picker-modal {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 12px 12px 0 0;
+        max-height: 85vh;
+    }
+
+    .shift-tabs {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .shift-tab {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 12px 15px;
+        gap: 12px;
+    }
+
+    .shift-tab i {
+        font-size: 20px;
+    }
+
+    .shift-tab span {
+        text-align: left;
+        flex: 1;
+    }
+
+    .time-slots-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .time-slot-btn {
+        padding: 10px 6px;
+        font-size: 12px;
+    }
+
+    .time-picker-header {
+        padding: 15px 20px;
+    }
+
+    .time-picker-header h3 {
+        font-size: 18px;
+    }
+
+    .time-picker-body {
+        padding: 20px;
+    }
+
+    .time-picker-footer {
+        padding: 15px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-slots-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -15,3 +15,4 @@ export { default as Modal } from './Modal';
 export { default as PageBanner } from './PageBanner';
 
 export { default as ChatButton } from './ChatButton';
+export { default as AIChatButton } from './AIChatButton';

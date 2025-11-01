@@ -1,10 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import { ChatProvider, useChat } from './contexts/ChatContext';
 import { useAuth } from './contexts/AuthContext';
-import { ChatButton } from './components/ui';
+import { ChatButton, AIChatButton } from './components/ui';
 import ChatPopup from './components/Chat/ChatPopup';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -15,11 +15,13 @@ import ContactPage from './pages/ContactPage';
 import NewsPage from './pages/NewsPage';
 import AppointmentPage from './pages/AppointmentPage';
 import PaymentPage from './pages/PaymentPage';
+import AppointmentSuccessPage from './pages/AppointmentSuccessPage';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import ProfilePage from './pages/ProfilePage';
 import MedicalRecordDetailPage from './pages/MedicalRecordDetailPage';
 import ChatPage from './pages/ChatPage';
+import AIChatPage from './pages/AIChatPage';
 
 // Import CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -34,6 +36,7 @@ import AOS from 'aos';
 function ChatButtonWrapper() {
   const { isAuthenticated } = useAuth();
   const { isChatOpen, isChatPopupOpen, toggleChatPopup, conversations } = useChat();
+  const location = useLocation();
 
   // Tính có tin nhắn mới ở bất kỳ conversation nào
   const hasUnread = conversations.some((conv) => conv.newMessage);
@@ -43,9 +46,18 @@ function ChatButtonWrapper() {
   console.log('[ChatButtonWrapper] conversations:', conversations);
   console.log('[ChatButtonWrapper] hasUnread:', hasUnread, 'unreadCount:', unreadCount);
 
+  // Ẩn buttons khi ở trang AI Chat
+  const isAIChatPage = location.pathname === '/ai-chat';
+  if (isAIChatPage) return null;
+
   // Hiển thị khi đã đăng nhập và không ở phòng chat page
   if (!isAuthenticated || isChatOpen) return null;
-  return <ChatButton hasUnread={hasUnread} unreadCount={unreadCount} onClick={toggleChatPopup} isOpen={isChatPopupOpen} />;
+  return (
+    <>
+      <AIChatButton />
+      <ChatButton hasUnread={hasUnread} unreadCount={unreadCount} onClick={toggleChatPopup} isOpen={isChatPopupOpen} />
+    </>
+  );
 }
 
 function App() {
@@ -85,6 +97,7 @@ function App() {
             {/* Protected Routes - Appointment */}
             <Route path="/dat-lich" element={<AppointmentPage />} />
             <Route path="/dat-lich/thanh-toan/:id" element={<PaymentPage />} />
+            <Route path="/dat-lich/thanh-cong/:id" element={<AppointmentSuccessPage />} />
 
             {/* Profile */}
             <Route path="/profile" element={<ProfilePage />} />
@@ -94,6 +107,9 @@ function App() {
 
             {/* Chat */}
             <Route path="/chat" element={<ChatPage />} />
+
+            {/* AI Chat - No Header/Footer */}
+            <Route path="/ai-chat" element={<AIChatPage />} />
 
             {/* Protected Routes - Add your protected pages here */}
             {/* Example:

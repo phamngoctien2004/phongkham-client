@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import chatService from '../services/chatService';
 import websocketService from '../services/websocketService';
 import { useAuth } from './AuthContext';
@@ -18,6 +18,95 @@ export const ChatProvider = ({ children }) => {
     const [isChatOpen, setIsChatOpen] = useState(false);
     // Theo dõi trạng thái chat popup
     const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
+
+    // Sử dụng ref để lưu trữ giá trị mới nhất của state mà không trigger re-subscribe
+    const chatStateRef = useRef({
+        activeConversation: null,
+        isChatPopupOpen: false,
+        isChatOpen: false,
+        userId: null
+    });
+
+    // Cập nhật ref mỗi khi state thay đổi
+    useEffect(() => {
+        chatStateRef.current = {
+            activeConversation,
+            isChatPopupOpen,
+            isChatOpen,
+            userId: user?.id
+        };
+    }, [activeConversation, isChatPopupOpen, isChatOpen, user]);
+
+    // Handle incoming message from WebSocket
+    const handleNewMessage = useCallback((message) => {
+        console.log('[handleNewMessage] ===== CALLED =====');
+        console.log('[handleNewMessage] Received message:', message);
+        console.log('[handleNewMessage] Current state from ref:', chatStateRef.current);
+
+        setMessages((prev) => [...prev, message]);
+
+        // Lấy giá trị mới nhất từ ref
+        const currentState = chatStateRef.current;
+
+        // Nếu tin nhắn là của mình và đang ở conversation đó, cập nhật lastReadId
+        if (message.senderId === currentState.userId && currentState.activeConversation?.id === message.conversationId) {
+            console.log('[New Message] My message sent, updating lastReadId to:', message.id);
+            setLastReadId(message.id);
+        }
+
+        // Update last message in conversations list
+        setConversations((prev) => {
+            console.log('[handleNewMessage] Current conversations before update:', prev);
+            const updated = prev.map((conv) => {
+                if (conv.id === message.conversationId) {
+                    // Set newMessage = true nếu:
+                    // 1. Tin nhắn không phải của mình
+                    // 2. VÀ (chat không visible HOẶC không phải conversation đang xem)
+                    const isNotMyMessage = message.senderId !== currentState.userId;
+                    const isActiveConversation = currentState.activeConversation?.id === message.conversationId;
+                    const isChatVisible = currentState.isChatPopupOpen || currentState.isChatOpen;
+
+                    // Đánh dấu mới nếu:
+                    // - Không phải tin nhắn của mình
+                    // VÀ
+                    // - (Chat đang đóng HOẶC đang xem conversation khác)
+                    const shouldMarkAsNew = isNotMyMessage && (!isChatVisible || !isActiveConversation);
+
+                    console.log('[New Message] Conversation:', conv.id,
+                        'isNotMyMessage:', isNotMyMessage,
+                        'isActiveConversation:', isActiveConversation,
+                        'isChatVisible:', isChatVisible,
+                        'shouldMarkAsNew:', shouldMarkAsNew,
+                        'Final newMessage:', shouldMarkAsNew);
+
+                    return {
+                        ...conv,
+                        lastMessage: message.message,
+                        lastMessageTime: message.sentTime,
+                        // Luôn set giá trị mới, không giữ giá trị cũ
+                        newMessage: shouldMarkAsNew
+                    };
+                }
+                return conv;
+            });
+            console.log('[handleNewMessage] Conversations after update:', updated);
+            return updated;
+        });
+    }, []); // Không phụ thuộc vào state nữa vì dùng ref
+
+    // Load danh sách conversations (không subscribe ở đây)
+    const loadConversations = useCallback(async () => {
+        try {
+            setLoading(true);
+            const data = await chatService.getConversations();
+            console.log('[ChatContext] Loaded conversations:', data);
+            setConversations(data);
+        } catch (error) {
+            console.error('Failed to load conversations:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     // Kết nối WebSocket khi có user
     useEffect(() => {
@@ -44,33 +133,25 @@ export const ChatProvider = ({ children }) => {
             setMessages([]);
             setWsConnected(false);
 
-            // Ngắt kết nối WebSocket
-            if (activeConversation) {
-                websocketService.unsubscribeFromChatConversation(activeConversation.id);
-            }
+            // Ngắt kết nối WebSocket (sẽ tự động unsubscribe tất cả)
             websocketService.disconnect();
         }
 
         return () => {
-            if (activeConversation) {
-                websocketService.unsubscribeFromChatConversation(activeConversation.id);
-            }
+            // Cleanup: Ngắt kết nối khi component unmount
+            websocketService.disconnect();
         };
-    }, [user]);
+    }, [user, loadConversations]);
 
-    // Load danh sách conversations
-    const loadConversations = useCallback(async () => {
-        try {
-            setLoading(true);
-            const data = await chatService.getConversations();
-            console.log('[ChatContext] Loaded conversations:', data);
-            setConversations(data);
-        } catch (error) {
-            console.error('Failed to load conversations:', error);
-        } finally {
-            setLoading(false);
+    // Subscribe đến tất cả conversations sau khi load
+    useEffect(() => {
+        if (conversations.length > 0 && wsConnected) {
+            conversations.forEach(conv => {
+                console.log('[ChatContext] Subscribing to conversation:', conv.id);
+                websocketService.subscribeToChatConversation(conv.id, handleNewMessage);
+            });
         }
-    }, []);
+    }, [conversations, wsConnected, handleNewMessage]);
 
     // Load messages của một conversation
     const loadMessages = useCallback(async (conversationId) => {
@@ -217,46 +298,6 @@ export const ChatProvider = ({ children }) => {
         }
     }, [messages, hasMoreOld, loading]);
 
-    // Handle incoming message from WebSocket
-    const handleNewMessage = useCallback((message) => {
-        setMessages((prev) => [...prev, message]);
-
-        // Nếu tin nhắn là của mình và đang ở conversation đó, cập nhật lastReadId
-        if (message.senderId === user?.id && activeConversation?.id === message.conversationId) {
-            console.log('[New Message] My message sent, updating lastReadId to:', message.id);
-            setLastReadId(message.id);
-        }
-
-        // Update last message in conversations list
-        setConversations((prev) =>
-            prev.map((conv) => {
-                if (conv.id === message.conversationId) {
-                    // Set newMessage = true nếu:
-                    // 1. Tin nhắn không phải của mình
-                    // 2. Conversation không đang được mở HOẶC popup đang đóng
-                    const isNotMyMessage = message.senderId !== user?.id;
-                    const isNotActiveConversation = activeConversation?.id !== message.conversationId;
-                    const isPopupClosed = !isChatPopupOpen && !isChatOpen;
-                    const shouldMarkAsNew = isNotMyMessage && (isNotActiveConversation || isPopupClosed);
-
-                    console.log('[New Message] Conversation:', conv.id,
-                        'isNotMyMessage:', isNotMyMessage,
-                        'isNotActive:', isNotActiveConversation,
-                        'isPopupClosed:', isPopupClosed,
-                        'markAsNew:', shouldMarkAsNew);
-
-                    return {
-                        ...conv,
-                        lastMessage: message.message,
-                        lastMessageTime: message.sentTime,
-                        newMessage: shouldMarkAsNew ? true : conv.newMessage
-                    };
-                }
-                return conv;
-            })
-        );
-    }, [user, activeConversation, isChatPopupOpen, isChatOpen]);
-
     // Send message
     const sendMessage = useCallback(async (messageText, urls = []) => {
         if (!user) return;
@@ -324,14 +365,11 @@ export const ChatProvider = ({ children }) => {
     // Toggle chat popup
     const openChatPopup = useCallback(() => {
         setIsChatPopupOpen(true);
-        // Load conversations khi mở popup
+
+        // Nếu chưa có conversations, load trước
         if (conversations.length === 0) {
-            loadConversations().then(() => {
-                // Sau khi load xong, tự động chọn conversation đầu tiên nếu có
-                if (conversations.length > 0 && !activeConversation) {
-                    selectConversation(conversations[0]);
-                }
-            });
+            loadConversations();
+            // Logic chọn conversation đầu tiên sẽ được xử lý bởi useEffect bên dưới
         } else if (!activeConversation && conversations.length > 0) {
             // Nếu đã có conversations nhưng chưa chọn, chọn conversation đầu tiên
             selectConversation(conversations[0]);
@@ -349,6 +387,14 @@ export const ChatProvider = ({ children }) => {
             }
         }
     }, [conversations, activeConversation, loadConversations, selectConversation]);
+
+    // Auto-select first conversation when popup opens and conversations are loaded
+    useEffect(() => {
+        if (isChatPopupOpen && conversations.length > 0 && !activeConversation) {
+            console.log('[Auto-select] Selecting first conversation:', conversations[0].id);
+            selectConversation(conversations[0]);
+        }
+    }, [isChatPopupOpen, conversations, activeConversation, selectConversation]);
 
     const closeChatPopup = useCallback(() => {
         setIsChatPopupOpen(false);
