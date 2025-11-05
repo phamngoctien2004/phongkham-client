@@ -197,16 +197,18 @@ Nếu role là người dùng thì hiển thị tiêu đề đoạn chat là Nh�
 Nếu là lễ tân thì title là patientName
 
 
-4. Gửi tin nhắn
-    @PostMapping("/api/chat")
-    request/response:"
-    public class MessageDTO {
-    private Integer conversationId;
-    private Integer senderId;
-    private String message;
-    private LocalDateTime sentTime;
-}
-- Khi người dùng gửi tin nhắn gọi đến api bên python và bên api bên python sẽ gọi tiếp api bên backend java để lưu tin nhắn
-- Khi ai trả lời thì gọi api chat để lưu tin nhắn thì senderId là null
 
-* senderId là userId 
+
+GET /api/conversations/ai - lấy tất cả cuộc trò chuyện cua chat voi ai
+response
+{
+    "data": [
+        {
+            "id": 4,
+            "patientName": "New Chat",
+            "responder": "AI",
+        }
+    ],
+    "message": "Lấy danh sách cuộc trò chuyện AI thành công"
+}
+* không cần đã đọc hay chưa ở ai chat bot

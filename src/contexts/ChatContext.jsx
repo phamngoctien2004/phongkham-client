@@ -73,18 +73,25 @@ export const ChatProvider = ({ children }) => {
                     const shouldMarkAsNew = isNotMyMessage && (!isChatVisible || !isActiveConversation);
 
                     console.log('[New Message] Conversation:', conv.id,
+                        'messageId:', message.id,
                         'isNotMyMessage:', isNotMyMessage,
                         'isActiveConversation:', isActiveConversation,
                         'isChatVisible:', isChatVisible,
-                        'shouldMarkAsNew:', shouldMarkAsNew,
-                        'Final newMessage:', shouldMarkAsNew);
+                        'shouldMarkAsNew:', shouldMarkAsNew);
+
+                    // Nếu đã được đánh dấu là đã đọc (newMessage: false), chỉ đặt lại thành true
+                    // nếu shouldMarkAsNew = true. Ngược lại giữ nguyên trạng thái cũ.
+                    const finalNewMessage = shouldMarkAsNew || (conv.newMessage && !isActiveConversation);
+
+                    console.log('[New Message] Previous newMessage:', conv.newMessage,
+                        'Final newMessage:', finalNewMessage);
 
                     return {
                         ...conv,
                         lastMessage: message.message,
                         lastMessageTime: message.sentTime,
-                        // Luôn set giá trị mới, không giữ giá trị cũ
-                        newMessage: shouldMarkAsNew
+                        // Chỉ đặt newMessage = true khi thực sự có tin nhắn mới chưa đọc
+                        newMessage: finalNewMessage
                     };
                 }
                 return conv;
@@ -99,8 +106,33 @@ export const ChatProvider = ({ children }) => {
         try {
             setLoading(true);
             const data = await chatService.getConversations();
-            console.log('[ChatContext] Loaded conversations:', data);
-            setConversations(data);
+            console.log('[ChatContext] ===== LOADED CONVERSATIONS FROM BACKEND =====');
+            console.log('[ChatContext] Raw data from backend:', data);
+            data.forEach(conv => {
+                console.log(`[ChatContext] Conversation ${conv.id}: newMessage=${conv.newMessage}, patientName=${conv.patientName}`);
+            });
+
+            // Merge với state hiện tại để giữ trạng thái newMessage đã được đánh dấu đọc ở frontend
+            setConversations((prevConversations) => {
+                return data.map(backendConv => {
+                    // Tìm conversation tương ứng trong state hiện tại
+                    const existingConv = prevConversations.find(c => c.id === backendConv.id);
+
+                    // Nếu đã tồn tại và đã được đánh dấu là đã đọc ở frontend (newMessage: false),
+                    // giữ nguyên trạng thái đó thay vì ghi đè bằng giá trị từ backend
+                    if (existingConv && existingConv.newMessage === false) {
+                        console.log('[loadConversations] Keeping newMessage: false for conversation:', backendConv.id);
+                        return {
+                            ...backendConv,
+                            newMessage: false // Giữ trạng thái đã đọc
+                        };
+                    }
+
+                    // Ngược lại, sử dụng giá trị từ backend
+                    console.log('[loadConversations] Using backend newMessage:', backendConv.newMessage, 'for conversation:', backendConv.id);
+                    return backendConv;
+                });
+            });
         } catch (error) {
             console.error('Failed to load conversations:', error);
         } finally {
@@ -163,15 +195,29 @@ export const ChatProvider = ({ children }) => {
 
             // Nếu lastReadId là 0 hoặc null và có tin nhắn, cập nhật lastReadId
             // thành ID của tin nhắn mới nhất để tránh hiển thị divider không cần thiết
+            let finalLastReadId;
             if ((data.lastReadId === 0 || data.lastReadId === null) && loadedMessages.length > 0) {
                 const latestMessageId = Math.max(...loadedMessages.map(m => m.id));
                 console.log('[Load Messages] lastReadId is 0/null, setting to latest message:', latestMessageId);
                 setLastReadId(latestMessageId);
+                finalLastReadId = latestMessageId;
             } else {
                 setLastReadId(data.lastReadId || null);
+                finalLastReadId = data.lastReadId;
             }
 
             setHasMoreOld(data.hasMoreOld || false);
+
+            // Đánh dấu conversation đã đọc đến tin nhắn cuối cùng
+            // Cập nhật lastReadId lên backend để khi reload trang, newMessage được tính đúng
+            if (loadedMessages.length > 0) {
+                const latestMessageId = Math.max(...loadedMessages.map(m => m.id));
+                console.log('[Load Messages] Marking conversation as read up to message:', latestMessageId);
+                // Gọi API async, không cần await để không block UI
+                chatService.markConversationAsRead(conversationId, latestMessageId).catch(err => {
+                    console.warn('[Load Messages] Failed to mark as read (API may not exist):', err);
+                });
+            }
 
             // Subscribe to this conversation
             if (activeConversation?.id !== conversationId) {
@@ -346,8 +392,9 @@ export const ChatProvider = ({ children }) => {
         if (conversation) {
             loadMessages(conversation.id);
 
-            // Xóa badge "Mới" CHỈ khi popup đang mở hoặc ở trang chat
-            if (conversation.newMessage && (isChatPopupOpen || isChatOpen)) {
+            // Xóa badge "Mới" khi chọn conversation
+            // Luôn xóa badge khi người dùng click vào conversation, bất kể chat có đang mở hay không
+            if (conversation.newMessage) {
                 console.log('[Conversation] Marking as read:', conversation.id);
                 setConversations((prev) =>
                     prev.map((conv) =>
@@ -360,7 +407,7 @@ export const ChatProvider = ({ children }) => {
         } else {
             setMessages([]);
         }
-    }, [loadMessages, isChatPopupOpen, isChatOpen]);
+    }, [loadMessages]);
 
     // Toggle chat popup
     const openChatPopup = useCallback(() => {
@@ -373,19 +420,8 @@ export const ChatProvider = ({ children }) => {
         } else if (!activeConversation && conversations.length > 0) {
             // Nếu đã có conversations nhưng chưa chọn, chọn conversation đầu tiên
             selectConversation(conversations[0]);
-        } else if (activeConversation) {
-            // Nếu đã có conversation đang active, mark as read khi mở popup
-            if (activeConversation.newMessage) {
-                console.log('[Popup Open] Marking conversation as read:', activeConversation.id);
-                setConversations((prev) =>
-                    prev.map((conv) =>
-                        conv.id === activeConversation.id
-                            ? { ...conv, newMessage: false }
-                            : conv
-                    )
-                );
-            }
         }
+        // Badge sẽ tự động được xóa khi selectConversation được gọi
     }, [conversations, activeConversation, loadConversations, selectConversation]);
 
     // Auto-select first conversation when popup opens and conversations are loaded

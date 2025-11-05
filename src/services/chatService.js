@@ -109,6 +109,28 @@ const chatService = {
             console.error('Error fetching AI messages:', error);
             throw error;
         }
+    },
+
+    /**
+     * Đánh dấu conversation đã đọc đến tin nhắn cuối cùng
+     * @param {number} conversationId - ID của cuộc trò chuyện
+     * @param {number} lastMessageId - ID của tin nhắn cuối cùng đã đọc
+     * @returns {Promise}
+     */
+    markConversationAsRead: async (conversationId, lastMessageId) => {
+        try {
+            console.log('[chatService] Marking conversation as read:', conversationId, 'lastMessageId:', lastMessageId);
+            const response = await apiRequest(`/conversations/${conversationId}/mark-read`, 'PUT', {
+                lastReadId: lastMessageId
+            });
+            console.log('[chatService] Mark as read response:', response);
+            return response.data;
+        } catch (error) {
+            console.error('Error marking conversation as read:', error);
+            // Không throw error để không làm gián đoạn UX
+            // Backend có thể chưa implement API này
+            return null;
+        }
     }
 };
 
