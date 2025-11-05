@@ -270,6 +270,20 @@ const Doctors = ({ isHomePage = false }) => {
             ))}
           </div>
         )}
+
+        {/* Show "View All" button on homepage */}
+        {isHomePage && filteredDoctors.length > 0 && (
+          <div className="row mt-5">
+            <div className="col-12 text-center">
+              <button
+                className="btn-view-more"
+                onClick={() => navigate('/doctors')}
+              >
+                Xem thêm
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,7 +1,12 @@
 import Header from '../components/Header';
+import Carousel from '../components/Carousel';
+import CustomerServices from '../components/CustomerServices';
 import Hero from '../components/Hero';
-import About from '../components/About';
+import News from '../components/News';
 import Services from '../components/Services';
+import Departments from '../components/Departments';
+import Membership from '../components/Membership';
+import Testimonials from '../components/Testimonials';
 import Doctors from '../components/Doctors';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
@@ -11,10 +16,14 @@ const HomePage = () => {
         <div className="index-page">
             <Header />
             <main className="main">
-                <Hero />
-                <About isHomePage={true} />
-                <Services isHomePage={true} />
+                <Carousel />
+                <CustomerServices />
+                <News isHomePage={true} />
                 <Doctors isHomePage={true} />
+                <Services isHomePage={true} />
+                <Departments />
+                <Membership />
+                <Testimonials />
                 <Contact isHomePage={true} />
             </main>
             <Footer />

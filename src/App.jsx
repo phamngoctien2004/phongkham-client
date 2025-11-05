@@ -4,7 +4,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import { ChatProvider, useChat } from './contexts/ChatContext';
 import { useAuth } from './contexts/AuthContext';
-import { ChatButton, AIChatButton } from './components/ui';
+import { ChatButton, AIChatButton, AppointmentButton } from './components/ui';
 import ChatPopup from './components/Chat/ChatPopup';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -27,58 +27,50 @@ import AIChatPage from './pages/AIChatPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import 'aos/dist/aos.css';
+// import 'aos/dist/aos.css';
 import './assets/css/main.css';
 
 // Import AOS
-import AOS from 'aos';
+// import AOS from 'aos';
 
-function ChatButtonWrapper() {
-  const { isAuthenticated } = useAuth();
-  const { isChatOpen, isChatPopupOpen, toggleChatPopup, conversations } = useChat();
+function FloatingButtonsWrapper() {
+  const { isChatOpen } = useChat();
   const location = useLocation();
 
-  // Tính có tin nhắn mới ở bất kỳ conversation nào
-  const hasUnread = conversations.some((conv) => conv.newMessage);
-  // Đếm số conversation có tin nhắn mới
-  const unreadCount = conversations.filter((conv) => conv.newMessage).length;
-
-  console.log('[ChatButtonWrapper] conversations:', conversations);
-  console.log('[ChatButtonWrapper] hasUnread:', hasUnread, 'unreadCount:', unreadCount);
-
-  // Ẩn buttons khi ở trang AI Chat
+  // Ẩn buttons khi ở các trang đặc biệt
   const isAIChatPage = location.pathname === '/ai-chat';
-  if (isAIChatPage) return null;
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
-  // Hiển thị khi đã đăng nhập và không ở phòng chat page
-  if (!isAuthenticated || isChatOpen) return null;
+  if (isAIChatPage || isAuthPage) return null;
+
+  // Ẩn buttons khi ở trong phòng chat
+  if (isChatOpen) return null;
+
   return (
     <>
+      <AppointmentButton />
       <AIChatButton />
-      <ChatButton hasUnread={hasUnread} unreadCount={unreadCount} onClick={toggleChatPopup} isOpen={isChatPopupOpen} />
     </>
   );
-}
-
-function App() {
+} function App() {
   // Initialize AOS for all pages
-  useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true,
-      mirror: false,
-    });
+  // useEffect(() => {
+  //   AOS.init({
+  //     duration: 1000,
+  //     once: true,
+  //     mirror: false,
+  //   });
 
-    // Refresh AOS on route change
-    AOS.refresh();
-  }, []);
+  //   // Refresh AOS on route change
+  //   AOS.refresh();
+  // }, []);
 
   return (
     <Router>
       <AuthProvider>
         <ChatProvider>
           <Toaster position="top-right" richColors />
-          <ChatButtonWrapper />
+          <FloatingButtonsWrapper />
           <ChatPopup />
           <Routes>
             {/* Public Routes - Authentication */}

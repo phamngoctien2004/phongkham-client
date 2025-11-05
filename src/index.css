@@ -50,6 +50,72 @@ body>div>section:not([id]) {
   box-shadow: 0 4px 12px rgba(25, 119, 204, 0.4) !important;
 }
 
-.container {
+.container,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl,
+.container-xxl {
   max-width: 1500px !important;
+}
+
+/* Override Bootstrap container trong mọi breakpoint */
+@media (min-width: 576px) {
+
+  .container,
+  .container-sm {
+    max-width: 1500px !important;
+  }
+}
+
+@media (min-width: 768px) {
+
+  .container,
+  .container-sm,
+  .container-md {
+    max-width: 1500px !important;
+  }
+}
+
+@media (min-width: 992px) {
+
+  .container,
+  .container-sm,
+  .container-md,
+  .container-lg {
+    max-width: 1500px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+
+  .container,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl {
+    max-width: 1500px !important;
+  }
+}
+
+@media (min-width: 1400px) {
+
+  .container,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl,
+  .container-xxl {
+    max-width: 1500px !important;
+  }
+}
+
+/* Services Section Background - giống Customer Services */
+.services.section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+}
+
+/* About Section - giữ background trắng */
+.about.section {
+  background: #ffffff !important;
 }

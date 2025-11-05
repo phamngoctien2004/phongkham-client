@@ -52,12 +52,12 @@ const DoctorCard = ({
       className={`col-lg-4 ${className}`}
       {...dataAttrs}
     >
-      <div className="team-member d-flex align-items-start">
+      <div className="team-member">
         {/* Overlay for entire card */}
         <div className="doctor-card-overlay" onClick={handleDetailClick}>
           <button className="btn-doctor-detail">
-            <i className="fas fa-calendar-check me-2"></i>
             Đặt lịch ngay
+            <i className="fas fa-arrow-right"></i>
           </button>
         </div>
 
@@ -69,22 +69,11 @@ const DoctorCard = ({
         <div className="member-info">
           {name && <h4>{name}</h4>}
           {position && <span>{position}</span>}
-          {examinationFee && (
-            <p className="examination-fee">
-              <i className="fas fa-money-bill-wave me-2"></i>
-              Phí khám: <strong>{formatFee(examinationFee)}</strong>
-            </p>
-          )}
-          {description && <p>{description}</p>}
-          {socialLinks && socialLinks.length > 0 && (
-            <div className="social">
-              {socialLinks.map((link, index) => (
-                <a key={index} href={link.url}>
-                  <i className={link.icon}></i>
-                </a>
-              ))}
-            </div>
-          )}
+
+          {/* Button đặt lịch ngay */}
+          <button className="btn-appointment-now" onClick={handleDetailClick}>
+            Đặt lịch ngay
+          </button>
         </div>
       </div>
     </div>

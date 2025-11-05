@@ -198,20 +198,15 @@ Nếu là lễ tân thì title là patientName
 
 
 4. Gửi tin nhắn
-    @MessageMapping("/chat.send")
-
-    request:"
+    @PostMapping("/api/chat")
+    request/response:"
     public class MessageDTO {
     private Integer conversationId;
     private Integer senderId;
     private String message;
     private LocalDateTime sentTime;
-    private List<String> urls;
 }
-"
+- Khi người dùng gửi tin nhắn gọi đến api bên python và bên api bên python sẽ gọi tiếp api bên backend java để lưu tin nhắn
+- Khi ai trả lời thì gọi api chat để lưu tin nhắn thì senderId là null
 
-messagingTemplate.convertAndSend(
-                    "/topic/chat/" + newMessage.getConversationId(),
-                    newMessage);
-
-
+* senderId là userId 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { NotificationBell } from './Notification';
+import { ChatIcon } from './Chat';
 
 const Header = () => {
   const [mobileNavActive, setMobileNavActive] = useState(false);
@@ -55,10 +57,10 @@ const Header = () => {
         <div className="container d-flex justify-content-center justify-content-md-between">
           <div className="contact-info d-flex align-items-center">
             <i className="bi bi-envelope d-flex align-items-center">
-              <a href="mailto:contact@example.com">contact@example.com</a>
+              <a href="mailto:contact@medilab.vn">contact@medilab.vn</a>
             </i>
             <i className="bi bi-phone d-flex align-items-center ms-4">
-              <span>+1 5589 55488 55</span>
+              <span>+84 28 3824 5678</span>
             </i>
           </div>
           <div className="social-links d-none d-md-flex align-items-center">
@@ -142,19 +144,8 @@ const Header = () => {
 
           {isAuthenticated ? (
             <div className="d-none d-sm-flex align-items-center" style={{ gap: '10px' }}>
-              <Link
-                to="/dat-lich"
-                className="cta-btn cta-btn-appointment"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <i className="bi bi-calendar-plus"></i>
-                Đặt lịch ngay
-              </Link>
+              <ChatIcon />
+              <NotificationBell />
 
               <div className="user-dropdown-container" style={{ position: 'relative' }}>
                 <button
@@ -245,19 +236,6 @@ const Header = () => {
             </div>
           ) : (
             <div className="d-none d-sm-flex align-items-center" style={{ gap: '10px' }}>
-              <Link
-                to="/dat-lich"
-                className="cta-btn cta-btn-appointment"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <i className="bi bi-calendar-plus"></i>
-                Đặt lịch ngay
-              </Link>
               <Link to="/login" className="cta-btn">
                 <i className="bi bi-box-arrow-in-right me-1"></i>
                 Đăng nhập

@@ -56,9 +56,22 @@ const aiService = {
      * Send chat message to AI
      * @param {string} message - User message
      * @param {Array} conversationHistory - Previous messages
+     * @param {number|null} conversationId - ID of the conversation (null for new chat)
      */
-    sendChatMessage: async (message, conversationHistory = []) => {
+    sendChatMessage: async (message, conversationHistory = [], conversationId = null) => {
         try {
+            const token = localStorage.getItem('accessToken');
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            const userId = user?.id;
+
+            console.log('[AI Service] Sending message with token:', token ? 'Token exists' : 'No token');
+            console.log('[AI Service] User ID:', userId);
+
+            if (!userId) {
+                throw new Error('User not logged in');
+            }
+
             const response = await fetch(`${AI_API_BASE_URL}/api/chat`, {
                 method: 'POST',
                 headers: {
@@ -66,7 +79,10 @@ const aiService = {
                 },
                 body: JSON.stringify({
                     message,
-                    conversation_history: conversationHistory
+                    conversation_history: conversationHistory,
+                    conversation_id: conversationId,
+                    user_id: userId,
+                    token: token
                 })
             });
 
@@ -75,6 +91,8 @@ const aiService = {
             }
 
             const data = await response.json();
+            // Response should include: response, sources, needs_appointment, recommended_doctors
+            // And for chat history: conversation_id, conversation_name
             return data;
         } catch (error) {
             console.error('[AI Service] Error sending chat message:', error);

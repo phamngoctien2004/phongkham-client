@@ -1,0 +1,100 @@
+.appointment-button-wrapper {
+    position: fixed;
+    right: 10px;
+    bottom: 190px;
+    /* Đặt cao nhất, trên AI chat button */
+    z-index: 10000;
+}
+
+.appointment-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background: #fff;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    font-size: 28px;
+    color: #28a745;
+    /* Màu xanh lá cho đặt lịch */
+    position: relative;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: pulse-appointment 2s infinite;
+}
+
+.appointment-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    background: #28a745;
+    color: white;
+}
+
+.appointment-button i {
+    font-size: 28px;
+    animation: float-appointment 3s ease-in-out infinite;
+}
+
+/* Pulse animation for appointment button */
+@keyframes pulse-appointment {
+    0% {
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 4px 16px rgba(40, 167, 69, 0.5), 0 0 20px rgba(40, 167, 69, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+}
+
+/* Float animation for icon */
+@keyframes float-appointment {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .appointment-button-wrapper {
+        right: 15px;
+        bottom: 230px;
+    }
+
+    .appointment-button {
+        width: 60px;
+        height: 60px;
+    }
+
+    .appointment-button i {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .appointment-button-wrapper {
+        right: 10px;
+        bottom: 210px;
+    }
+
+    .appointment-button {
+        width: 55px;
+        height: 55px;
+    }
+
+    .appointment-button i {
+        font-size: 22px;
+    }
+}

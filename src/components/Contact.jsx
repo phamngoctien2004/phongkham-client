@@ -73,8 +73,8 @@ const Contact = ({ isHomePage = false }) => {
   };
 
   return (
-    <section id="contact" className="contact section pb-0 ">
-      {!isHomePage ? (
+    <section id="contact" className="contact section">
+      {!isHomePage && (
         <PageBanner
           title="LIÊN HỆ VỚI CHÚNG TÔI"
           breadcrumbs={[
@@ -82,73 +82,28 @@ const Contact = ({ isHomePage = false }) => {
             { label: 'Liên hệ' }
           ]}
         />
-      ) : (
-        <div className="container">
-          <SectionTitle
-            title="Contact"
-            subtitle=""
-            disableAnimation={!isHomePage}
-          />
-        </div>
       )}
 
+      <div className="contact-wrapper">
+        {/* Left side - Form with background image */}
+        <div className="contact-form-section">
+          <div className="contact-overlay">
+            <div className="contact-form-container">
+              <h2 className="contact-title">Liên hệ với chúng tôi</h2>
 
-      <div className="container" data-aos="fade-up" data-aos-delay="100"
-        style={{ borderTop: '1px solid var(--accent-color)' }}>
-        <div className="row gy-4  p-4 rounded-4">
-          <div className="col-lg-4">
-            <InfoItem
-              icon="bi bi-geo-alt"
-              title="Địa chỉ"
-              description="A108 Adam Street, New York, NY 535022"
-              aosDelay="100"
-            />
-
-            <InfoItem
-              icon="bi bi-telephone"
-              title="Gọi cho chúng tôi"
-              description="+1 5589 55488 55"
-              aosDelay="100"
-            />
-
-            <InfoItem
-              icon="bi bi-envelope"
-              title="Gửi email"
-              description="info@example.com"
-              aosDelay="100"
-            />
-          </div>
-
-          <div className="col-lg-8">
-            <form onSubmit={handleSubmit} className="php-email-form" data-aos="fade-up" data-aos-delay="200">
-              <div className="row gy-4">
-                <div className="col-md-6">
+              <form onSubmit={handleSubmit} className="contact-form">
+                <div className="form-row">
                   <FormInput
                     name="name"
-                    placeholder="Tên của bạn"
+                    placeholder="Họ & tên"
                     value={formData.name}
                     onChange={handleChange}
                     error={errors.name}
                     required
                   />
-                </div>
-
-                <div className="col-md-6">
-                  <FormInput
-                    type="email"
-                    name="email"
-                    placeholder="Email của bạn"
-                    value={formData.email}
-                    onChange={handleChange}
-                    error={errors.email}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-12">
                   <FormInput
                     name="subject"
-                    placeholder="Tiêu đề"
+                    placeholder="SĐT"
                     value={formData.subject}
                     onChange={handleChange}
                     error={errors.subject}
@@ -156,47 +111,61 @@ const Contact = ({ isHomePage = false }) => {
                   />
                 </div>
 
-                <div className="col-md-12">
-                  <FormTextarea
-                    name="message"
-                    placeholder="Thông điệp"
-                    rows="6"
-                    value={formData.message}
-                    onChange={handleChange}
-                    error={errors.message}
-                    required
-                  />
-                </div>
+                <FormInput
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={errors.email}
+                  required
+                />
 
-                <div className="col-md-12 text-center">
-                  <Button type="submit" variant="primary" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Đang gửi...
-                      </>
-                    ) : (
-                      'Gửi thông điệp'
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </form>
+                <FormTextarea
+                  name="message"
+                  placeholder="Nội dung"
+                  rows="4"
+                  value={formData.message}
+                  onChange={handleChange}
+                  error={errors.message}
+                  required
+                />
+
+                <Button type="submit" variant="primary" disabled={loading} className="btn-submit-contact">
+                  {loading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Đang gửi...
+                    </>
+                  ) : (
+                    'Gửi yêu cầu'
+                  )}
+                </Button>
+              </form>
+
+              <p className="contact-footer-text">
+                Bằng việc nhấn nút Gửi yêu cầu ngay bạn đã đồng ý với{' '}
+                <a href="/quy-che-hoat-dong" className="contact-link">Quy chế hoạt động</a> và{' '}
+                <a href="/chinh-sach-bao-ve-thong-tin" className="contact-link">Chính sách bảo vệ thông tin</a> của MEDLATEC
+              </p>
+            </div>
           </div>
         </div>
 
+        {/* Right side - Google Maps */}
+        <div className="contact-map-section">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.6266890505273!2d105.83490831533383!3d21.00747938600291!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab8dfedb141f%3A0xd8b6d33ccf5522bd!2zxJAuIEzDqm5nLCBIw6AgTuG7mWksIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1635000000000!5m2!1svi!2s"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="MEDLATEC Location"
+          ></iframe>
+        </div>
       </div>
-      {/* <div className="mt-5" data-aos="fade-up" data-aos-delay="200">
-        <iframe
-          style={{ border: 0, width: '100%', height: '600px' }}
-          src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d48389.78314118045!2d-74.006138!3d40.710059!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a22a3bda30d%3A0xb89d1fe6bc499443!2sDowntown%20Conference%20Center!5e0!3m2!1sen!2sus!4v1676961268712!5m2!1sen!2sus"
-          frameBorder="0"
-          allowFullScreen=""
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </div> */}
-
     </section>
   );
 };

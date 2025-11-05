@@ -80,6 +80,35 @@ const chatService = {
             console.error('Error uploading images:', error);
             throw error;
         }
+    },
+
+    /**
+     * Lấy danh sách tất cả cuộc trò chuyện AI của người dùng
+     * @returns {Promise} Danh sách AI conversations
+     */
+    getAIConversations: async () => {
+        try {
+            const response = await apiRequest('/conversations/ai', 'GET');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching AI conversations:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Lấy lịch sử tin nhắn của một cuộc trò chuyện AI
+     * @param {number} conversationId - ID của cuộc trò chuyện
+     * @returns {Promise} Object chứa messages (không cần lastReadId, totalUnread)
+     */
+    getAIMessages: async (conversationId) => {
+        try {
+            const response = await apiRequest(`/conversations/${conversationId}/messages`, 'GET');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching AI messages:', error);
+            throw error;
+        }
     }
 };
 

@@ -1,8 +1,8 @@
 .ai-chat-button-wrapper {
     position: fixed;
     right: 10px;
-    bottom: 180px;
-    /* Đặt cao hơn chat button (chat button ở bottom: 100px) */
+    bottom: 100px;
+    /* Nút AI chat ở dưới cùng */
     z-index: 10000;
 }
 

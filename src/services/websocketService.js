@@ -68,8 +68,16 @@ class WebSocketService {
      * Event payload: {event: "SUCCESS", message: "...", appointmentId: ...}
      */
     subscribeToAppointmentPayment(appointmentId, callback) {
-        if (!this.client || !this.connected) {
-            console.warn('WebSocket not connected. Attempting to connect...');
+        if (!this.client) {
+            console.warn('[WebSocket] Client not initialized. Attempting to connect...');
+            this.connect(() => {
+                this.subscribeToAppointmentPayment(appointmentId, callback);
+            });
+            return null;
+        }
+
+        if (!this.connected) {
+            console.warn('[WebSocket] Not connected. Attempting to connect...');
             this.connect(() => {
                 this.subscribeToAppointmentPayment(appointmentId, callback);
             });
@@ -82,32 +90,38 @@ class WebSocketService {
 
         console.log(`[WebSocket] Subscribing to: ${destination}`);
 
-        const subscription = this.client.subscribe(
-            destination,
-            (message) => {
-                console.log('[WebSocket] ✅ Received message from:', destination);
-                console.log('[WebSocket] Raw message:', message);
-                console.log('[WebSocket] Message body:', message.body);
+        try {
+            const subscription = this.client.subscribe(
+                destination,
+                (message) => {
+                    console.log('[WebSocket] ✅ Received message from:', destination);
+                    console.log('[WebSocket] Raw message:', message);
+                    console.log('[WebSocket] Message body:', message.body);
 
-                try {
-                    const event = JSON.parse(message.body);
-                    console.log('[WebSocket] Parsed event:', event);
-                    if (callback) callback(event);
-                } catch (error) {
-                    console.error('[WebSocket] Error parsing payment notification:', error);
-                    console.error('[WebSocket] Raw body was:', message.body);
+                    try {
+                        const event = JSON.parse(message.body);
+                        console.log('[WebSocket] Parsed event:', event);
+                        if (callback) callback(event);
+                    } catch (error) {
+                        console.error('[WebSocket] Error parsing payment notification:', error);
+                        console.error('[WebSocket] Raw body was:', message.body);
+                    }
+                },
+                {
+                    // Gửi token khi subscribe
+                    Authorization: token ? `Bearer ${token}` : '',
                 }
-            },
-            {
-                // Gửi token khi subscribe
-                Authorization: token ? `Bearer ${token}` : '',
-            }
-        );
+            );
 
-        // Lưu subscription để có thể unsubscribe sau
-        this.subscriptions.set(appointmentId, subscription);
+            // Lưu subscription để có thể unsubscribe sau
+            this.subscriptions.set(appointmentId, subscription);
+            console.log(`[WebSocket] ✅ Successfully subscribed to appointment ${appointmentId}`);
 
-        return subscription;
+            return subscription;
+        } catch (error) {
+            console.error(`[WebSocket] ❌ Error subscribing to appointment ${appointmentId}:`, error);
+            return null;
+        }
     }
 
     /**
@@ -128,8 +142,16 @@ class WebSocketService {
      * Message payload: {conversationId, senderId, message, sentTime, urls}
      */
     subscribeToChatConversation(conversationId, callback) {
-        if (!this.client || !this.connected) {
-            console.warn('WebSocket not connected. Attempting to connect...');
+        if (!this.client) {
+            console.warn('[WebSocket] Client not initialized. Attempting to connect...');
+            this.connect(() => {
+                this.subscribeToChatConversation(conversationId, callback);
+            });
+            return null;
+        }
+
+        if (!this.connected) {
+            console.warn('[WebSocket] Not connected. Attempting to connect...');
             this.connect(() => {
                 this.subscribeToChatConversation(conversationId, callback);
             });
@@ -152,32 +174,39 @@ class WebSocketService {
         // Lưu callback vào Map
         this.callbacks.set(subscriptionKey, callback);
 
-        const subscription = this.client.subscribe(
-            destination,
-            (message) => {
-                console.log('[WebSocket] ✅ Received chat message from:', destination);
-                try {
-                    const chatMessage = JSON.parse(message.body);
-                    console.log('[WebSocket] Chat message:', chatMessage);
+        try {
+            const subscription = this.client.subscribe(
+                destination,
+                (message) => {
+                    console.log('[WebSocket] ✅ Received chat message from:', destination);
+                    try {
+                        const chatMessage = JSON.parse(message.body);
+                        console.log('[WebSocket] Chat message:', chatMessage);
 
-                    // Lấy callback mới nhất từ Map
-                    const currentCallback = this.callbacks.get(subscriptionKey);
-                    if (currentCallback) {
-                        currentCallback(chatMessage);
+                        // Lấy callback mới nhất từ Map
+                        const currentCallback = this.callbacks.get(subscriptionKey);
+                        if (currentCallback) {
+                            currentCallback(chatMessage);
+                        }
+                    } catch (error) {
+                        console.error('[WebSocket] Error parsing chat message:', error);
                     }
-                } catch (error) {
-                    console.error('[WebSocket] Error parsing chat message:', error);
+                },
+                {
+                    // Gửi token khi subscribe
+                    Authorization: token ? `Bearer ${token}` : '',
                 }
-            },
-            {
-                // Gửi token khi subscribe
-                Authorization: token ? `Bearer ${token}` : '',
-            }
-        );
+            );
 
-        // Lưu subscription với key là "chat_{conversationId}"
-        this.subscriptions.set(subscriptionKey, subscription);
-        return subscription;
+            // Lưu subscription với key là "chat_{conversationId}"
+            this.subscriptions.set(subscriptionKey, subscription);
+            console.log(`[WebSocket] ✅ Successfully subscribed to conversation ${conversationId}`);
+            return subscription;
+        } catch (error) {
+            console.error(`[WebSocket] ❌ Error subscribing to conversation ${conversationId}:`, error);
+            this.callbacks.delete(subscriptionKey);
+            return null;
+        }
     }
 
     /**

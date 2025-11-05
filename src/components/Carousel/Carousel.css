@@ -1,0 +1,218 @@
+.carousel-section {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+}
+
+.carousel-slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.carousel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,
+            rgba(0, 0, 0, 0.5) 0%,
+            rgba(25, 119, 204, 0.4) 40%,
+            rgba(25, 119, 204, 0.3) 70%,
+            rgba(25, 119, 204, 0.2) 100%);
+}
+
+.carousel-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    padding: 0 50px;
+    color: white;
+    text-align: left;
+}
+
+.carousel-title {
+    font-size: 56px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    color: #ffffff;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.carousel-subtitle {
+    font-size: 32px;
+    font-weight: 500;
+    margin-bottom: 15px;
+    color: #e0f2fe;
+    text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.carousel-description {
+    font-size: 20px;
+    font-weight: 400;
+    max-width: 600px;
+    line-height: 1.6;
+    color: #f0f9ff;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Navigation Buttons */
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(25, 119, 204, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 3;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(25, 119, 204, 0.3);
+}
+
+.carousel-control:hover {
+    background: rgba(25, 119, 204, 1);
+    border-color: rgba(255, 255, 255, 1);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(25, 119, 204, 0.5);
+}
+
+.carousel-control.prev {
+    left: 30px;
+}
+
+.carousel-control.next {
+    right: 30px;
+}
+
+/* Indicators */
+.carousel-indicators {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 3;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.indicator.active {
+    background: white;
+    width: 40px;
+    border-radius: 6px;
+    border-color: white;
+}
+
+.indicator:hover {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: white;
+    transform: scale(1.2);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .carousel-container {
+        height: 500px;
+    }
+
+    .carousel-title {
+        font-size: 42px;
+    }
+
+    .carousel-subtitle {
+        font-size: 26px;
+    }
+
+    .carousel-description {
+        font-size: 18px;
+    }
+
+    .carousel-content {
+        padding: 0 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .carousel-container {
+        height: 400px;
+    }
+
+    .carousel-title {
+        font-size: 32px;
+    }
+
+    .carousel-subtitle {
+        font-size: 20px;
+    }
+
+    .carousel-description {
+        font-size: 16px;
+    }
+
+    .carousel-content {
+        padding: 0 20px;
+        text-align: center;
+    }
+
+    .carousel-control {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .carousel-control.prev {
+        left: 15px;
+    }
+
+    .carousel-control.next {
+        right: 15px;
+    }
+}

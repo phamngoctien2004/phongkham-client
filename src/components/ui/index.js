@@ -16,3 +16,4 @@ export { default as PageBanner } from './PageBanner';
 
 export { default as ChatButton } from './ChatButton';
 export { default as AIChatButton } from './AIChatButton';
+export { default as AppointmentButton } from './AppointmentButton';

@@ -51,63 +51,45 @@ const ServiceCard = ({
       {...dataAttrs}
     >
       <div className="service-card-modern">
-        {/* Image Section */}
+        {/* Logo Badge */}
+        <div className="service-card-logo">
+          <i className="fas fa-hospital"></i>
+        </div>
+
+        {/* Image Section with Icon */}
         <div className="service-card-image">
           {image ? (
             <img src={image} alt={title} />
           ) : (
-            <div className="service-card-placeholder">
-              <i className={icon || 'fas fa-hospital'}></i>
+            <div className="service-card-icon-wrapper">
+              <div className="service-card-icon">
+                <i className={icon || 'fas fa-hospital'}></i>
+              </div>
             </div>
           )}
-
-          {/* Discount Badge */}
-          {discount && (
-            <div className="service-card-discount">
-              - {discount}
-            </div>
-          )}
-
-          {/* Detail Link */}
-          <div className="service-card-overlay">
-            <button className="btn-detail" onClick={onDetail}>
-              Xem chi tiết <i className="fas fa-arrow-right ms-2"></i>
-            </button>
-          </div>
         </div>
 
         {/* Content Section */}
         <div className="service-card-body">
-          {/* Price */}
-          {/* <div className="service-card-price">
-            {formatPrice(price)}
-          </div> */}
-
           {/* Title */}
           <h4 className="service-card-title">
             {title}
           </h4>
 
-          {/* Footer Icons */}
-          <div className="service-card-footer">
-            {gender && (
-              <div className="service-card-info">
-                <i className="fas fa-venus-mars text-primary"></i>
-                <span>{gender}</span>
-              </div>
-            )}
-            <div className="service-card-info">
-              <i className="fas fa-clock text-primary"></i>
-              <span>Đặt lịch</span>
-            </div>
-            <div className="service-card-info">
-              <i className="fas fa-map-marker-alt text-primary"></i>
-              <span>{roomName || 'Phòng khám'}</span>
-            </div>
-            <div className="service-card-info">
-              <i className="fas text-primary"></i>
-              <span>{formatPrice(price) || 'Giá'}</span>
-            </div>
+          {/* Description */}
+          <p className="service-card-description">
+            {description}
+          </p>
+
+          {/* Action Buttons */}
+          <div className="service-card-actions">
+            <button className="btn-service-book" onClick={onDetail}>
+              <i className="fas fa-calendar-alt"></i>
+              Đặt lịch
+            </button>
+            <button className="btn-service-detail" onClick={onDetail}>
+              Xem chi tiết
+            </button>
           </div>
         </div>
       </div>

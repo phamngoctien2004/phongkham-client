@@ -10,13 +10,13 @@ const Footer = () => {
               <span className="sitename">Medilab</span>
             </Link>
             <div className="footer-contact pt-3">
-              <p>A108 Adam Street</p>
-              <p>New York, NY 535022</p>
+              <p>123 Đường Trần Hưng Đạo</p>
+              <p>Quận 1, Hồ Chí Minh</p>
               <p className="mt-3">
-                <strong>Phone:</strong> <span>+1 5589 55488 55</span>
+                <strong>Điện thoại:</strong> <span>+84 28 3824 5678</span>
               </p>
               <p>
-                <strong>Email:</strong> <span>info@example.com</span>
+                <strong>Email:</strong> <span>contact@medilab.vn</span>
               </p>
             </div>
             <div className="social-links d-flex mt-4">
@@ -36,85 +36,85 @@ const Footer = () => {
           </div>
 
           <div className="col-lg-2 col-md-3 footer-links">
-            <h4>Useful Links</h4>
+            <h4>Liên kết nhanh</h4>
             <ul>
               <li>
-                <a href="#">Home</a>
+                <Link to="/">Trang chủ</Link>
               </li>
               <li>
-                <a href="#">About us</a>
+                <Link to="/about">Giới thiệu</Link>
               </li>
               <li>
-                <a href="#">Services</a>
+                <Link to="/services">Dịch vụ</Link>
               </li>
               <li>
-                <a href="#">Terms of service</a>
+                <Link to="/doctors">Đội ngũ bác sĩ</Link>
               </li>
               <li>
-                <a href="#">Privacy policy</a>
+                <Link to="/contact">Liên hệ</Link>
               </li>
             </ul>
           </div>
 
           <div className="col-lg-2 col-md-3 footer-links">
-            <h4>Our Services</h4>
+            <h4>Dịch vụ</h4>
             <ul>
               <li>
-                <a href="#">Web Design</a>
+                <Link to="/services">Khám tổng quát</Link>
               </li>
               <li>
-                <a href="#">Web Development</a>
+                <Link to="/services">Khám chuyên khoa</Link>
               </li>
               <li>
-                <a href="#">Product Management</a>
+                <Link to="/services">Xét nghiệm</Link>
               </li>
               <li>
-                <a href="#">Marketing</a>
+                <Link to="/services">Chẩn đoán hình ảnh</Link>
               </li>
               <li>
-                <a href="#">Graphic Design</a>
+                <Link to="/services">Tư vấn sức khỏe</Link>
               </li>
             </ul>
           </div>
 
           <div className="col-lg-2 col-md-3 footer-links">
-            <h4>Hic solutasetp</h4>
+            <h4>Chuyên khoa</h4>
             <ul>
               <li>
-                <a href="#">Molestiae accusamus iure</a>
+                <a href="#">Nội khoa</a>
               </li>
               <li>
-                <a href="#">Excepturi dignissimos</a>
+                <a href="#">Ngoại khoa</a>
               </li>
               <li>
-                <a href="#">Suscipit distinctio</a>
+                <a href="#">Sản phụ khoa</a>
               </li>
               <li>
-                <a href="#">Dilecta</a>
+                <a href="#">Nhi khoa</a>
               </li>
               <li>
-                <a href="#">Sit quas consectetur</a>
+                <a href="#">Tim mạch</a>
               </li>
             </ul>
           </div>
 
           <div className="col-lg-2 col-md-3 footer-links">
-            <h4>Nobis illum</h4>
+            <h4>Tiện ích</h4>
             <ul>
               <li>
-                <a href="#">Ipsam</a>
+                <Link to="/dat-lich">Đặt lịch khám</Link>
               </li>
               <li>
-                <a href="#">Laudantium dolorum</a>
+                <Link to="/news">Tin tức</Link>
               </li>
               <li>
-                <a href="#">Dinera</a>
+                <a href="#">Hỏi đáp</a>
               </li>
               <li>
-                <a href="#">Trodelas</a>
+                <a href="#">Hướng dẫn</a>
               </li>
               <li>
-                <a href="#">Flexo</a>
+                <a href="#">Chính sách bảo mật</a>
               </li>
             </ul>
           </div>

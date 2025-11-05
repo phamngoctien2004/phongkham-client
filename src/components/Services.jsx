@@ -132,7 +132,7 @@ const Services = ({ isHomePage = false }) => {
   };
 
   return (
-    <section id="services" className="services section jutify-content-center ">
+    <section id="services" className="services section justify-content-center">
       {/* Page Banner - Only show on full Services page */}
       {!isHomePage ? (
         <PageBanner
@@ -144,11 +144,9 @@ const Services = ({ isHomePage = false }) => {
         />
       ) : (
         <div className="container">
-          <SectionTitle
-            title="Gói khám"
-            subtitle=""
-            disableAnimation={!isHomePage}
-          />
+          <div className="section-header">
+            <h2>CÁC DỊCH VỤ Y TẾ <span style={{ color: '#1977cc' }}>MEDLATEC</span> CUNG CẤP</h2>
+          </div>
         </div>
       )}
 
@@ -282,12 +280,10 @@ const Services = ({ isHomePage = false }) => {
           <div className="row mt-5">
             <div className="col-12 text-center">
               <button
-                className="btn btn-primary btn-lg"
+                className="btn-view-more"
                 onClick={() => navigate('/services')}
               >
-                <i className="fas fa-th-large me-2"></i>
-                Xem tất cả dịch vụ
-                <i className="fas fa-arrow-right ms-2"></i>
+                Xem thêm
               </button>
             </div>
           </div>

@@ -3,12 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import appointmentService from '../services/appointmentService';
 import aiService from '../services/aiService';
+import chatService from '../services/chatService';
 import './AIChatPage.css';
 import '../components/Appointment/Appointment.css'; // Import appointment styles
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function AIChatPage() {
     const navigate = useNavigate();
+
+    // AI Conversation states
+    const [conversations, setConversations] = useState([]);
+    const [activeConversation, setActiveConversation] = useState(null);
+    const [conversationsLoading, setConversationsLoading] = useState(false);
+
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
@@ -19,9 +26,8 @@ function AIChatPage() {
     const [loading, setLoading] = useState(false);
     const [expandedSlots, setExpandedSlots] = useState({});
     const [selectedSlot, setSelectedSlot] = useState(null);
-    const [chatHistory, setChatHistory] = useState([
-        { id: 1, title: 'Cuộc trò chuyện hiện tại', date: new Date().toLocaleDateString('vi-VN') }
-    ]);
+    const [selectedDoctorPerMessage, setSelectedDoctorPerMessage] = useState({}); // Track selected doctor for each message
+    const [selectedDatePerMessage, setSelectedDatePerMessage] = useState({}); // Track selected date for each message
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [bookingData, setBookingData] = useState(null);
@@ -33,36 +39,122 @@ function AIChatPage() {
     const [formLoading, setFormLoading] = useState(false);
 
     const messagesEndRef = useRef(null);
-    const shouldScrollRef = useRef(false); // Flag để kiểm soát scroll
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // Always scroll to bottom when messages change
     useEffect(() => {
-        // Chỉ scroll khi shouldScrollRef được set là true (khi user gửi tin nhắn)
-        if (shouldScrollRef.current) {
-            scrollToBottom();
-            shouldScrollRef.current = false; // Reset flag
-        }
+        scrollToBottom();
     }, [messages]);
+
+    // Load AI conversations on mount
+    useEffect(() => {
+        loadAIConversations();
+    }, []);
+
+    const loadAIConversations = async () => {
+        try {
+            console.log('[AI Chat] Starting to load conversations...');
+            setConversationsLoading(true);
+
+            // Try to load from API
+            try {
+                const data = await chatService.getAIConversations();
+                console.log('[AI Chat] API response:', data);
+                console.log('[AI Chat] Data type:', typeof data, 'Is Array:', Array.isArray(data));
+                setConversations(data || []);
+                console.log('[AI Chat] Conversations state updated');
+            } catch (apiError) {
+                console.warn('[AI Chat] API not available, using empty array:', apiError);
+                // If API fails, just use empty array (no conversations yet)
+                setConversations([]);
+            }
+        } catch (error) {
+            console.error('[AI Chat] Failed to load conversations:', error);
+            console.error('[AI Chat] Error details:', error.response || error.message);
+            setConversations([]);
+        } finally {
+            setConversationsLoading(false);
+            console.log('[AI Chat] Loading completed');
+        }
+    };
+
+    const handleNewChat = () => {
+        // Reset to new conversation
+        setActiveConversation(null);
+        setMessages([
+            {
+                role: 'assistant',
+                content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
+            }
+        ]);
+        setSelectedSlot(null);
+    };
+
+    const handleSelectConversation = async (conversation) => {
+        try {
+            setLoading(true);
+            setActiveConversation(conversation);
+
+            // Load messages from backend
+            const data = await chatService.getAIMessages(conversation.id);
+            console.log('[AI Chat] Loaded messages:', data);
+
+            // Convert backend messages to component format
+            const loadedMessages = (data.messages || []).map(msg => ({
+                role: msg.senderId ? 'user' : 'assistant', // Adjust based on your backend structure
+                content: msg.message,
+                sources: msg.sources,
+                needsAppointment: msg.needsAppointment,
+                recommendedDoctors: msg.recommendedDoctors || []
+            }));
+
+            setMessages(loadedMessages.length > 0 ? loadedMessages : [
+                {
+                    role: 'assistant',
+                    content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
+                }
+            ]);
+        } catch (error) {
+            console.error('Failed to load conversation messages:', error);
+            toast.error('Không thể tải tin nhắn');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const sendMessage = async () => {
         if (!input.trim() || loading) return;
 
         const userMessage = { role: 'user', content: input };
         setMessages(prev => [...prev, userMessage]);
+        const currentInput = input;
         setInput('');
         setLoading(true);
-        shouldScrollRef.current = true; // Bật scroll khi user gửi tin nhắn
 
         try {
-            const data = await aiService.sendChatMessage(input, messages);
+            // Log what we're sending to Python API
+            console.log('=== SENDING TO PYTHON API ===');
+            console.log('Message:', currentInput);
+            console.log('Conversation History:', messages);
+            console.log('Conversation ID:', activeConversation?.id || null);
+            console.log('============================\n');
+
+            // Send conversationId (null for new chat, or existing conversation id)
+            const data = await aiService.sendChatMessage(
+                currentInput,
+                messages,
+                activeConversation?.id || null
+            );
 
             // Console log toàn bộ response từ AI
             console.log('=== AI RESPONSE ===');
             console.log('Full data:', data);
             console.log('Response text:', data.response);
+            console.log('Conversation ID:', data.conversation_id);
+            console.log('Conversation Name:', data.conversation_name);
             console.log('Sources:', data.sources);
             console.log('Needs appointment:', data.needs_appointment);
             console.log('Recommended doctors:', data.recommended_doctors);
@@ -93,6 +185,20 @@ function AIChatPage() {
                 });
             }
             console.log('==================\n');
+
+            // Update or create conversation
+            if (data.conversation_id && !activeConversation) {
+                // New conversation created by backend
+                const newConversation = {
+                    id: data.conversation_id,
+                    patientName: data.conversation_name || 'New Chat',
+                    responder: 'AI'
+                };
+                setActiveConversation(newConversation);
+
+                // Add to conversations list
+                setConversations(prev => [newConversation, ...prev]);
+            }
 
             setMessages(prev => [...prev, {
                 role: 'assistant',
@@ -247,21 +353,35 @@ function AIChatPage() {
 
                     {sidebarOpen && (
                         <>
-                            <button className="new-chat-button">
+                            <button className="new-chat-button" onClick={handleNewChat}>
                                 <i className="bi bi-plus"></i> Cuộc trò chuyện mới
                             </button>
 
                             <div className="chat-history-list">
                                 <h3 className="history-title">Lịch sử</h3>
-                                {chatHistory.map((chat) => (
-                                    <div key={chat.id} className="chat-history-item active">
-                                        {/* <i className="bi bi-chat-dots chat-icon"></i> */}
-                                        <div className="chat-info">
-                                            <p className="chat-title">{chat.title}</p>
-                                            {/* <p className="chat-date">{chat.date}</p> */}
-                                        </div>
+                                {conversationsLoading ? (
+                                    <div className="loading-conversations">
+                                        <i className="bi bi-hourglass-split"></i>
+                                        <p>Đang tải...</p>
                                     </div>
-                                ))}
+                                ) : conversations.length === 0 ? (
+                                    <div className="no-conversations">
+                                        <i className="bi bi-chat-dots"></i>
+                                        <p>Chưa có lịch sử trò chuyện</p>
+                                    </div>
+                                ) : (
+                                    conversations.map((conversation) => (
+                                        <div
+                                            key={conversation.id}
+                                            className={`chat-history-item ${activeConversation?.id === conversation.id ? 'active' : ''}`}
+                                            onClick={() => handleSelectConversation(conversation)}
+                                        >
+                                            <div className="chat-info">
+                                                <p className="chat-title">{conversation.patientName || 'AI Chat'}</p>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </>
                     )}
@@ -282,7 +402,7 @@ function AIChatPage() {
                         )}
                         <div className="ai-header-content">
                             <div className="ai-header-icon">
-                                <i className="bi bi-heart-pulse-fill stethoscope-icon"></i>
+                                <i className="bi bi-robot stethoscope-icon"></i>
                             </div>
                             <div className="ai-header-text">
                                 <h1 className="ai-header-title">AI Tư Vấn Y Tế</h1>
@@ -366,177 +486,170 @@ function AIChatPage() {
                                             {msg.recommendedDoctors && msg.recommendedDoctors.length > 0 && (
                                                 <div className="ai-doctors-section">
                                                     <h3 className="ai-doctors-section-title">
-                                                        <i className="bi bi-person-badge doctors-title-icon"></i>
-                                                        Bác Sĩ Đề Xuất ({msg.recommendedDoctors.length})
+                                                        Chọn Bác Sĩ
                                                     </h3>
+                                                    <p className="ai-booking-date">Ngày khám: {
+                                                        msg.recommendedDoctors[0]?.available_slots?.[0]?.date
+                                                            ? new Date(msg.recommendedDoctors[0].available_slots[0].date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                                            : new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                                    }</p>
 
-                                                    <div className="ai-doctors-list-inline">
-                                                        {(() => {
-                                                            const doctorsExpandKey = `msg${idx}_doctors`;
-                                                            const visibleDoctors = expandedSlots[doctorsExpandKey]
-                                                                ? msg.recommendedDoctors
-                                                                : msg.recommendedDoctors.slice(0, 2);
+                                                    {/* Danh sách bác sĩ ngang */}
+                                                    <div className="ai-doctors-horizontal-scroll">
+                                                        {msg.recommendedDoctors.map((doctor, doctorIdx) => {
+                                                            const messageKey = `msg${idx}`;
+                                                            const isSelected = selectedDoctorPerMessage[messageKey] === doctorIdx ||
+                                                                (selectedDoctorPerMessage[messageKey] === undefined && doctorIdx === 0);
 
                                                             return (
-                                                                <>
-                                                                    {visibleDoctors.map((doctor, doctorIdx) => {
-                                                                        const doctorKey = `msg${idx}_doctor${doctorIdx}`;
+                                                                <div
+                                                                    key={doctorIdx}
+                                                                    className={`ai-doctor-card-horizontal ${isSelected ? 'selected' : ''}`}
+                                                                    onClick={() => {
+                                                                        setSelectedDoctorPerMessage(prev => ({
+                                                                            ...prev,
+                                                                            [messageKey]: doctorIdx
+                                                                        }));
+                                                                        // Reset selected slot when changing doctor
+                                                                        setSelectedSlot(null);
+                                                                    }}
+                                                                >
+                                                                    <div className="ai-doctor-avatar">
+                                                                        {doctor.gender === 'FEMALE' ? '👩‍⚕️' : '👨‍⚕️'}
+                                                                    </div>
+                                                                    <div className="ai-doctor-details">
+                                                                        <h4 className="ai-doctor-name-horizontal">
+                                                                            {doctor.position || 'BS.'} {doctor.doctor_name}
+                                                                        </h4>
+                                                                        <p className="ai-doctor-specialty-horizontal">{doctor.specialty}</p>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
 
-                                                                        return (
-                                                                            <div key={doctorIdx} className="ai-doctor-card-inline">
-                                                                                <div className="ai-doctor-header-inline">
-                                                                                    <div className="ai-doctor-info-inline">
-                                                                                        <h4 className="ai-doctor-name-inline">
-                                                                                            {doctor.position || 'BS. ' + doctor.doctor_name}
-                                                                                        </h4>
-                                                                                        <p className="ai-doctor-specialty-inline">{doctor.specialty}</p>
-                                                                                    </div>
-                                                                                    <span className="ai-confidence-badge-inline">
-                                                                                        {Math.round(doctor.confidence * 100)}%
-                                                                                    </span>
-                                                                                </div>
+                                                    {/* Chọn Giờ Khám - Only show for selected doctor */}
+                                                    {(() => {
+                                                        const messageKey = `msg${idx}`;
+                                                        const selectedDoctorIdx = selectedDoctorPerMessage[messageKey] ?? 0; // Default to first doctor
+                                                        const selectedDoctor = msg.recommendedDoctors[selectedDoctorIdx];
 
-                                                                                {/* <p className="ai-doctor-reason-inline">💡 {doctor.reason}</p> */}
+                                                        if (!selectedDoctor) return null;
 
-                                                                                {doctor.examination_fee && (
-                                                                                    <p className="ai-doctor-fee-inline">
-                                                                                        Phí khám: {doctor.examination_fee.toLocaleString('vi-VN')} VNĐ
-                                                                                    </p>
-                                                                                )}
+                                                        return (
+                                                            <div className="ai-time-selection-section">
+                                                                <h3 className="ai-time-section-title">
+                                                                    Chọn Giờ Khám - {selectedDoctor.position || 'BS.'} {selectedDoctor.doctor_name}
+                                                                </h3>
 
-                                                                                {/* Available Slots */}
-                                                                                {doctor.available_slots && doctor.available_slots.length > 0 && (() => {
-                                                                                    const slotsByDate = {};
-                                                                                    doctor.available_slots.forEach(slot => {
-                                                                                        if (!slotsByDate[slot.date]) {
-                                                                                            slotsByDate[slot.date] = [];
-                                                                                        }
-                                                                                        slotsByDate[slot.date].push(slot);
-                                                                                    });
+                                                                {selectedDoctor.available_slots && selectedDoctor.available_slots.length > 0 && (() => {
+                                                                    // Group slots by date
+                                                                    const slotsByDate = {};
+                                                                    selectedDoctor.available_slots.forEach(slot => {
+                                                                        if (!slotsByDate[slot.date]) {
+                                                                            slotsByDate[slot.date] = [];
+                                                                        }
+                                                                        slotsByDate[slot.date].push(slot);
+                                                                    });
 
-                                                                                    const dateEntries = Object.entries(slotsByDate);
-                                                                                    const dateExpandKey = `${doctorKey}_dates`;
-                                                                                    const visibleDates = expandedSlots[dateExpandKey] ? dateEntries : dateEntries.slice(0, 3);
+                                                                    const availableDates = Object.keys(slotsByDate);
+                                                                    const selectedDateKey = `${messageKey}_date`;
+                                                                    const currentSelectedDate = selectedDatePerMessage[selectedDateKey] || availableDates[0];
+                                                                    const shiftsForDate = slotsByDate[currentSelectedDate] || [];
+
+                                                                    return (
+                                                                        <>
+                                                                            {/* Date Selector */}
+                                                                            <div className="ai-date-selector">
+                                                                                {availableDates.map((date, dateIdx) => {
+                                                                                    const dateObj = new Date(date);
+                                                                                    const dayOfWeek = dateObj.toLocaleDateString('vi-VN', { weekday: 'short' });
+                                                                                    const dayOfMonth = dateObj.getDate();
+                                                                                    const month = dateObj.getMonth() + 1;
+                                                                                    const isSelected = date === currentSelectedDate;
 
                                                                                     return (
-                                                                                        <div className="ai-slots-inline">
+                                                                                        <button
+                                                                                            key={dateIdx}
+                                                                                            onClick={() => {
+                                                                                                setSelectedDatePerMessage(prev => ({
+                                                                                                    ...prev,
+                                                                                                    [selectedDateKey]: date
+                                                                                                }));
+                                                                                                // Reset selected slot when changing date
+                                                                                                setSelectedSlot(null);
+                                                                                            }}
+                                                                                            className={`ai-date-button ${isSelected ? 'selected' : ''}`}
+                                                                                        >
+                                                                                            <div className="ai-date-month">{month}/{dayOfMonth}</div>
+                                                                                            <div className="ai-date-day">{dayOfWeek}</div>
+                                                                                        </button>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
 
+                                                                            <div className="ai-shifts-container">
+                                                                                {shiftsForDate.map((shift, shiftIdx) => {
+                                                                                    const shiftIcon = shift.shift === 'SANG' ? '🌅' :
+                                                                                        shift.shift === 'CHIEU' ? '☀️' : '🌙';
+                                                                                    const shiftName = shift.shift === 'SANG' ? 'Ca Sáng' :
+                                                                                        shift.shift === 'CHIEU' ? 'Ca Chiều' : 'Ca Tối';
 
-                                                                                            {visibleDates.map(([date, shifts], dateIdx) => {
-                                                                                                const dateObj = new Date(date);
-                                                                                                const dateStr = dateObj.toLocaleDateString('vi-VN', {
-                                                                                                    weekday: 'short',
-                                                                                                    day: '2-digit',
-                                                                                                    month: '2-digit'
-                                                                                                });
-                                                                                                const totalSlotsInDay = shifts.reduce((sum, s) => sum + s.total_slots, 0);
+                                                                                    return (
+                                                                                        <div key={shiftIdx} className="ai-shift-section">
+                                                                                            <div className="ai-shift-header">
+                                                                                                <span className="ai-shift-icon">{shiftIcon}</span>
+                                                                                                <span className="ai-shift-name">{shiftName}</span>
+                                                                                            </div>
 
-                                                                                                return (
-                                                                                                    <div key={dateIdx} className="ai-date-card-inline">
-                                                                                                        <div className="ai-date-header-inline">
-                                                                                                            <span className="ai-date-text-inline">{dateStr}</span>
-                                                                                                        </div>
+                                                                                            {shift.available_times && shift.available_times.length > 0 && (
+                                                                                                <div className="ai-time-slots-grid">
+                                                                                                    {shift.available_times
+                                                                                                        .filter(time => {
+                                                                                                            // Lọc bỏ các giờ trong invalidTimes
+                                                                                                            if (shift.invalidTimes && Array.isArray(shift.invalidTimes) && shift.invalidTimes.length > 0) {
+                                                                                                                return !shift.invalidTimes.includes(time);
+                                                                                                            }
+                                                                                                            return true;
+                                                                                                        })
+                                                                                                        .map((time, timeIdx) => {
+                                                                                                            const slotKey = `${idx}_${selectedDoctor.doctor_id}_${currentSelectedDate}_${shift.shift}_${time}`;
+                                                                                                            const isSelected = selectedSlot?.key === slotKey;
 
-                                                                                                        {/* Shifts for this date */}
-                                                                                                        <div className="ai-shifts-list-inline">
-                                                                                                            {shifts.map((shift, shiftIdx) => {
-                                                                                                                const shiftName = shift.shift === 'SANG' ? 'Sáng' :
-                                                                                                                    shift.shift === 'CHIEU' ? 'Chiều' : ' Tối';
-
-                                                                                                                return (
-                                                                                                                    <div key={shiftIdx} className="ai-shift-item-inline">
-                                                                                                                        <div className="ai-shift-header-inline">
-                                                                                                                            <span className="ai-shift-name-inline">{shiftName}</span>
-                                                                                                                            <span className="ai-shift-count-inline">{shift.total_slots} slots</span>
-                                                                                                                        </div>
-
-                                                                                                                        {shift.available_times && shift.available_times.length > 0 && (
-                                                                                                                            <div className="ai-times-grid-inline">
-                                                                                                                                {shift.available_times
-                                                                                                                                    .filter(time => {
-                                                                                                                                        // Lọc bỏ các giờ trong invalidTimes (nằm trong shift object)
-                                                                                                                                        if (shift.invalidTimes && Array.isArray(shift.invalidTimes) && shift.invalidTimes.length > 0) {
-                                                                                                                                            return !shift.invalidTimes.includes(time);
-                                                                                                                                        }
-                                                                                                                                        return true;
-                                                                                                                                    })
-                                                                                                                                    .map((time, timeIdx) => {
-                                                                                                                                        const slotKey = `${idx}_${doctor.doctor_id}_${date}_${shift.shift}_${time}`;
-                                                                                                                                        const isSelected = selectedSlot?.key === slotKey;
-
-                                                                                                                                        return (
-                                                                                                                                            <button
-                                                                                                                                                key={timeIdx}
-                                                                                                                                                onClick={() => handleSlotSelection(idx, doctor.doctor_id, date, shift.shift, time, doctor.doctor_name)}
-                                                                                                                                                className={`ai-time-button-inline ${isSelected ? 'ai-time-selected-inline' : ''}`}
-                                                                                                                                            >
-                                                                                                                                                {time}
-                                                                                                                                            </button>
-                                                                                                                                        );
-                                                                                                                                    })}
-                                                                                                                            </div>
-                                                                                                                        )}
-                                                                                                                    </div>
-                                                                                                                );
-                                                                                                            })}
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                );
-                                                                                            })}
-
-                                                                                            {/* Show More Dates Button */}
-                                                                                            {dateEntries.length > 3 && (
-                                                                                                <button
-                                                                                                    onClick={(e) => {
-                                                                                                        e.preventDefault();
-                                                                                                        setExpandedSlots(prev => ({ ...prev, [dateExpandKey]: !prev[dateExpandKey] }));
-                                                                                                    }}
-                                                                                                    className="ai-expand-dates-button-inline"
-                                                                                                >
-                                                                                                    {expandedSlots[dateExpandKey]
-                                                                                                        ? '▲ Thu gọn'
-                                                                                                        : `▼ Xem thêm ${dateEntries.length - 3} ngày`
-                                                                                                    }
-                                                                                                </button>
+                                                                                                            return (
+                                                                                                                <button
+                                                                                                                    key={timeIdx}
+                                                                                                                    onClick={() => handleSlotSelection(idx, selectedDoctor.doctor_id, currentSelectedDate, shift.shift, time, selectedDoctor.doctor_name)}
+                                                                                                                    className={`ai-time-slot ${isSelected ? 'selected' : ''}`}
+                                                                                                                >
+                                                                                                                    {time}
+                                                                                                                </button>
+                                                                                                            );
+                                                                                                        })}
+                                                                                                </div>
                                                                                             )}
                                                                                         </div>
                                                                                     );
-                                                                                })()}
-
-                                                                                {/* Book Appointment Button */}
-                                                                                <button
-                                                                                    onClick={() => handleBookAppointment(doctor, idx)}
-                                                                                    className={`ai-book-button-inline ${selectedSlot?.messageIndex === idx && selectedSlot?.doctorId === doctor.doctor_id ? 'ai-book-selected-inline' : ''}`}
-                                                                                >
-                                                                                    <i className="bi bi-calendar-check book-icon"></i>
-                                                                                    {selectedSlot?.messageIndex === idx && selectedSlot?.doctorId === doctor.doctor_id
-                                                                                        ? `✓ Đặt lịch: ${selectedSlot.time} - ${new Date(selectedSlot.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}`
-                                                                                        : 'Chọn giờ & Đặt lịch'
-                                                                                    }
-                                                                                </button>
+                                                                                })}
                                                                             </div>
-                                                                        );
-                                                                    })}
+                                                                        </>
+                                                                    );
+                                                                })()}
 
-                                                                    {/* Nút Xem thêm bác sĩ */}
-                                                                    {msg.recommendedDoctors.length > 2 && (
-                                                                        <button
-                                                                            className="ai-show-more-doctors-button"
-                                                                            onClick={() => {
-                                                                                const doctorsExpandKey = `msg${idx}_doctors`;
-                                                                                setExpandedSlots(prev => ({ ...prev, [doctorsExpandKey]: !prev[doctorsExpandKey] }));
-                                                                            }}
-                                                                        >
-                                                                            {expandedSlots[`msg${idx}_doctors`]
-                                                                                ? '▲ Thu gọn'
-                                                                                : `▼ Xem thêm ${msg.recommendedDoctors.length - 2} bác sĩ`
-                                                                            }
-                                                                        </button>
-                                                                    )}
-                                                                </>
-                                                            );
-                                                        })()}
-                                                    </div>
+                                                                {/* Book Appointment Button */}
+                                                                <button
+                                                                    onClick={() => handleBookAppointment(selectedDoctor, idx)}
+                                                                    className={`ai-book-appointment-btn ${selectedSlot?.messageIndex === idx && selectedSlot?.doctorId === selectedDoctor.doctor_id ? 'has-selection' : ''}`}
+                                                                >
+                                                                    <i className="bi bi-calendar-check"></i>
+                                                                    {selectedSlot?.messageIndex === idx && selectedSlot?.doctorId === selectedDoctor.doctor_id
+                                                                        ? `Đặt lịch: ${selectedSlot.time} - ${new Date(selectedSlot.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}`
+                                                                        : 'Chọn giờ để đặt lịch'
+                                                                    }
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
                                             )}
                                         </div>
