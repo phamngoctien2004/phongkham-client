@@ -18,7 +18,7 @@ const ServicesPage = () => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
             >
-                <i className="bi bi-arrow-up-short"></i>
+                <i className="bi bi-arrow-up-short dđ"></i>
             </a>
         </div>
     );
