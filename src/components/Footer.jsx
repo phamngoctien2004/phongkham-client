@@ -7,16 +7,16 @@ const Footer = () => {
         <div className="row gy-4">
           <div className="col-lg-4 col-md-6 footer-about">
             <Link to="/" className="logo d-flex align-items-center">
-              <span className="sitename">Medilab</span>
+              <span className="sitename">Phòng khám đa khoa Thái Hà</span>
             </Link>
             <div className="footer-contact pt-3">
-              <p>123 Đường Trần Hưng Đạo</p>
-              <p>Quận 1, Hồ Chí Minh</p>
+              <p>Thái Hà, Đống Đa</p>
+              <p>Hà Nội</p>
               <p className="mt-3">
                 <strong>Điện thoại:</strong> <span>+84 28 3824 5678</span>
               </p>
               <p>
-                <strong>Email:</strong> <span>contact@medilab.vn</span>
+                <strong>Email:</strong> <span>contact@dakhoathaiha.vn</span>
               </p>
             </div>
             <div className="social-links d-flex mt-4">
@@ -118,17 +118,6 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-        </div>
-      </div>
-
-      <div className="container copyright text-center mt-4">
-        <p>
-          © <span>Copyright</span> <strong className="px-1 sitename">Medilab</strong>{' '}
-          <span>All Rights Reserved</span>
-        </p>
-        <div className="credits">
-          Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> Distributed by{' '}
-          <a href="https://themewagon.com">ThemeWagon</a>
         </div>
       </div>
     </footer>
