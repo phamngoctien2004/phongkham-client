@@ -16,10 +16,8 @@ const PageBanner = ({
 }) => {
     return (
         <div className={`page-banner ${className}`}>
-            <div
-                className="container mb-5" style={{ maxWidth: '1500px' }}
-            >
-                <div className="">
+            <div className="container" style={{ maxWidth: '1500px' }}>
+                <div className="page-banner-wrapper">
                     <div className="page-banner-content">
                         {breadcrumbs.length > 0 && (
                             <nav aria-label="breadcrumb">
@@ -40,8 +38,7 @@ const PageBanner = ({
                                 </ol>
                             </nav>
                         )}
-                        <h1 className="page-banner-title text-center fw-semibold">{title}</h1>
-
+                        <h1 className="page-banner-title">{title}</h1>
                     </div>
                 </div>
             </div>

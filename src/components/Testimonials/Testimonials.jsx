@@ -10,28 +10,28 @@ const Testimonials = () => {
             id: 1,
             name: 'Chị Tố Diệp',
             position: 'Nhân viên văn phòng',
-            image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop',
+            image: '/testimonials.png',
             rating: 5,
             quote: 'Chất lượng tuyệt vời',
-            content: 'Mình ấn tượng vì chưa từng khám bệnh ở đâu có sự chuyên nghiệp như MEDLATEC. Trường hợp của mình còn được hội chẩn từ xa với các Bác sĩ chuyên gia tại Hà Nội để đưa ra phác đồ tốt nhất. Cảm ơn MEDLATEC'
+            content: 'Mình ấn tượng vì chưa từng khám bệnh ở đâu có sự chuyên nghiệp như phòng khám đa khoa Thái Hà. Đội ngũ bác sĩ tận tâm, trang thiết bị hiện đại. Cảm ơn phòng khám!'
         },
         {
             id: 2,
             name: 'Cô Hoàng T. Nga',
             position: 'Nội trợ, hưu trí',
-            image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop',
+            image: '/testimonials.png',
             rating: 5,
             quote: 'Chất lượng tuyệt vời',
-            content: 'Chất lượng khám tại Bệnh viện rất tốt, tôi theo dõi bệnh lý mạn tính và khám sức khỏe tổng quát định kỳ thường xuyên. Mọi quy trình đều nhanh gọn, hơn nữa còn rất tiết kiệm chi phí. Tôi đã sử dụng dịch vụ của MEDLATEC hơn 10 năm.'
+            content: 'Chất lượng khám tại phòng khám rất tốt, tôi theo dõi bệnh lý mạn tính và khám sức khỏe tổng quát định kỳ thường xuyên. Mọi quy trình đều nhanh gọn, hơn nữa còn rất tiết kiệm chi phí.'
         },
         {
             id: 3,
             name: 'Long Nguyễn',
             position: 'Nhân viên lập trình',
-            image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
+            image: '/testimonials.png',
             rating: 5,
             quote: 'Chất lượng tuyệt vời',
-            content: 'Dịch vụ tận nơi thật sự đã giúp tôi và gia đình tiết kiệm thời gian chăm sóc sức khỏe cũng như chi phí, chi mất 10.000 đồng chi phí đi lại. Tiện ích đặt lịch nhanh chóng qua app và website, theo dõi sức khỏe online và báo mật tốt.'
+            content: 'Dịch vụ đặt lịch online thật sự tiện lợi, giúp tôi và gia đình tiết kiệm thời gian. Tiện ích đặt lịch nhanh chóng qua website, theo dõi lịch hẹn online rất thuận tiện.'
         }
     ];
 
@@ -39,7 +39,7 @@ const Testimonials = () => {
         <section id="testimonials" className="testimonials section">
             <div className="container">
                 <div className="section-header">
-                    <h2>Khách hàng nói gì về <span style={{ color: '#1d93e3' }}>MEDLATEC</span></h2>
+                    <h2>Khách hàng nói gì về <span style={{ color: '#1d93e3' }}>Phòng khám đa khoa Thái Hà</span></h2>
                 </div>
 
                 <Swiper
@@ -66,7 +66,7 @@ const Testimonials = () => {
                             <div className="testimonial-item">
                                 <div className="testimonial-header">
                                     <div className="logo-badge">
-                                        <span>MEDLATEC</span>
+                                        <span>PHÒNG KHÁM THÁI HÀ</span>
                                     </div>
                                     <div className="pause-icon">
                                         <i className="fas fa-pause"></i>

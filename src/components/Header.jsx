@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { NotificationBell } from './Notification';
 import { ChatIcon } from './Chat';
-import logoImg from '../assets/images/logo.png';
 
 const Header = () => {
   const [mobileNavActive, setMobileNavActive] = useState(false);
@@ -53,13 +52,12 @@ const Header = () => {
   }, [showUserDropdown]);
 
   return (
-    <header id="header" className={`header sticky-top ${scrolled ? 'scrolled' : ''}`}>
+    <header id="header" className={`header ${scrolled ? 'scrolled' : ''}`}>
       <div className="header-top-wrapper">
         <div className="container header-top-inner">
           <div className="header-top-left">
             <Link to="/" className="header-logo">
-              <img src={logoImg} alt="Medilab logo" />
-              <span>MEDLATEC</span>
+              <img src="/logo_header.png" alt="Phòng khám đa khoa Thái Hà" />
             </Link>
             <div className="header-search d-none d-md-flex">
               <input type="text" placeholder="Tìm kiếm" aria-label="Tìm kiếm" />

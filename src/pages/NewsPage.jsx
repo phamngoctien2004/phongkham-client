@@ -8,14 +8,16 @@ const NewsPage = () => {
         <div className="news-page">
             <Header />
             <main className="main">
-                <PageBanner
-                    breadcrumbs={[
-                        { label: 'Trang chủ', link: '/' },
-                        { label: 'Tin tức y khoa', link: '/news' }
-                    ]}
-                    title="TIN TỨC Y KHOA"
-                />
-                <News isHomePage={false} />
+                <div className="page-with-banner">
+                    <PageBanner
+                        breadcrumbs={[
+                            { label: 'Trang chủ', link: '/' },
+                            { label: 'Tin tức y khoa', link: '/news' }
+                        ]}
+                        title="TIN TỨC Y KHOA"
+                    />
+                    <News isHomePage={false} />
+                </div>
             </main>
             <Footer />
             <a

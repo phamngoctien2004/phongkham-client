@@ -11,7 +11,7 @@ const CustomerServices = () => {
             icon: 'bi bi-calendar-plus',
             title: 'Đặt lịch khám, lấy mẫu tại nhà',
             description:
-                'Quy khách hàng sử dụng tiện ích này để đặt lịch lấy mẫu tại nhà hoặc đặt lịch khám chữa bệnh tại các cơ sở của MEDLATEC',
+                'Quý khách hàng sử dụng tiện ích này để đặt lịch lấy mẫu tại nhà hoặc đặt lịch khám chữa bệnh tại Phòng khám đa khoa Thái Hà',
             buttonText: 'Đặt lịch',
             buttonLink: '/dat-lich',
             image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop',
@@ -23,7 +23,7 @@ const CustomerServices = () => {
             icon: 'bi bi-search',
             title: 'Tra cứu kết quả',
             description:
-                'Quy khách hàng sử dụng tiện ích này để tra cứu kết quả sau khi sử dụng dịch vụ y tế tại Hệ thống Y tế MEDLATEC',
+                'Quý khách hàng sử dụng tiện ích này để tra cứu kết quả sau khi sử dụng dịch vụ y tế tại Phòng khám đa khoa Thái Hà',
             buttonText: 'Tra cứu',
             buttonLink: '/profile',
             image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop',
@@ -35,7 +35,7 @@ const CustomerServices = () => {
             icon: 'bi bi-currency-dollar',
             title: 'Bảng giá dịch vụ',
             description:
-                'Quy khách hàng sử dụng tiện ích này để tra cứu giá dịch vụ y tế tại Hệ thống Y tế MEDLATEC',
+                'Quý khách hàng sử dụng tiện ích này để tra cứu giá dịch vụ y tế tại Phòng khám đa khoa Thái Hà',
             buttonText: 'Xem bảng giá',
             buttonLink: '/services',
             image: 'https://images.unsplash.com/photo-1554224311-beee460c201a?w=800&h=600&fit=crop',

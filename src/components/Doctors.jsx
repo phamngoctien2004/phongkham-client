@@ -18,6 +18,8 @@ const Doctors = ({ isHomePage = false }) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedDegree, setSelectedDegree] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const doctorsPerPage = 6;
   const navigate = useNavigate();
 
   // Placeholder images
@@ -95,6 +97,7 @@ const Doctors = ({ isHomePage = false }) => {
     }
 
     setFilteredDoctors(filtered);
+    setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
   }, [searchKeyword, selectedDegree, selectedDepartment, doctors, isHomePage]);
 
   // Get doctor image - use placeholder if not available
@@ -109,6 +112,19 @@ const Doctors = ({ isHomePage = false }) => {
     setSearchKeyword('');
     setSelectedDegree('');
     setSelectedDepartment('');
+    setCurrentPage(1);
+  };
+
+  // Tính toán phân trang
+  const indexOfLastDoctor = currentPage * doctorsPerPage;
+  const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
+  const currentDoctors = isHomePage ? filteredDoctors : filteredDoctors.slice(indexOfFirstDoctor, indexOfLastDoctor);
+  const totalPages = Math.ceil(filteredDoctors.length / doctorsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top of doctors section
+    document.getElementById('doctors')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleDoctorDetail = (doctor) => {
@@ -124,7 +140,7 @@ const Doctors = ({ isHomePage = false }) => {
   };
 
   return (
-    <section id="doctors" className="doctors section">
+    <section id="doctors" className={`doctors section ${!isHomePage ? 'has-page-banner' : ''}`}>
       {!isHomePage ? (
         <PageBanner
           title="ĐỘI NGŨ BÁC SĨ"
@@ -256,7 +272,7 @@ const Doctors = ({ isHomePage = false }) => {
           </div>
         ) : (
           <div className="row gy-4">
-            {filteredDoctors.map((doctor, index) => (
+            {currentDoctors.map((doctor, index) => (
               <DoctorCard
                 key={doctor.id}
                 image={getDoctorImage(doctor, index)}
@@ -268,6 +284,58 @@ const Doctors = ({ isHomePage = false }) => {
                 onDetail={() => handleDoctorDetail(doctor)}
               />
             ))}
+          </div>
+        )}
+
+        {/* Pagination - Only show on full Doctors page and when there are doctors */}
+        {!isHomePage && filteredDoctors.length > doctorsPerPage && (
+          <div className="row mt-5">
+            <div className="col-12">
+              <nav aria-label="Doctors pagination">
+                <ul className="pagination justify-content-center">
+                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      aria-label="Previous"
+                    >
+                      <i className="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <li
+                      key={index + 1}
+                      className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(index + 1)}
+                      >
+                        {index + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      aria-label="Next"
+                    >
+                      <i className="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+              <div className="text-center text-muted">
+                <small>
+                  Trang {currentPage} / {totalPages} - Hiển thị {indexOfFirstDoctor + 1} đến{' '}
+                  {Math.min(indexOfLastDoctor, filteredDoctors.length)} trong tổng số{' '}
+                  {filteredDoctors.length} bác sĩ
+                </small>
+              </div>
+            </div>
           </div>
         )}
 

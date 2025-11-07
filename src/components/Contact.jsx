@@ -73,7 +73,7 @@ const Contact = ({ isHomePage = false }) => {
   };
 
   return (
-    <section id="contact" className="contact section">
+    <section id="contact" className={`contact section ${!isHomePage ? 'has-page-banner' : ''}`}>
       {!isHomePage && (
         <PageBanner
           title="LIÊN HỆ VỚI CHÚNG TÔI"
@@ -146,7 +146,7 @@ const Contact = ({ isHomePage = false }) => {
               <p className="contact-footer-text">
                 Bằng việc nhấn nút Gửi yêu cầu ngay bạn đã đồng ý với{' '}
                 <a href="/quy-che-hoat-dong" className="contact-link">Quy chế hoạt động</a> và{' '}
-                <a href="/chinh-sach-bao-ve-thong-tin" className="contact-link">Chính sách bảo vệ thông tin</a> của MEDLATEC
+                <a href="/chinh-sach-bao-ve-thong-tin" className="contact-link">Chính sách bảo vệ thông tin</a> của Phòng khám đa khoa Thái Hà
               </p>
             </div>
           </div>
@@ -162,7 +162,7 @@ const Contact = ({ isHomePage = false }) => {
             allowFullScreen=""
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="MEDLATEC Location"
+            title="Phòng khám đa khoa Thái Hà Location"
           ></iframe>
         </div>
       </div>

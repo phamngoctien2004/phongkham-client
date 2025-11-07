@@ -63,7 +63,7 @@ const Membership = () => {
         <section className="membership-section">
             <div className="container">
                 <div className="section-header">
-                    <h2>ƯU ĐÃI THÀNH VIÊN CỦA <span style={{ color: '#1977cc' }}>MEDLATEC</span></h2>
+                    <h2>ƯU ĐÃI THÀNH VIÊN CỦA <span style={{ color: '#1977cc' }}>PHÒNG KHÁM ĐA KHOA THÁI HÀ</span></h2>
                 </div>
 
                 <div className="membership-content">

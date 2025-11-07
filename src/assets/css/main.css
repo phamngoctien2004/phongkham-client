@@ -132,6 +132,74 @@
 }
 
 /*--------------------------------------------------------------
+# Page Banner
+--------------------------------------------------------------*/
+.page-banner {
+  background: #f8f9fa;
+  padding: 40px 0;
+  margin-bottom: 50px;
+  border-bottom: 3px solid #1977cc;
+}
+
+.page-banner-wrapper {
+  /* Cố định chiều cao để đồng nhất */
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+}
+
+.page-banner-content {
+  width: 100%;
+}
+
+.page-banner .breadcrumb {
+  background: transparent;
+  margin-bottom: 15px;
+  padding: 0;
+  font-size: 14px;
+}
+
+.page-banner .breadcrumb-item {
+  color: #666;
+}
+
+.page-banner .breadcrumb-item a {
+  color: #1977cc;
+  text-decoration: none;
+}
+
+.page-banner .breadcrumb-item a:hover {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
+.page-banner .breadcrumb-item.active {
+  color: #2c4964;
+  font-weight: 500;
+}
+
+.page-banner-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2c4964;
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 767px) {
+  .page-banner {
+    padding: 30px 0;
+    margin-bottom: 30px;
+  }
+
+  .page-banner-title {
+    font-size: 24px;
+  }
+}
+
+/*--------------------------------------------------------------
 # General Styling & Shared Classes
 --------------------------------------------------------------*/
 body {
@@ -326,23 +394,14 @@ h6 {
 .header-logo {
   display: flex;
   align-items: center;
-  gap: 12px;
   text-decoration: none;
   line-height: 1;
 }
 
 .header-logo img {
-  width: 52px;
-  height: 52px;
+  height: 60px;
+  width: auto;
   object-fit: contain;
-}
-
-.header-logo span {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  color: #1e88e5;
-  text-transform: uppercase;
 }
 
 .header-search {
@@ -351,7 +410,7 @@ h6 {
   background: #f2f6fb;
   /* border-radius: 999px; */
   padding: 6px 18px 6px 18px;
-  min-width: 420px;
+  min-width: 350px;
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
   position: relative;
@@ -399,7 +458,7 @@ h6 {
 .header-top-right {
   display: flex;
   align-items: center;
-  gap: 150px;
+  gap: 30px;
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
@@ -737,6 +796,10 @@ h6 {
     flex-shrink: 0;
   }
 
+  .header-logo img {
+    height: 50px;
+  }
+
   .user-info-btn span {
     display: none;
   }
@@ -752,11 +815,7 @@ h6 {
   }
 
   .header-logo img {
-    height: 40px;
-  }
-
-  .header-logo span {
-    font-size: 22px;
+    height: 45px;
   }
 
   .header-search {
@@ -1340,6 +1399,16 @@ section,
 
 .section {
   padding: 60px 0;
+}
+
+/* Section có PageBanner thì không cần padding-top */
+.section.has-page-banner {
+  padding-top: 0;
+}
+
+/* Wrapper cho page có PageBanner riêng */
+.page-with-banner .section {
+  padding-top: 0;
 }
 
 @media (max-width: 1199px) {
@@ -2666,7 +2735,7 @@ section,
 # Contact Section
 --------------------------------------------------------------*/
 .contact {
-  padding: 80px;
+  /* padding: 80px; */
   margin: 0;
   overflow: hidden;
 }
@@ -2846,6 +2915,124 @@ section,
 
   .contact-map-section {
     height: 400px;
+  }
+}
+
+/*--------------------------------------------------------------
+# Services Pagination
+--------------------------------------------------------------*/
+.services .pagination {
+  margin: 0;
+  padding: 0;
+}
+
+.services .pagination .page-item {
+  margin: 0 4px;
+}
+
+.services .pagination .page-link {
+  color: var(--accent-color);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.services .pagination .page-link:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(29, 147, 227, 0.2);
+}
+
+.services .pagination .page-item.active .page-link {
+  background-color: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 8px rgba(29, 147, 227, 0.3);
+}
+
+.services .pagination .page-item.disabled .page-link {
+  color: #ccc;
+  background-color: #f8f9fa;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+.services .pagination .page-link i {
+  font-size: 12px;
+}
+
+@media (max-width: 576px) {
+  .services .pagination .page-link {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .services .pagination .page-item {
+    margin: 0 2px;
+  }
+}
+
+/*--------------------------------------------------------------
+# Doctors Pagination
+--------------------------------------------------------------*/
+.doctors .pagination {
+  margin: 0;
+  padding: 0;
+}
+
+.doctors .pagination .page-item {
+  margin: 0 4px;
+}
+
+.doctors .pagination .page-link {
+  color: var(--accent-color);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.doctors .pagination .page-link:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(29, 147, 227, 0.2);
+}
+
+.doctors .pagination .page-item.active .page-link {
+  background-color: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 8px rgba(29, 147, 227, 0.3);
+}
+
+.doctors .pagination .page-item.disabled .page-link {
+  color: #ccc;
+  background-color: #f8f9fa;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+.doctors .pagination .page-link i {
+  font-size: 12px;
+}
+
+@media (max-width: 576px) {
+  .doctors .pagination .page-link {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .doctors .pagination .page-item {
+    margin: 0 2px;
   }
 }
 

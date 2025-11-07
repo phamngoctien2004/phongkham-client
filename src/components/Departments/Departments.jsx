@@ -28,10 +28,10 @@ const Departments = () => {
         },
         {
             id: 5,
-            name: 'TRUNG TÂM XÉT NGHIỆM MEDLATEC',
+            name: 'Trung tâm xét nghiệm',
             icon: 'fas fa-vial',
-            link: 'https://medlatec.vn/chuyen-khoa/trung-tam-xet-nghiem',
-            isExternal: true,
+            link: '/chuyen-khoa/trung-tam-xet-nghiem',
+            isExternal: false,
             isHighlight: true
         },
         {
@@ -62,8 +62,8 @@ const Departments = () => {
             id: 10,
             name: 'Nam khoa',
             icon: 'fas fa-male',
-            link: 'https://medlatec.vn/chuyen-khoa/nam-khoa-3',
-            isExternal: true,
+            link: '/chuyen-khoa/nam-khoa',
+            isExternal: false,
             isHighlight: true
         },
         {
@@ -129,7 +129,7 @@ const Departments = () => {
         <section className="departments-section">
             <div className="container">
                 <div className="section-header">
-                    <h2>CÁC CHUYÊN KHOA Y TẾ TẠI <span style={{ color: '#1977cc' }}>MEDLATEC</span></h2>
+                    <h2>CÁC CHUYÊN KHOA Y TẾ TẠI <span style={{ color: '#1977cc' }}>PHÒNG KHÁM ĐA KHOA THÁI HÀ</span></h2>
                 </div>
 
                 <div className="departments-grid">

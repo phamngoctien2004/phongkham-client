@@ -1,75 +1,200 @@
-import { PageBanner, SectionTitle } from './ui';
-import aboutImg from '../assets/images/about.jpg';
+import { PageBanner } from './ui';
+import './About.css';
 
 const About = ({ isHomePage = false }) => {
+  const departments = [
+    {
+      id: 1,
+      icon: 'fas fa-user-md',
+      title: 'NAM KHOA',
+      description: 'Khám và điều trị các bệnh viêm nhiễm đường sinh dục nam giới, viêm đường tiết niệu, rối loạn chức năng sinh dục như xuất tinh sớm, liệt dương, cắt bao quy đầu,...',
+      color: '#60B6E8'
+    },
+    {
+      id: 2,
+      icon: 'fas fa-female',
+      title: 'PHỤ KHOA',
+      description: 'Khám và điều trị các bệnh viêm phụ khoa như viêm âm đạo, viêm lộ tuyến cổ tử cung, viêm với trứng, u xơ tử vấn và thực hiện kế hoạch hóa gia đình.',
+      color: '#F47C87'
+    },
+    {
+      id: 3,
+      icon: 'fas fa-bacteria',
+      title: 'BỆNH XÃ HỘI',
+      description: 'Kiểm tra, xét nghiệm, phát hiện các bệnh xã hội như sùi mào gà, bệnh lậu, giang mai, mụn rộp sinh dục.',
+      color: '#FFA85C'
+    },
+    {
+      id: 4,
+      icon: 'fas fa-seedling',
+      title: 'HẬU MÔN TRỰC TRÀNG',
+      description: 'Kiểm tra và điều trị bệnh hậu môn như trĩ nội, trĩ ngoại, trĩ hỗn hợp, apxe hậu môn, Polyp hậu môn,...',
+      color: '#8BC898'
+    }
+  ];
+
+  const treatments = [
+    {
+      id: 1,
+      image: '/toa_nha_thai_ha.jpg',
+      title: 'Phương pháp điều trị bằng thuốc',
+      description: 'Là phương pháp điều trị phổ biến với những trường hợp nhiễm ở mức độ nhẹ. Phòng khám Thái Hà kết hợp điều trị bằng thuốc Đông- Tây y kết hợp với liệu lượng hợp lý, giảm thiểu kháng sinh.'
+    },
+    {
+      id: 2,
+      image: '/banner_1.png',
+      title: 'Điều trị bằng xâm lấn tối thiểu',
+      description: 'Những cuộc tiểu phẫu thở ít xâm lấn, thời gian tiểu phẫu ngắn như cắt bao quy đầu công nghệ cao, kỹ thuật dao Leep trị viêm lộ tuyến cổ tử cung,... là phương pháp mang lại hiệu quả cao hiện nay.'
+    },
+    {
+      id: 3,
+      image: '/banner_2.png',
+      title: 'Điều trị bằng liệu pháp miễn dịch',
+      description: 'Với các bệnh xã hội có nguyen nhân do vi khuẩn, virus khó tiêu diệt, phòng khám Thái Hà áp dụng liệu pháp tự miễn dịch. Một lượng thuốc nhỏ truyền vào cơ thể, được các máy quang dẫn kích hoạt giúp cơ thể đẩ có sự hoạt động của vi khuẩn.'
+    },
+    {
+      id: 4,
+      image: '/banner_3.png',
+      title: 'Điều trị bằng quang sinh học',
+      description: 'Các tia bức xạ được chiếu vào các vị trí bệnh như nốt sùi, vết lở loét,... với thông số cho phép cô tác dụng làm rụng các nốt sùi, tiểu diệt vi khuẩn tại chỗ, giúp tổn thương nhanh lành.'
+    }
+  ];
+
+  const activities = [
+    {
+      id: 1,
+      icon: 'fas fa-comments',
+      title: 'Hoạt động hội thảo chuyên giao công nghệ, chia sẻ kinh nghiệm y học.',
+      color: '#D1F0F4'
+    },
+    {
+      id: 2,
+      icon: 'fas fa-gift',
+      title: 'Hoạt động ưu đãi, hỗ trợ về chi phí khám cũng như điều trị cho người bệnh.',
+      color: '#FFE6E6'
+    },
+    {
+      id: 3,
+      icon: 'fas fa-hand-holding-heart',
+      title: 'Thường xuyên thực hiện những hoạt động thiện nguyện giúp đỡ hoàn cảnh khó khăn.',
+      color: '#E8F5E9'
+    }
+  ];
+
+  const facilities = [
+    '/toa_nha_thai_ha.jpg',
+    '/banner_1.png',
+    '/banner_2.png',
+    '/banner_3.png',
+    '/news_1.png'
+  ];
+
   return (
-    <section id="about" className="about section">
+    <div className="about-page">
       {!isHomePage && (
         <PageBanner
-          title="GIỚI THIỆU VỀ CHÚNG TÔI"
+          title="GIỚI THIỆU"
           breadcrumbs={[
             { label: 'Trang chủ', link: '/' },
             { label: 'Giới thiệu' }
           ]}
         />
       )}
-      <div className="container">
-        <div className="row gy-4 gx-5">
-          <div
-            className="col-lg-6 position-relative align-self-start"
-            data-aos="fade-up"
-            data-aos-delay="200"
-          >
-            <img src={aboutImg} className="img-fluid" alt="" />
-            <a
-              href="https://www.youtube.com/watch?v=Y7f98aduVJ8"
-              className="glightbox pulsating-play-btn"
-            ></a>
-          </div>
 
-          <div className="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
-            <h3>Về chúng tôi</h3>
-            <p>
-              Medilab là phòng khám đa khoa uy tín với nhiều năm kinh nghiệm trong lĩnh vực chăm sóc
-              sức khỏe. Chúng tôi tự hào mang đến dịch vụ y tế chất lượng cao với đội ngũ bác sĩ
-              chuyên môn giỏi, trang thiết bị hiện đại và quy trình khám chữa bệnh chuyên nghiệp.
+      {/* Giới thiệu về phòng khám */}
+      <section className="about-intro-section">
+        <div className="container">
+          <div className="about-intro-content">
+            <p className="intro-text">
+              Phòng khám đa khoa Thái Hà được thành lập dựa trên ý tưởng xây dựng một phòng khám với phong cách hiện đại, dịch vụ chất lượng cao. Khám và điều trị tại đây, bệnh nhân luôn được đảm bảo về quyền lợi, hướng dịch vụ y tế an toàn, tiện ích, chi phí hợp lý. Hiện phòng khám hoạt động với 4 chuyên khoa nội bật:
             </p>
-            <ul>
-              <li>
-                <i className="fa-solid fa-vial-circle-check"></i>
-                <div>
-                  <h5>Trang thiết bị y tế hiện đại</h5>
-                  <p>
-                    Đầu tư các thiết bị y tế tiên tiến, đảm bảo chẩn đoán chính xác và điều trị
-                    hiệu quả
-                  </p>
+
+            <div className="departments-grid">
+              {departments.map(dept => (
+                <div key={dept.id} className="department-card">
+                  <div className="dept-icon" style={{ backgroundColor: dept.color }}>
+                    <i className={dept.icon}></i>
+                  </div>
+                  <h3 className="dept-title">{dept.title}</h3>
+                  <p className="dept-description">{dept.description}</p>
+                  <button className="dept-btn">XEM THÊM</button>
                 </div>
-              </li>
-              <li>
-                <i className="fa-solid fa-pump-medical"></i>
-                <div>
-                  <h5>Đội ngũ bác sĩ giàu kinh nghiệm</h5>
-                  <p>
-                    Bác sĩ chuyên khoa với trình độ cao, tận tâm và nhiệt tình trong công tác
-                    khám chữa bệnh
-                  </p>
-                </div>
-              </li>
-              <li>
-                <i className="fa-solid fa-heart-circle-check"></i>
-                <div>
-                  <h5>Dịch vụ chăm sóc toàn diện</h5>
-                  <p>
-                    Cung cấp đầy đủ các dịch vụ y tế từ khám tổng quát đến chuyên khoa,
-                    xét nghiệm và điều trị
-                  </p>
-                </div>
-              </li>
-            </ul>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Phương pháp điều trị nổi bật */}
+      <section className="treatment-methods-section">
+        <div className="container">
+          <div className="section-icon">
+            <i className="fas fa-stethoscope"></i>
+          </div>
+          <h2 className="section-title">PHƯƠNG PHÁP ĐIỀU TRỊ NỔI BẬT</h2>
+
+          <div className="treatments-grid">
+            {treatments.map(treatment => (
+              <div key={treatment.id} className="treatment-card">
+                <div className="treatment-image">
+                  <img src={treatment.image} alt={treatment.title} />
+                </div>
+                <div className="treatment-content">
+                  <h3 className="treatment-title">{treatment.title}</h3>
+                  <div className="treatment-divider"></div>
+                  <p className="treatment-description">{treatment.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hoạt động nổi bật */}
+      <section className="activities-section">
+        <div className="container">
+          <div className="section-icon">
+            <i className="fas fa-award"></i>
+          </div>
+          <h2 className="section-title">HOẠT ĐỘNG NỔI BẬT CỦA PHÒNG KHÁM</h2>
+
+          <div className="activities-grid">
+            {activities.map(activity => (
+              <div key={activity.id} className="activity-card" style={{ backgroundColor: activity.color }}>
+                <div className="activity-icon">
+                  <i className={activity.icon}></i>
+                </div>
+                <div className="activity-divider"></div>
+                <p className="activity-text">{activity.title}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Không gian điều trị */}
+      <section className="facilities-section">
+        <div className="container">
+          <div className="section-icon">
+            <i className="fas fa-images"></i>
+          </div>
+          <h2 className="section-title">KHÔNG GIAN ĐIỀU TRỊ SẠCH - XANH - TRONG LÀNH</h2>
+
+          <div className="facilities-gallery">
+            <div className="facility-main">
+              <img src={facilities[0]} alt="Phòng khám Thái Hà" />
+            </div>
+            <div className="facility-grid">
+              {facilities.slice(1).map((image, index) => (
+                <div key={index} className="facility-item">
+                  <img src={image} alt={`Không gian ${index + 1}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 };
 

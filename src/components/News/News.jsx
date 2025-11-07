@@ -6,35 +6,35 @@ const News = ({ isHomePage = false }) => {
     const [newsArticles, setNewsArticles] = useState([
         {
             id: 1,
-            title: 'Nhiều khách hàng bất ngờ về giá trị thật của thẻ khám bệnh 555 của MEDLATEC',
-            description: 'Với mức phí chỉ 555.000 đồng/năm, Thẻ 555 của Hệ thống Y tế MEDLATEC đang mang đến những quyền lợi vượt xa kỳ vọng, giúp...',
-            image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&h=300&fit=crop',
-            link: 'https://medlatec.vn/tin-tuc/nhieu-khach-hang-bat-ngo-ve-gia-tri-that-cua-the-kham-benh-555-cua-medlatec',
+            title: 'Nhiều khách hàng bất ngờ về giá trị thật của thẻ khám bệnh tại phòng khám',
+            description: 'Với mức phí ưu đãi, thẻ khám bệnh đang mang đến những quyền lợi vượt xa kỳ vọng, giúp khách hàng tiết kiệm chi phí khám chữa bệnh...',
+            image: '/news_1.png',
+            link: '#',
             category: 'Thẻ khám bệnh'
         },
         {
             id: 2,
-            title: 'Người phụ nữ thực hiện phẫu thuật điều trị tai do đau, hiệu nghe kém kéo dài',
-            description: 'Người phụ nữ đến Bệnh viện Đa khoa MEDLATEC kiểm tra sức khỏe do u tai, nghẹt kém thì phát hiện xơ vữa tai và phải phẫu...',
-            image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=300&fit=crop',
-            link: 'https://medlatec.vn/tin-tuc/nguoi-phu-nu-thuc-hien-phau-thuat-dieu-tri-tai-do-dau-hieu-nghe-kem-keo-dai',
-            category: 'Phẫu thuật'
+            title: 'Chăm sóc sức khỏe toàn diện với đội ngũ bác sĩ chuyên môn cao',
+            description: 'Phòng khám đa khoa Thái Hà tự hào với đội ngũ bác sĩ giàu kinh nghiệm, tận tâm chăm sóc sức khỏe cho bệnh nhân...',
+            image: '/news_2.jpg',
+            link: '#',
+            category: 'Đội ngũ y tế'
         },
         {
             id: 3,
-            title: 'Tưởng đau bụng thông thường, đến MEDLATEC khám phát hiện hoại tử ruột non',
-            description: 'Tưởng đau bụng thông thường do ăn uống, người đàn ông đến Bệnh viện Đa khoa MEDLATEC thăm khám. Tại đây, các bác sĩ...',
-            image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop',
-            link: 'https://medlatec.vn/tin-tuc/tuong-dau-bung-thong-thuong-den-medlatec-kham-phat-hien-hoai-tu-ruot-non',
-            category: 'Chẩn đoán'
+            title: 'Trang thiết bị y tế hiện đại, đảm bảo chẩn đoán chính xác',
+            description: 'Được trang bị các máy móc y tế tiên tiến, phòng khám cam kết mang đến kết quả chẩn đoán chính xác và điều trị hiệu quả...',
+            image: '/news_3.png',
+            link: '#',
+            category: 'Công nghệ y tế'
         },
         {
             id: 4,
-            title: 'Thời điểm giao mùa, cha mẹ cần cảnh giác trẻ mắc cúm A',
-            description: 'Sự thay đổi đột ngột của thời tiết trong giai đoạn giao mùa thu - đông khiến nhiệt độ, độ ẩm không khí thay đổi thất thường, tạo...',
-            image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=400&h=300&fit=crop',
-            link: 'https://medlatec.vn/tin-tuc/thoi-diem-giao-mua-cha-me-can-canh-giac-tre-mac-cum-a',
-            category: 'Sức khỏe trẻ em'
+            title: 'Dịch vụ khám chữa bệnh chất lượng cao với mức giá hợp lý',
+            description: 'Phòng khám đa khoa Thái Hà cung cấp các dịch vụ y tế chất lượng cao với mức chi phí hợp lý, phù hợp với mọi gia đình...',
+            image: '/new_4.png',
+            link: '#',
+            category: 'Dịch vụ'
         }
     ]);
 

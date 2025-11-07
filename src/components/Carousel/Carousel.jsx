@@ -8,24 +8,24 @@ const Carousel = () => {
     const slides = [
         {
             id: 1,
-            title: 'Chăm sóc sức khỏe toàn diện',
-            subtitle: 'Đội ngũ bác sĩ chuyên môn cao, tận tâm',
-            description: 'Hệ thống phòng khám hiện đại với đầy đủ chuyên khoa',
-            image: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1920&h=600&fit=crop',
+            title: 'Phòng khám đa khoa Thái Hà',
+            subtitle: 'Chăm sóc sức khỏe toàn diện cho gia đình',
+            description: 'Đội ngũ bác sĩ chuyên môn cao, tận tâm với trang thiết bị hiện đại',
+            image: '/banner_new_1.webp',
         },
         {
             id: 2,
-            title: 'Đặt lịch nhanh chóng, tiện lợi',
+            title: 'Đặt lịch khám nhanh chóng',
             subtitle: 'Hệ thống đặt lịch trực tuyến 24/7',
-            description: 'Không cần chờ đợi, đặt lịch chỉ trong vài phút',
-            image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1920&h=600&fit=crop',
+            description: 'Không cần chờ đợi, đặt lịch khám chỉ trong vài phút',
+            image: '/banner_new_2.jpg',
         },
         {
             id: 3,
             title: 'Trang thiết bị y tế hiện đại',
             subtitle: 'Công nghệ chẩn đoán tiên tiến',
             description: 'Đảm bảo kết quả chính xác và điều trị hiệu quả',
-            image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=1920&h=600&fit=crop',
+            image: '/banner_new_3.jpg',
         },
     ];
 
@@ -67,18 +67,6 @@ const Carousel = () => {
                             className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}
                             style={{ backgroundImage: `url(${slide.image})` }}
                         >
-                            <div className="carousel-overlay"></div>
-                            <div className="carousel-content">
-                                <h1 className="carousel-title" data-aos="fade-up">
-                                    {slide.title}
-                                </h1>
-                                <h3 className="carousel-subtitle" data-aos="fade-up" data-aos-delay="100">
-                                    {slide.subtitle}
-                                </h3>
-                                <p className="carousel-description" data-aos="fade-up" data-aos-delay="200">
-                                    {slide.description}
-                                </p>
-                            </div>
                         </div>
                     ))}
                 </div>

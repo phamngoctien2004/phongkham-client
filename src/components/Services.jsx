@@ -16,6 +16,8 @@ const Services = ({ isHomePage = false }) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedPriceRange, setSelectedPriceRange] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const servicesPerPage = 6;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -94,6 +96,7 @@ const Services = ({ isHomePage = false }) => {
     }
 
     setFilteredServices(filtered);
+    setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
   }, [searchKeyword, selectedType, selectedPriceRange, services, isHomePage]);
 
   // Icon mapping based on service type
@@ -129,10 +132,23 @@ const Services = ({ isHomePage = false }) => {
     setSearchKeyword('');
     setSelectedType('');
     setSelectedPriceRange('');
+    setCurrentPage(1);
+  };
+
+  // Tính toán phân trang
+  const indexOfLastService = currentPage * servicesPerPage;
+  const indexOfFirstService = indexOfLastService - servicesPerPage;
+  const currentServices = isHomePage ? filteredServices : filteredServices.slice(indexOfFirstService, indexOfLastService);
+  const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top of services section
+    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
-    <section id="services" className="services section justify-content-center">
+    <section id="services" className={`services section justify-content-center ${!isHomePage ? 'has-page-banner' : ''}`}>
       {/* Page Banner - Only show on full Services page */}
       {!isHomePage ? (
         <PageBanner
@@ -145,7 +161,7 @@ const Services = ({ isHomePage = false }) => {
       ) : (
         <div className="container">
           <div className="section-header">
-            <h2>CÁC DỊCH VỤ Y TẾ <span style={{ color: '#1977cc' }}>MEDLATEC</span> CUNG CẤP</h2>
+            <h2>DỊCH VỤ Y TẾ</h2>
           </div>
         </div>
       )}
@@ -256,7 +272,7 @@ const Services = ({ isHomePage = false }) => {
           </div>
         ) : (
           <div className="row gy-4">
-            {filteredServices.map((service, index) => (
+            {currentServices.map((service, index) => (
               <ServiceCard
                 key={service.id}
                 image={getServiceImage(service, index)}
@@ -272,6 +288,58 @@ const Services = ({ isHomePage = false }) => {
                 onDetail={() => handleDetail(service)}
               />
             ))}
+          </div>
+        )}
+
+        {/* Pagination - Only show on full Services page and when there are services */}
+        {!isHomePage && filteredServices.length > servicesPerPage && (
+          <div className="row mt-5">
+            <div className="col-12">
+              <nav aria-label="Services pagination">
+                <ul className="pagination justify-content-center">
+                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      aria-label="Previous"
+                    >
+                      <i className="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <li
+                      key={index + 1}
+                      className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(index + 1)}
+                      >
+                        {index + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      aria-label="Next"
+                    >
+                      <i className="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+              <div className="text-center text-muted">
+                <small>
+                  Trang {currentPage} / {totalPages} - Hiển thị {indexOfFirstService + 1} đến{' '}
+                  {Math.min(indexOfLastService, filteredServices.length)} trong tổng số{' '}
+                  {filteredServices.length} dịch vụ
+                </small>
+              </div>
+            </div>
           </div>
         )}
 
