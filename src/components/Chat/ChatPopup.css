@@ -42,9 +42,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: linear-gradient(135deg, #0084ff, #00c6ff);
+    background: linear-gradient(135deg, #00c6ff, var(--accent-color));
     color: white;
     cursor: move;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     /* Có thể drag nếu muốn thêm tính năng */
 }
 

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import appointmentService from '../../services/appointmentService';
 import TimePickerModal from './TimePickerModal';
+import DatePickerModal from './DatePickerModal';
 import './Appointment.css';
 
 const APPOINTMENT_TYPES = [
@@ -53,6 +54,7 @@ const AppointmentForm = () => {
     const [loading, setLoading] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showTimePickerModal, setShowTimePickerModal] = useState(false);
+    const [showDatePickerModal, setShowDatePickerModal] = useState(false);
 
     // Step 1: Chọn bệnh nhân
     const [patients, setPatients] = useState([]);
@@ -697,15 +699,21 @@ const AppointmentForm = () => {
                                         <div className="form-group">
                                             <label>Ngày khám</label>
                                             <input
-                                                type="date"
+                                                type="text"
                                                 className="form-control"
-                                                value={selectedDate}
-                                                min={formatDate(new Date(Date.now() + 24 * 60 * 60 * 1000))}
-                                                max={formatDate(new Date(Date.now() + 8 * 24 * 60 * 60 * 1000))}
-                                                onChange={(e) => {
-                                                    setSelectedDate(e.target.value);
-                                                }}
-                                                required
+                                                placeholder="-- Chọn ngày khám --"
+                                                value={selectedDate ? (() => {
+                                                    const date = new Date(selectedDate);
+                                                    return date.toLocaleDateString('vi-VN', {
+                                                        weekday: 'long',
+                                                        year: 'numeric',
+                                                        month: '2-digit',
+                                                        day: '2-digit'
+                                                    });
+                                                })() : ''}
+                                                readOnly
+                                                style={{ cursor: 'pointer' }}
+                                                onClick={() => setShowDatePickerModal(true)}
                                             />
                                         </div>
                                     </div>
@@ -713,35 +721,19 @@ const AppointmentForm = () => {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <label>Giờ khám</label>
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="-- Chọn giờ khám --"
-                                                    value={selectedTime ? (() => {
-                                                        const allSlots = [...TIME_SLOTS_MORNING, ...TIME_SLOTS_AFTERNOON, ...TIME_SLOTS_EVENING];
-                                                        const slot = allSlots.find(s => s.value === selectedTime);
-                                                        return slot ? slot.label : selectedTime.substring(0, 5);
-                                                    })() : ''}
-                                                    readOnly
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={() => setShowTimePickerModal(true)}
-                                                />
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-primary"
-                                                    onClick={() => setShowTimePickerModal(true)}
-                                                    style={{
-                                                        backgroundColor: '#1e88e5',
-                                                        border: 'none',
-                                                        padding: '0 20px',
-                                                        borderRadius: '4px',
-                                                        whiteSpace: 'nowrap'
-                                                    }}
-                                                >
-                                                    <i className="bi bi-clock"></i> Chọn giờ
-                                                </button>
-                                            </div>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="-- Chọn giờ khám --"
+                                                value={selectedTime ? (() => {
+                                                    const allSlots = [...TIME_SLOTS_MORNING, ...TIME_SLOTS_AFTERNOON, ...TIME_SLOTS_EVENING];
+                                                    const slot = allSlots.find(s => s.value === selectedTime);
+                                                    return slot ? slot.label : selectedTime.substring(0, 5);
+                                                })() : ''}
+                                                readOnly
+                                                style={{ cursor: 'pointer' }}
+                                                onClick={() => setShowTimePickerModal(true)}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -864,6 +856,18 @@ const AppointmentForm = () => {
                     eveningSlots={TIME_SLOTS_EVENING}
                     isTimeSlotAvailable={isTimeSlotAvailable}
                     selectedTime={selectedTime}
+                />
+
+                {/* Date Picker Modal */}
+                <DatePickerModal
+                    isOpen={showDatePickerModal}
+                    onClose={() => setShowDatePickerModal(false)}
+                    onSelectDate={(date) => {
+                        setSelectedDate(date);
+                    }}
+                    selectedDate={selectedDate}
+                    minDate={formatDate(new Date(Date.now() + 24 * 60 * 60 * 1000))}
+                    maxDate={formatDate(new Date(Date.now() + 8 * 24 * 60 * 60 * 1000))}
                 />
             </div>
         </section>

@@ -21,22 +21,26 @@ const TimePickerModal = ({
     };
 
     const renderTimeSlots = (slots, shift) => {
-        return slots.map((slot) => {
-            const isAvailable = isTimeSlotAvailable(slot.value, shift);
-            const isSelected = selectedTime === slot.value;
+        return slots
+            .filter((slot) => {
+                // Chỉ hiển thị các slot khả dụng, ẩn hoàn toàn các slot không hợp lệ
+                const isAvailable = isTimeSlotAvailable(slot.value, shift);
+                return isAvailable;
+            })
+            .map((slot) => {
+                const isSelected = selectedTime === slot.value;
 
-            return (
-                <button
-                    key={slot.value}
-                    type="button"
-                    className={`time-slot-btn ${isSelected ? 'selected' : ''} ${!isAvailable ? 'disabled' : ''}`}
-                    onClick={() => isAvailable && handleTimeSelect(slot.value)}
-                    disabled={!isAvailable}
-                >
-                    {slot.label}
-                </button>
-            );
-        });
+                return (
+                    <button
+                        key={slot.value}
+                        type="button"
+                        className={`time-slot-btn ${isSelected ? 'selected' : ''}`}
+                        onClick={() => handleTimeSelect(slot.value)}
+                    >
+                        {slot.label}
+                    </button>
+                );
+            });
     };
 
     return (

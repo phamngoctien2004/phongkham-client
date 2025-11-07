@@ -38,6 +38,11 @@
     animation: slideUp 0.3s ease-out;
 }
 
+/* Date Picker Modal - larger */
+.date-picker-modal {
+    max-width: 750px;
+}
+
 @keyframes slideUp {
     from {
         transform: translateY(50px);
@@ -330,6 +335,92 @@
 
     .time-picker-footer {
         padding: 15px 20px;
+    }
+}
+
+/* Date List Styles */
+.date-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.date-option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 10px;
+    border: 2px solid #e0e0e0;
+    background: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    text-align: center;
+    height: 85px;
+}
+
+.date-option-btn i {
+    font-size: 24px;
+    color: #1e88e5;
+    flex-shrink: 0;
+}
+
+.date-option-btn span {
+    color: #333;
+    font-weight: 500;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.date-option-btn:hover {
+    border-color: #1e88e5;
+    background: #f5f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.15);
+}
+
+.date-option-btn.selected {
+    border-color: #1e88e5;
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+}
+
+.date-option-btn.selected i {
+    color: white;
+}
+
+.date-option-btn.selected span {
+    color: white;
+}
+
+/* Responsive for date picker */
+@media (max-width: 768px) {
+    .date-list {
+        grid-template-columns: repeat(2, 1fr);
+        max-height: 160px;
+    }
+}
+
+@media (max-width: 576px) {
+    .date-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .date-option-btn {
+        padding: 10px 6px;
+        font-size: 12px;
+        height: 65px;
+    }
+
+    .date-option-btn i {
+        font-size: 18px;
     }
 }
 
