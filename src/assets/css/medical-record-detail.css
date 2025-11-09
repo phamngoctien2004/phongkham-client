@@ -464,3 +464,97 @@
         justify-content: center;
     }
 }
+/* Prescription styles */
+.prescription-info {
+    margin-bottom: 24px;
+}
+
+.prescription-details h5 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #555;
+    margin: 0 0 16px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.medicines-table {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.medicines-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.medicines-table thead {
+    background: linear-gradient(135deg, #1977cc 0%, #1565c0 100%);
+}
+
+.medicines-table thead th {
+    padding: 14px 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #1565c0;
+}
+
+.medicines-table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+    transition: background-color 0.2s;
+}
+
+.medicines-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.medicines-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.medicines-table tbody td {
+    padding: 14px 12px;
+    font-size: 14px;
+    color: #212529;
+}
+
+.medicines-table .medicine-name {
+    font-weight: 600;
+    color: #1977cc;
+}
+
+.medicines-table .text-center {
+    text-align: center;
+}
+
+.medicines-table .usage-instructions {
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+/* Responsive for prescription table */
+@media (max-width: 768px) {
+    .medicines-table {
+        font-size: 12px;
+    }
+
+    .medicines-table thead th {
+        padding: 10px 8px;
+        font-size: 11px;
+    }
+
+    .medicines-table tbody td {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    .medicines-table .usage-instructions {
+        max-width: 200px;
+    }
+}

@@ -12,11 +12,13 @@ const MedicalRecordDetailPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [record, setRecord] = useState(null);
+    const [prescription, setPrescription] = useState(null);
     const [isLabResultModalOpen, setIsLabResultModalOpen] = useState(false);
     const [selectedLabOrderId, setSelectedLabOrderId] = useState(null);
 
     useEffect(() => {
         loadRecordDetail();
+        loadPrescription();
     }, [id]);
 
     const loadRecordDetail = async () => {
@@ -29,6 +31,16 @@ const MedicalRecordDetailPage = () => {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadPrescription = async () => {
+        try {
+            const response = await appointmentService.getPrescriptionByMedicalRecord(id);
+            setPrescription(response.data);
+        } catch (error) {
+            // Không hiển thị lỗi nếu không có đơn thuốc
+            console.log('Không có đơn thuốc:', error);
         }
     };
 
@@ -324,6 +336,69 @@ const MedicalRecordDetailPage = () => {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {/* Đơn thuốc */}
+                    {prescription && prescription.detailResponses && prescription.detailResponses.length > 0 && (
+                        <div className="detail-section">
+                            <h3 className="section-title">
+                                <i className="bi bi-capsule"></i>
+                                Đơn thuốc
+                            </h3>
+                            <div className="prescription-info">
+                                <div className="detail-grid">
+                                    <div className="detail-item">
+                                        <label>Mã đơn thuốc:</label>
+                                        <span className="detail-value">{prescription.code}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <label>Ngày kê đơn:</label>
+                                        <span className="detail-value">{formatDate(prescription.prescriptionDate)}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <label>Bác sĩ kê đơn:</label>
+                                        <span className="detail-value">{prescription.doctorCreated || '--'}</span>
+                                    </div>
+                                    {prescription.generalInstructions && (
+                                        <div className="detail-item full-width">
+                                            <label>Hướng dẫn chung:</label>
+                                            <span className="detail-value">{prescription.generalInstructions}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="prescription-details">
+                                <h5>Chi tiết thuốc:</h5>
+                                <div className="medicines-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Tên thuốc</th>
+                                                <th>Nồng độ</th>
+                                                <th>Dạng bào chế</th>
+                                                <th>Số lượng</th>
+                                                <th>Đơn vị</th>
+                                                <th>Cách dùng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {prescription.detailResponses.map((detail, index) => (
+                                                <tr key={detail.id}>
+                                                    <td>{index + 1}</td>
+                                                    <td className="medicine-name">{detail.medicineResponse?.name || '--'}</td>
+                                                    <td>{detail.medicineResponse?.concentration || '--'}</td>
+                                                    <td>{detail.medicineResponse?.dosageForm || '--'}</td>
+                                                    <td className="text-center">{detail.quantity}</td>
+                                                    <td>{detail.medicineResponse?.unit || '--'}</td>
+                                                    <td className="usage-instructions">{detail.usageInstructions || '--'}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     )}
 

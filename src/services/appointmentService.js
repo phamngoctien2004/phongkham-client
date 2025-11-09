@@ -100,6 +100,11 @@ const appointmentService = {
         return apiRequest(`/lab-orders/${id}`, 'GET');
     },
 
+    // Lấy đơn thuốc theo medical record ID
+    getPrescriptionByMedicalRecord: async (medicalRecordId) => {
+        return apiRequest(`/prescriptions/medical-record/${medicalRecordId}`, 'GET');
+    },
+
     // Xác nhận/Thay đổi trạng thái lịch hẹn
     confirmAppointment: async (id, status) => {
         return apiRequest('/appointments/confirm', 'PUT', { id, status });
