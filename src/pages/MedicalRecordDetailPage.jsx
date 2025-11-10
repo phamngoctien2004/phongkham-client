@@ -27,7 +27,7 @@ const MedicalRecordDetailPage = () => {
             const response = await appointmentService.getMedicalRecordDetail(id);
             setRecord(response.data);
         } catch (error) {
-            toast.error('Không thể tải chi tiết hồ sơ');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setLoading(false);

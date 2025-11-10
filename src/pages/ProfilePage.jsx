@@ -89,7 +89,7 @@ const ProfilePage = () => {
             const response = await appointmentService.getMyProfile();
             setProfile(response.data);
         } catch (error) {
-            toast.error('Không thể tải thông tin tài khoản');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setLoading(false);
@@ -119,7 +119,7 @@ const ProfilePage = () => {
                 totalElements: response.data.totalElements || 0,
             }));
         } catch (error) {
-            toast.error('Không thể tải lịch sử đặt lịch');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setAppointmentsLoading(false);
@@ -132,7 +132,7 @@ const ProfilePage = () => {
             const response = await appointmentService.getMedicalRecords();
             setMedicalRecords(response.data || []);
         } catch (error) {
-            toast.error('Không thể tải hồ sơ khám bệnh');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setMedicalRecordsLoading(false);
@@ -145,7 +145,7 @@ const ProfilePage = () => {
             const response = await appointmentService.getPatients();
             setFamilyMembers(response.data || []);
         } catch (error) {
-            toast.error('Không thể tải danh sách thành viên gia đình');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setFamilyMembersLoading(false);
@@ -205,7 +205,7 @@ const ProfilePage = () => {
             const response = await appointmentService.getMedicalRecordsByPatient(patientId);
             setMemberRecords(response.data || []);
         } catch (error) {
-            toast.error('Không thể tải hồ sơ khám bệnh');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setMemberRecordsLoading(false);

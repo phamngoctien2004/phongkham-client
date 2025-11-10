@@ -1,5 +1,3 @@
-import { toast } from 'sonner';
-
 // API Base Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
@@ -23,11 +21,10 @@ const handleResponse = async (response) => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
 
-        toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-
+        // Không hiển thị toast, chỉ redirect
         setTimeout(() => {
             window.location.href = '/login';
-        }, 1000);
+        }, 100);
 
         throw new Error('Phiên đăng nhập đã hết hạn.');
     }

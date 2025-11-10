@@ -27,7 +27,7 @@ const ServiceDetailPage = () => {
         } catch (error) {
             console.error('Error loading service detail:', error);
             setError('Không thể tải thông tin dịch vụ. Vui lòng thử lại sau.');
-            toast.error('Không thể tải thông tin dịch vụ');
+            // Không hiển thị toast khi load dữ liệu thất bại
         } finally {
             setLoading(false);
         }

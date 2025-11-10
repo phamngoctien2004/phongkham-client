@@ -20,7 +20,7 @@ const AppointmentSuccessPage = () => {
             const response = await appointmentService.getAppointmentById(id);
             setAppointment(response.data);
         } catch (error) {
-            toast.error('Không thể tải thông tin lịch hẹn');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setLoading(false);

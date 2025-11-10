@@ -47,7 +47,7 @@ const Services = ({ isHomePage = false }) => {
       } catch (error) {
         console.error('Error fetching services:', error);
         setError('Không thể tải danh sách dịch vụ. Vui lòng thử lại sau.');
-        toast.error('Không thể tải danh sách dịch vụ');
+        // Không hiển thị toast khi load dữ liệu thất bại
       } finally {
         setLoading(false);
       }

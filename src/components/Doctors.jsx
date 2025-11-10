@@ -57,7 +57,7 @@ const Doctors = ({ isHomePage = false }) => {
       } catch (err) {
         console.error('Error fetching doctors:', err);
         setError('Không thể tải danh sách bác sĩ. Vui lòng thử lại sau.');
-        toast.error('Không thể tải danh sách bác sĩ');
+        // Không hiển thị toast khi load dữ liệu thất bại
       } finally {
         setLoading(false);
       }

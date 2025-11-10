@@ -13,6 +13,7 @@ import ServiceDetailPage from './pages/ServiceDetailPage';
 import DoctorsPage from './pages/DoctorsPage';
 import ContactPage from './pages/ContactPage';
 import NewsPage from './pages/NewsPage';
+import NewsDetailPage from './pages/NewsDetailPage';
 import AppointmentPage from './pages/AppointmentPage';
 import PaymentPage from './pages/PaymentPage';
 import AppointmentSuccessPage from './pages/AppointmentSuccessPage';
@@ -85,6 +86,7 @@ function FloatingButtonsWrapper() {
             <Route path="/doctors" element={<DoctorsPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:id" element={<NewsDetailPage />} />
 
             {/* Protected Routes - Appointment */}
             <Route path="/dat-lich" element={<AppointmentPage />} />

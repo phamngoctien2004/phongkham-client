@@ -158,7 +158,7 @@ const PaymentPage = () => {
             // Payment đã được tạo ở bước đặt lịch, chỉ cần hiển thị thông tin
             // Nếu có invoiceCode trong response thì đã có payment
         } catch (error) {
-            toast.error('Không thể tải thông tin lịch hẹn');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
         } finally {
             setLoading(false);

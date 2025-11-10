@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
 import appointmentService from '../services/appointmentService';
 import aiService from '../services/aiService';
 import chatService from '../services/chatService';
@@ -10,6 +11,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function AIChatPage() {
     const navigate = useNavigate();
+    const { isAuthenticated, loading: authLoading } = useAuth();
 
     // AI Conversation states
     const [conversations, setConversations] = useState([]);
@@ -44,6 +46,14 @@ function AIChatPage() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // Check authentication
+    useEffect(() => {
+        if (!authLoading && !isAuthenticated) {
+            // Không hiển thị toast, chỉ redirect
+            navigate('/login');
+        }
+    }, [authLoading, isAuthenticated, navigate]);
+
     // Always scroll to bottom when messages change
     useEffect(() => {
         scrollToBottom();
@@ -51,8 +61,10 @@ function AIChatPage() {
 
     // Load AI conversations on mount
     useEffect(() => {
-        loadAIConversations();
-    }, []);
+        if (isAuthenticated) {
+            loadAIConversations();
+        }
+    }, [isAuthenticated]);
 
     const loadAIConversations = async () => {
         try {
@@ -119,7 +131,7 @@ function AIChatPage() {
             ]);
         } catch (error) {
             console.error('Failed to load conversation messages:', error);
-            toast.error('Không thể tải tin nhắn');
+            // Không hiển thị toast khi load dữ liệu thất bại
         } finally {
             setLoading(false);
         }
@@ -268,7 +280,7 @@ function AIChatPage() {
 
             setPatients(patientsList);
         } catch (error) {
-            toast.error('Không thể tải danh sách bệnh nhân');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error('Load patients error:', error);
         } finally {
             setFormLoading(false);
@@ -327,6 +339,37 @@ function AIChatPage() {
             setFormLoading(false);
         }
     };
+
+    // Show loading state while checking authentication
+    if (authLoading) {
+        return (
+            <div className="ai-chat-page" style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+                background: '#f8f9fa'
+            }}>
+                <div style={{
+                    textAlign: 'center',
+                    padding: '40px',
+                    background: 'white',
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}>
+                    <div className="spinner-border text-primary mb-3" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p style={{ margin: 0, color: '#666' }}>Đang kiểm tra đăng nhập...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Don't render if not authenticated (will redirect)
+    if (!isAuthenticated) {
+        return null;
+    }
 
     return (
         <div className="ai-chat-page">

@@ -20,7 +20,7 @@ const LabResultModal = ({ isOpen, onClose, labOrderId }) => {
             const response = await appointmentService.getLabOrderDetail(labOrderId);
             setLabOrder(response.data);
         } catch (error) {
-            toast.error('Không thể tải kết quả xét nghiệm');
+            // Không hiển thị toast khi load dữ liệu thất bại
             console.error(error);
             onClose();
         } finally {
