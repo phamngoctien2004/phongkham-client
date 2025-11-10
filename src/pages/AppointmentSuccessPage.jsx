@@ -79,7 +79,7 @@ const AppointmentSuccessPage = () => {
                     {/* Success Message */}
                     <h1 className="success-title">Đặt lịch thành công!</h1>
                     <p className="success-message">
-                        Cảm ơn bạn đã đặt lịch khám tại MediLab.
+                        Cảm ơn bạn đã đặt lịch khám tại Phòng khám đa khoa Thái Hà.
                         Vui lòng đến phòng khám đúng giờ hẹn.
                     </p>
 

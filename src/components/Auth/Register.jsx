@@ -224,10 +224,10 @@ const Register = () => {
             <div className="auth-card">
                 <div className="auth-header">
                     <Link to="/" className="auth-logo">
-                        <h1>Medilab</h1>
+                        <h1>Phòng khám đa khoa Thái Hà</h1>
                     </Link>
                     <h2>Đăng ký tài khoản</h2>
-                    <p>Tạo tài khoản mới tại MediLab</p>
+                    <p>Tạo tài khoản mới tại Phòng khám đa khoa Thái Hà</p>
                 </div>
 
                 <div className="step-indicator">

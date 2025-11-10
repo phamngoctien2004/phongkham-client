@@ -480,7 +480,7 @@ const AppointmentForm = () => {
                             ĐĂNG KÝ KHÁM BỆNH
                         </h1>
                         <p style={{ fontSize: '14px', color: '#666', marginBottom: '30px' }}>
-                            Quý khách hàng có nhu cầu đặt hẹn khám tại Hệ thống phòng khám đa khoa Phố Nối
+                            Quý khách hàng có nhu cầu đặt hẹn khám tại Hệ thống phòng khám đa khoa Thái Hà
                         </p>
                     </div>
 

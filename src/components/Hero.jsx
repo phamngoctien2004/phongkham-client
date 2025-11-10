@@ -8,7 +8,7 @@ const Hero = ({ showContent = false }) => {
 
       <div className="container position-relative">
         <div className="welcome position-relative" data-aos="fade-down" data-aos-delay="100">
-          <h2>CHÀO MỪNG BẠN ĐÊN VỚI MEDILAB</h2>
+          <h2>CHÀO MỪNG BẠN ĐẾN VỚI PHÒNG KHÁM ĐA KHOA THÁI HÀ</h2>
           <p>Chúng tôi cam kết mang đến dịch vụ chăm sóc sức khỏe chuyên nghiệp và tận tâm</p>
         </div>
 
@@ -16,10 +16,10 @@ const Hero = ({ showContent = false }) => {
           <div className="content row gy-4">
             <div className="col-lg-4 d-flex align-items-stretch">
               <div className="why-box" data-aos="zoom-out" data-aos-delay="200">
-                <h3>Tại sao chọn Medilab?</h3>
+                <h3>Tại sao chọn Phòng khám đa khoa Thái Hà?</h3>
                 <p>
                   Với đội ngũ bác sĩ giàu kinh nghiệm, trang thiết bị y tế hiện đại và quy trình
-                  khám chữa bệnh chuyên nghiệp, Medilab luôn đặt sức khỏe của bạn lên hàng đầu.
+                  khám chữa bệnh chuyên nghiệp, Phòng khám đa khoa Thái Hà luôn đặt sức khỏe của bạn lên hàng đầu.
                   Chúng tôi cung cấp dịch vụ chăm sóc sức khỏe toàn diện với chi phí hợp lý,
                   thời gian linh hoạt và quy trình đặt lịch nhanh chóng, tiện lợi.
                 </p>
