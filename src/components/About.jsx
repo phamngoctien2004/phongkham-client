@@ -82,11 +82,11 @@ const About = ({ isHomePage = false }) => {
   ];
 
   const facilities = [
-    '/toa_nha_thai_ha.jpg',
+    '/about_1.jpg',
     '/banner_1.png',
     '/banner_2.png',
     '/banner_3.png',
-    '/news_1.png'
+    '/banner_new_1.webp'
   ];
 
   return (

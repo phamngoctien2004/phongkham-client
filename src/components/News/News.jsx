@@ -74,7 +74,7 @@ const News = ({ isHomePage = false }) => {
 
                     <div className="news-grid">
                         {limitedNews.map((article) => (
-                            <div key={article.id} className="news-card">
+                            <div key={article.id} className="news-card" onClick={() => navigate(`/news/${article.id}`)}>
                                 <div className="news-image">
                                     <img src={article.image} alt={article.title} />
                                     <div className="news-category">{article.categoryName}</div>
@@ -82,9 +82,9 @@ const News = ({ isHomePage = false }) => {
                                 <div className="news-content">
                                     <h3>{article.title}</h3>
                                     <p>{article.description}</p>
-                                    <a href="#" className="news-link">
+                                    <div className="news-link">
                                         Xem chi tiết <i className="bi bi-arrow-right"></i>
-                                    </a>
+                                    </div>
                                 </div>
                             </div>
                         ))}

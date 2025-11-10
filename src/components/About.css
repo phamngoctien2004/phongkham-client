@@ -55,13 +55,13 @@
     border-radius: 12px;
     padding: 30px 20px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .department-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e0e0e0;
 }
 
 .dept-icon {
