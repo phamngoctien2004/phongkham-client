@@ -24,9 +24,26 @@
 }
 
 .auth-logo {
-    display: inline-block;
-    margin-bottom: 20px;
+    display: block;
+    margin: 0 auto 15px;
     text-decoration: none;
+    width: fit-content;
+}
+
+.auth-logo img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+}
+
+.auth-header h1 {
+    font-size: 24px;
+    margin: 0;
+    font-weight: 700;
+    color: var(--heading-color, #2c4964);
+    font-family: var(--heading-font, "Poppins", sans-serif);
+    text-align: center;
 }
 
 .auth-logo h1 {

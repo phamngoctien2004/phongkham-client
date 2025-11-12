@@ -197,10 +197,9 @@ const Login = () => {
             <div className="auth-card">
                 <div className="auth-header">
                     <Link to="/" className="auth-logo">
-                        <h1>Phòng khám đa khoa Thái Hà</h1>
+                        <img src="/logo_only.png" alt="Logo" />
                     </Link>
-                    <h2>Đăng nhập</h2>
-                    <p>Chào mừng bạn đến với Phòng khám đa khoa Thái Hà</p>
+                    <h1>Phòng khám đa khoa Thái Hà</h1>
                 </div>
 
                 {loginType === 'password' ? (
