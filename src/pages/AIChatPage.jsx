@@ -306,14 +306,11 @@ function AIChatPage() {
                 healthPlanId: null // Vì là khám chuyên khoa
             };
 
-            // Bước 1: Tạo lịch hẹn
+            // Tạo lịch hẹn
             const appointmentResponse = await appointmentService.createAppointment(appointmentData);
             const appointmentId = appointmentResponse.data.id;
 
-            // Bước 2: Xác nhận lịch hẹn (cập nhật trạng thái sang DA_XAC_NHAN)
-            await appointmentService.confirmAppointment(appointmentId, 'DA_XAC_NHAN');
-
-            // Bước 3: Clear cache lịch khám của bác sĩ trong AI chatbot
+            // Clear cache lịch khám của bác sĩ trong AI chatbot
             try {
                 await aiService.clearDoctorScheduleCache(bookingData.doctor.doctor_id);
                 console.log(`✅ Cleared AI cache for doctor ${bookingData.doctor.doctor_id}`);
