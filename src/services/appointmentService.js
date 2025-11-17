@@ -63,6 +63,11 @@ const appointmentService = {
         return apiRequest(`/payments/appointment/${appointmentId}`, 'POST', {});
     },
 
+    // Gửi email khi đặt lịch thành công (backend endpoint POST /appointments/send-email-success/{id})
+    sendEmailSuccess: async (appointmentId) => {
+        return apiRequest(`/appointments/send-email-success/${appointmentId}`, 'POST', {});
+    },
+
     // Lấy thông tin profile bệnh nhân hiện tại
     getMyProfile: async () => {
         return apiRequest('/patients/me', 'GET');

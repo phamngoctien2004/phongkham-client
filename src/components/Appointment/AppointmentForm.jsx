@@ -438,6 +438,14 @@ const AppointmentForm = () => {
             const appointmentResponse = await appointmentService.createAppointment(appointmentData);
             const appointmentId = appointmentResponse.data.id;
 
+            // Gửi email thông báo đặt lịch thành công (không block flow nếu lỗi)
+            try {
+                await appointmentService.sendEmailSuccess(appointmentId);
+                console.log(`✉️ Sent appointment success email for ${appointmentId}`);
+            } catch (emailErr) {
+                console.warn('Failed to send appointment success email:', emailErr);
+            }
+
             toast.success('Đặt lịch thành công!');
 
             // Chuyển sang trang thanh toán

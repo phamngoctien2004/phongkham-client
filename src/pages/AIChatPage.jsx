@@ -310,6 +310,14 @@ function AIChatPage() {
             const appointmentResponse = await appointmentService.createAppointment(appointmentData);
             const appointmentId = appointmentResponse.data.id;
 
+            // Gửi email thông báo đặt lịch thành công (không block flow nếu lỗi)
+            try {
+                await appointmentService.sendEmailSuccess(appointmentId);
+                console.log(`✉️ Sent appointment success email for ${appointmentId}`);
+            } catch (emailErr) {
+                console.warn('Failed to send appointment success email:', emailErr);
+            }
+
             // Clear cache lịch khám của bác sĩ trong AI chatbot
             try {
                 await aiService.clearDoctorScheduleCache(bookingData.doctor.doctor_id);
