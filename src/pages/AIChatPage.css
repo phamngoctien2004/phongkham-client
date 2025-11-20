@@ -445,6 +445,11 @@
     font-size: inherit;
 }
 
+/* In đậm text có ** */
+.ai-message-text strong {
+    font-weight: 700;
+}
+
 /* Appointment Badge */
 .ai-appointment-badge {
     margin-top: 0.75rem;
