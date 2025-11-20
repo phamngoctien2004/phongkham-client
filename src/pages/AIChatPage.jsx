@@ -301,7 +301,7 @@ function AIChatPage() {
                 patientId: selectedPatient.id,
                 date: bookingData.slot.date,
                 time: bookingData.slot.time,
-                symptoms: symptoms || bookingData.doctor.reason || '',
+                symptoms: symptoms || '',
                 doctorId: bookingData.doctor.doctor_id,
                 healthPlanId: null // Vì là khám chuyên khoa
             };
@@ -933,7 +933,7 @@ function AIChatPage() {
                                                 className="form-control"
                                                 rows="3"
                                                 placeholder="Nhập triệu chứng hoặc lý do khám..."
-                                                value={symptoms || bookingData.doctor.reason}
+                                                value={symptoms}
                                                 onChange={(e) => setSymptoms(e.target.value)}
                                             />
                                         </div>
