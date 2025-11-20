@@ -196,6 +196,16 @@ const AppointmentForm = () => {
         }
     }, [selectedDate, appointmentType, selectedDoctor]);
 
+    // Load invalid times for service when conditions change for XET_NGHIEM or DICH_VU
+    useEffect(() => {
+        if ((appointmentType === 'XET_NGHIEM' || appointmentType === 'DICH_VU') && selectedService && selectedDate) {
+            loadInvalidTimesForService();
+        } else if (appointmentType !== 'CHUYEN_KHOA') {
+            // Clear nếu chưa đủ điều kiện
+            setAvailableSlots([]);
+        }
+    }, [selectedDate, appointmentType, selectedService]);
+
     // ⭐ Kiểm tra giờ đã chọn có còn hợp lệ không sau khi availableSlots thay đổi
     useEffect(() => {
         if (appointmentType === 'CHUYEN_KHOA' && selectedDoctor && selectedDate && selectedTime && availableSlots.length > 0) {
@@ -258,6 +268,50 @@ const AppointmentForm = () => {
         }
     };
 
+    // Load invalid times for service (XET_NGHIEM, DICH_VU)
+    const loadInvalidTimesForService = async () => {
+        try {
+            if (!selectedService || !selectedDate) {
+                setAvailableSlots([]);
+                return;
+            }
+
+            const response = await appointmentService.getInvalidTimesForService(selectedDate, selectedService.id);
+            console.log('🚫 Invalid times for service:', response.data);
+
+            if (response.data) {
+                // Transform data để tương thích với logic hiện tại
+                // Giả định tất cả ca đều available, chỉ có invalidTimes
+                const serviceSlots = [
+                    {
+                        id: selectedService.id,
+                        shift: 'SANG',
+                        available: true,
+                        invalidTimes: response.data.invalidTimes || []
+                    },
+                    {
+                        id: selectedService.id,
+                        shift: 'CHIEU',
+                        available: true,
+                        invalidTimes: response.data.invalidTimes || []
+                    },
+                    {
+                        id: selectedService.id,
+                        shift: 'TOI',
+                        available: true,
+                        invalidTimes: response.data.invalidTimes || []
+                    }
+                ];
+                setAvailableSlots(serviceSlots);
+            } else {
+                setAvailableSlots([]);
+            }
+        } catch (error) {
+            console.error('Error loading invalid times for service:', error);
+            setAvailableSlots([]);
+        }
+    };
+
     const formatDate = (date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -290,63 +344,109 @@ const AppointmentForm = () => {
     // Check if time slot is available
     const isTimeSlotAvailable = (timeValue, shiftName) => {
         // Chưa chọn ngày → tất cả giờ đều available
-        if (!selectedDate || appointmentType !== 'CHUYEN_KHOA') {
+        if (!selectedDate) {
             return true;
         }
 
-        // CHƯA CHỌN BÁC SĨ → tất cả giờ đều available
-        if (!selectedDoctor) {
-            return true;
-        }
-
-        // ĐÃ CHỌN BÁC SĨ → kiểm tra schedule của bác sĩ đó
-        if (availableSlots.length === 0) {
-            return false;
-        }
-
-        const doctorSlot = availableSlots.find(s =>
-            s.id === selectedDoctor.id && s.shift === shiftName
-        );
-
-        console.log(`🕐 Checking time ${timeValue} (shift: ${shiftName}):`, {
-            doctorSlot,
-            available: doctorSlot?.available,
-            invalidTimes: doctorSlot?.invalidTimes,
-            isInvalid: doctorSlot?.invalidTimes?.includes(timeValue)
-        });
-
-        // Không tìm thấy slot cho ca này → unavailable
-        if (!doctorSlot) {
-            return false;
-        }
-
-        // Ca không available → disable toàn bộ ca
-        if (!doctorSlot.available) {
-            return false;
-        }
-
-        // Kiểm tra invalidTimes (09:00:00 = khung 9:00-9:30)
-        // Chuẩn hóa format để so sánh (có thể backend trả về 09:00 hoặc 09:00:00)
-        const normalizedTime = timeValue.includes(':00:00') ? timeValue : `${timeValue}:00`;
-        const invalidTimes = doctorSlot.invalidTimes || [];
-
-        // Normalize cả mảng invalidTimes để so sánh
-        const normalizedInvalidTimes = invalidTimes.map(time => {
-            if (typeof time === 'string') {
-                return time.includes(':00:00') ? time : `${time}:00`;
+        // === CHUYÊN KHOA ===
+        if (appointmentType === 'CHUYEN_KHOA') {
+            // CHƯA CHỌN BÁC SĨ → tất cả giờ đều available
+            if (!selectedDoctor) {
+                return true;
             }
-            return time;
-        });
 
-        const isInvalid = normalizedInvalidTimes.includes(normalizedTime);
+            // ĐÃ CHỌN BÁC SĨ → kiểm tra schedule của bác sĩ đó
+            if (availableSlots.length === 0) {
+                return false;
+            }
 
-        console.log(`🕐 Final check ${timeValue}:`, {
-            normalizedTime,
-            normalizedInvalidTimes,
-            isInvalid
-        });
+            const doctorSlot = availableSlots.find(s =>
+                s.id === selectedDoctor.id && s.shift === shiftName
+            );
 
-        return !isInvalid;
+            console.log(`🕐 Checking time ${timeValue} (shift: ${shiftName}):`, {
+                doctorSlot,
+                available: doctorSlot?.available,
+                invalidTimes: doctorSlot?.invalidTimes,
+                isInvalid: doctorSlot?.invalidTimes?.includes(timeValue)
+            });
+
+            // Không tìm thấy slot cho ca này → unavailable
+            if (!doctorSlot) {
+                return false;
+            }
+
+            // Ca không available → disable toàn bộ ca
+            if (!doctorSlot.available) {
+                return false;
+            }
+
+            // Kiểm tra invalidTimes (09:00:00 = khung 9:00-9:30)
+            const normalizedTime = timeValue.includes(':00:00') ? timeValue : `${timeValue}:00`;
+            const invalidTimes = doctorSlot.invalidTimes || [];
+            const normalizedInvalidTimes = invalidTimes.map(time => {
+                if (typeof time === 'string') {
+                    return time.includes(':00:00') ? time : `${time}:00`;
+                }
+                return time;
+            });
+
+            const isInvalid = normalizedInvalidTimes.includes(normalizedTime);
+
+            console.log(`🕐 Final check ${timeValue}:`, {
+                normalizedTime,
+                normalizedInvalidTimes,
+                isInvalid
+            });
+
+            return !isInvalid;
+        }
+
+        // === XÉT NGHIỆM / DỊCH VỤ ===
+        if (appointmentType === 'XET_NGHIEM' || appointmentType === 'DICH_VU') {
+            // CHƯA CHỌN DỊCH VỤ → tất cả giờ đều available
+            if (!selectedService) {
+                return true;
+            }
+
+            // ĐÃ CHỌN DỊCH VỤ → kiểm tra invalidTimes của dịch vụ đó
+            if (availableSlots.length === 0) {
+                return true; // Nếu chưa load được data, cho phép chọn
+            }
+
+            const serviceSlot = availableSlots.find(s =>
+                s.id === selectedService.id && s.shift === shiftName
+            );
+
+            if (!serviceSlot) {
+                return true; // Không tìm thấy slot cho ca này → available (default)
+            }
+
+            // Kiểm tra invalidTimes
+            const normalizedTime = timeValue.includes(':00:00') ? timeValue : `${timeValue}:00`;
+            const invalidTimes = serviceSlot.invalidTimes || [];
+            const normalizedInvalidTimes = invalidTimes.map(time => {
+                if (typeof time === 'string') {
+                    return time.includes(':00:00') ? time : `${time}:00`;
+                }
+                return time;
+            });
+
+            const isInvalid = normalizedInvalidTimes.includes(normalizedTime);
+
+            console.log(`🕐 Service time check ${timeValue}:`, {
+                serviceId: selectedService.id,
+                shift: shiftName,
+                normalizedTime,
+                normalizedInvalidTimes,
+                isInvalid
+            });
+
+            return !isInvalid;
+        }
+
+        // Default: tất cả giờ đều available
+        return true;
     };
 
     const handleSubmit = () => {
@@ -459,18 +559,18 @@ const AppointmentForm = () => {
     };
 
     const handleSelectTime = (timeValue) => {
-        // Kiểm tra validation trước khi set time
-        if (selectedDoctor && selectedDate && timeValue) {
-            const hour = parseInt(timeValue.split(':')[0]);
-            let shift;
-            if (hour >= 7 && hour < 13) {
-                shift = 'SANG';
-            } else if (hour >= 13 && hour < 17) {
-                shift = 'CHIEU';
-            } else {
-                shift = 'TOI';
-            }
+        const hour = parseInt(timeValue.split(':')[0]);
+        let shift;
+        if (hour >= 7 && hour < 13) {
+            shift = 'SANG';
+        } else if (hour >= 13 && hour < 17) {
+            shift = 'CHIEU';
+        } else {
+            shift = 'TOI';
+        }
 
+        // Kiểm tra validation trước khi set time
+        if (appointmentType === 'CHUYEN_KHOA' && selectedDoctor && selectedDate && timeValue) {
             const doctorSlot = availableSlots.find(s =>
                 s.id === selectedDoctor.id && s.shift === shift
             );
@@ -504,16 +604,42 @@ const AppointmentForm = () => {
             }
         }
 
-        setSelectedTime(timeValue);
-        // Tự động xác định ca khám dựa trên giờ được chọn
-        const hour = parseInt(timeValue.split(':')[0]);
-        if (hour >= 7 && hour < 13) {
-            setSelectedShift('SANG');
-        } else if (hour >= 13 && hour < 17) {
-            setSelectedShift('CHIEU');
-        } else {
-            setSelectedShift('TOI');
+        // Kiểm tra validation cho service (XET_NGHIEM, DICH_VU)
+        if ((appointmentType === 'XET_NGHIEM' || appointmentType === 'DICH_VU') && selectedService && selectedDate && timeValue) {
+            const serviceSlot = availableSlots.find(s =>
+                s.id === selectedService.id && s.shift === shift
+            );
+
+            if (serviceSlot) {
+                const normalizedTime = timeValue.includes(':00:00') ? timeValue : `${timeValue}:00`;
+                const invalidTimes = serviceSlot.invalidTimes || [];
+                const normalizedInvalidTimes = invalidTimes.map(time => {
+                    if (typeof time === 'string') {
+                        return time.includes(':00:00') ? time : `${time}:00`;
+                    }
+                    return time;
+                });
+
+                const isInvalid = normalizedInvalidTimes.includes(normalizedTime);
+
+                console.log(`⚠️ Service validation khi chọn giờ ${timeValue}:`, {
+                    serviceId: selectedService.id,
+                    timeValue,
+                    normalizedTime,
+                    invalidTimes: serviceSlot.invalidTimes,
+                    normalizedInvalidTimes,
+                    isInvalid
+                });
+
+                if (isInvalid) {
+                    toast.warning('Khung giờ này không hợp lệ cho dịch vụ đã chọn. Vui lòng chọn khung giờ khác.');
+                    return;
+                }
+            }
         }
+
+        setSelectedTime(timeValue);
+        setSelectedShift(shift);
     };
 
     const getSelectedDoctorOrServiceName = () => {

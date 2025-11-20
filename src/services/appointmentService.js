@@ -43,6 +43,12 @@ const appointmentService = {
         return apiRequest(`/schedules/available?${queryString}`, 'GET');
     },
 
+    // Lấy khung giờ không hợp lệ cho dịch vụ/gói khám (không phải chuyên khoa)
+    getInvalidTimesForService: async (date, serviceId) => {
+        const params = new URLSearchParams({ date, serviceId }).toString();
+        return apiRequest(`/appointments/invalid-services?${params}`, 'GET');
+    },
+
     // Tạo lịch hẹn
     createAppointment: async (data) => {
         return apiRequest('/appointments', 'POST', data);
