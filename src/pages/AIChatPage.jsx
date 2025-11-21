@@ -313,12 +313,30 @@ function AIChatPage() {
             return;
         }
 
+        console.log('=== OPENING SERVICE BOOKING MODAL ===');
+        console.log('Service object:', service);
+        console.log('Service ID (service.service_id):', service.service_id);
+        console.log('Slot info:', slotInfo);
+        console.log('Slot serviceId:', slotInfo.serviceId);
+        console.log('Date:', slotInfo.date);
+        console.log('Time:', slotInfo.time);
+        console.log('===================================');
+
         // Mở modal với thông tin dịch vụ đã chọn
         setBookingData({
             service,
             slot: slotInfo,
             isService: true
         });
+
+        console.log('=== BOOKING DATA SET ===');
+        console.log('bookingData will be:', {
+            service,
+            slot: slotInfo,
+            isService: true
+        });
+        console.log('========================');
+
         setShowBookingModal(true);
         loadPatients(); // Load danh sách bệnh nhân
     };
@@ -343,7 +361,11 @@ function AIChatPage() {
     };
 
     const handleConfirmBooking = async () => {
+        console.log('🎯 handleConfirmBooking CALLED!');
+        console.log('selectedPatient:', selectedPatient);
+
         if (!selectedPatient) {
+            console.error('❌ No patient selected!');
             toast.error('Vui lòng chọn bệnh nhân');
             return;
         }
@@ -351,22 +373,38 @@ function AIChatPage() {
         try {
             setFormLoading(true);
 
+            // Debug: Log booking data
+            console.log('=== CONFIRM BOOKING - BOOKING DATA ===');
+            console.log('Full bookingData:', bookingData);
+            console.log('isService:', bookingData.isService);
+            console.log('service:', bookingData.service);
+            console.log('service.service_id:', bookingData.service?.service_id);
+            console.log('doctor:', bookingData.doctor);
+            console.log('slot:', bookingData.slot);
+            console.log('slot.serviceId:', bookingData.slot?.serviceId);
+            console.log('====================================');
+
             // Chuẩn bị dữ liệu
             const appointmentData = {
                 patientId: selectedPatient.id,
                 date: bookingData.slot.date,
                 time: bookingData.slot.time,
-                symptoms: symptoms || '',
-                healthPlanId: null
+                symptoms: symptoms || ''
             };
 
-            // Thêm doctorId hoặc serviceId tùy loại
+            // Thêm doctorId hoặc healthPlanId (cho dịch vụ) tùy loại
             if (bookingData.isService) {
-                appointmentData.serviceId = bookingData.service.service_id;
+                appointmentData.healthPlanId = bookingData.service.service_id;
                 appointmentData.doctorId = null;
+                console.log('✅ Đặt DỊCH VỤ - healthPlanId:', appointmentData.healthPlanId);
             } else {
                 appointmentData.doctorId = bookingData.doctor.doctor_id;
+                appointmentData.healthPlanId = null;
+                console.log('✅ Đặt BÁC SĨ - doctorId:', appointmentData.doctorId);
             }
+
+            console.log('📤 Final Appointment Data to send:', appointmentData);
+            console.log('📤 Appointment Data JSON:', JSON.stringify(appointmentData, null, 2));
 
             // Tạo lịch hẹn
             const appointmentResponse = await appointmentService.createAppointment(appointmentData);
