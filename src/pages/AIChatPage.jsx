@@ -21,7 +21,7 @@ function AIChatPage() {
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
+            content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám Đa Khoa Thái Hà. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
         }
     ]);
     const [input, setInput] = useState('');
@@ -110,7 +110,7 @@ function AIChatPage() {
         setMessages([
             {
                 role: 'assistant',
-                content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
+                content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám Đa Khoa Thái Hà. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
             }
         ]);
         setSelectedSlot(null);
@@ -131,13 +131,14 @@ function AIChatPage() {
                 content: msg.message,
                 sources: msg.sources,
                 needsAppointment: msg.needsAppointment,
-                recommendedDoctors: msg.recommendedDoctors || []
+                recommendedDoctors: msg.recommendedDoctors || [],
+                recommendedServices: msg.recommendedServices || []
             }));
 
             setMessages(loadedMessages.length > 0 ? loadedMessages : [
                 {
                     role: 'assistant',
-                    content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
+                    content: 'Xin chào! Tôi là trợ lý AI y tế của phòng khám Đa Khoa Thái Hà. Tôi có thể giúp bạn:\n- Tư vấn về triệu chứng bệnh\n- Cung cấp kiến thức y học\n- Đề xuất bác sĩ phù hợp\n\nBạn đang gặp vấn đề gì về sức khỏe?'
                 }
             ]);
         } catch (error) {
@@ -181,6 +182,7 @@ function AIChatPage() {
             console.log('Sources:', data.sources);
             console.log('Needs appointment:', data.needs_appointment);
             console.log('Recommended doctors:', data.recommended_doctors);
+            console.log('Recommended services:', data.recommended_services);
 
             // Log chi tiết từng doctor nếu có
             if (data.recommended_doctors && data.recommended_doctors.length > 0) {
@@ -207,6 +209,30 @@ function AIChatPage() {
                     }
                 });
             }
+
+            // Log chi tiết từng service nếu có
+            if (data.recommended_services && data.recommended_services.length > 0) {
+                data.recommended_services.forEach((service, index) => {
+                    console.log(`\n--- Service ${index + 1} ---`);
+                    console.log('Service ID:', service.service_id);
+                    console.log('Service Name:', service.service_name);
+                    console.log('Service Type:', service.service_type);
+                    console.log('Price:', service.price);
+                    console.log('Confidence:', service.confidence);
+                    console.log('Available slots:', service.available_slots);
+
+                    // Log chi tiết từng slot
+                    if (service.available_slots && service.available_slots.length > 0) {
+                        service.available_slots.forEach((slot, slotIndex) => {
+                            console.log(`  Slot ${slotIndex + 1}:`, {
+                                date: slot.date,
+                                total_slots: slot.total_slots,
+                                available_times: slot.available_times
+                            });
+                        });
+                    }
+                });
+            }
             console.log('==================\n');
 
             // Update or create conversation
@@ -228,7 +254,8 @@ function AIChatPage() {
                 content: data.response,
                 sources: data.sources,
                 needsAppointment: data.needs_appointment,
-                recommendedDoctors: data.recommended_doctors || []
+                recommendedDoctors: data.recommended_doctors || [],
+                recommendedServices: data.recommended_services || []
             }]);
 
         } catch (error) {
@@ -279,6 +306,23 @@ function AIChatPage() {
         loadPatients(); // Load danh sách bệnh nhân
     };
 
+    const handleBookService = (service, messageIdx) => {
+        const slotInfo = selectedSlot;
+        if (!slotInfo || slotInfo.messageIndex !== messageIdx || slotInfo.serviceId !== service.service_id) {
+            alert('⚠️ Vui lòng chọn giờ khám trước!');
+            return;
+        }
+
+        // Mở modal với thông tin dịch vụ đã chọn
+        setBookingData({
+            service,
+            slot: slotInfo,
+            isService: true
+        });
+        setShowBookingModal(true);
+        loadPatients(); // Load danh sách bệnh nhân
+    };
+
     const loadPatients = async () => {
         try {
             setFormLoading(true);
@@ -307,15 +351,22 @@ function AIChatPage() {
         try {
             setFormLoading(true);
 
-            // Chuẩn bị dữ liệu giống AppointmentForm
+            // Chuẩn bị dữ liệu
             const appointmentData = {
                 patientId: selectedPatient.id,
                 date: bookingData.slot.date,
                 time: bookingData.slot.time,
                 symptoms: symptoms || '',
-                doctorId: bookingData.doctor.doctor_id,
-                healthPlanId: null // Vì là khám chuyên khoa
+                healthPlanId: null
             };
+
+            // Thêm doctorId hoặc serviceId tùy loại
+            if (bookingData.isService) {
+                appointmentData.serviceId = bookingData.service.service_id;
+                appointmentData.doctorId = null;
+            } else {
+                appointmentData.doctorId = bookingData.doctor.doctor_id;
+            }
 
             // Tạo lịch hẹn
             const appointmentResponse = await appointmentService.createAppointment(appointmentData);
@@ -329,10 +380,16 @@ function AIChatPage() {
                 console.warn('Failed to send appointment success email:', emailErr);
             }
 
-            // Clear cache lịch khám của bác sĩ trong AI chatbot
+            // Clear cache lịch khám của bác sĩ/dịch vụ trong AI chatbot
             try {
-                await aiService.clearDoctorScheduleCache(bookingData.doctor.doctor_id);
-                console.log(`✅ Cleared AI cache for doctor ${bookingData.doctor.doctor_id}`);
+                if (bookingData.isService) {
+                    // Nếu có API clear cache cho service
+                    // await aiService.clearServiceScheduleCache(bookingData.service.service_id);
+                    console.log(`✅ Service booking completed for ${bookingData.service.service_id}`);
+                } else {
+                    await aiService.clearDoctorScheduleCache(bookingData.doctor.doctor_id);
+                    console.log(`✅ Cleared AI cache for doctor ${bookingData.doctor.doctor_id}`);
+                }
             } catch (cacheError) {
                 // Không fail nếu clear cache thất bại, chỉ log warning
                 console.warn('⚠️ Failed to clear AI cache:', cacheError);
@@ -543,8 +600,8 @@ function AIChatPage() {
                                                 </div>
                                             )}
 
-                                            {/* Recommended Doctors - Display in message */}
-                                            {msg.recommendedDoctors && msg.recommendedDoctors.length > 0 && (
+                                            {/* Recommended Doctors - Display in message (only if no services) */}
+                                            {msg.recommendedDoctors && msg.recommendedDoctors.length > 0 && (!msg.recommendedServices || msg.recommendedServices.length === 0) && (
                                                 <div className="ai-doctors-section">
                                                     <h3 className="ai-doctors-section-title">
                                                         Chọn Bác Sĩ
@@ -713,6 +770,158 @@ function AIChatPage() {
                                                     })()}
                                                 </div>
                                             )}
+
+                                            {/* Recommended Services - Display in message */}
+                                            {msg.recommendedServices && msg.recommendedServices.length > 0 && (
+                                                <div className="ai-doctors-section">
+                                                    <h3 className="ai-doctors-section-title">
+                                                        Chọn Dịch Vụ
+                                                    </h3>
+
+                                                    {/* Danh sách dịch vụ ngang */}
+                                                    <div className="ai-doctors-horizontal-scroll">
+                                                        {msg.recommendedServices.map((service, serviceIdx) => {
+                                                            const messageKey = `msg${idx}_service`;
+                                                            const isSelected = selectedDoctorPerMessage[messageKey] === serviceIdx ||
+                                                                (selectedDoctorPerMessage[messageKey] === undefined && serviceIdx === 0);
+
+                                                            return (
+                                                                <div
+                                                                    key={serviceIdx}
+                                                                    className={`ai-doctor-card-horizontal ${isSelected ? 'selected' : ''}`}
+                                                                    onClick={() => {
+                                                                        setSelectedDoctorPerMessage(prev => ({
+                                                                            ...prev,
+                                                                            [messageKey]: serviceIdx
+                                                                        }));
+                                                                        // Reset selected slot when changing service
+                                                                        setSelectedSlot(null);
+                                                                    }}
+                                                                >
+                                                                    <div className="ai-doctor-avatar">
+                                                                        💊
+                                                                    </div>
+                                                                    <div className="ai-doctor-details">
+                                                                        <h4 className="ai-doctor-name-horizontal">
+                                                                            {service.service_name}
+                                                                        </h4>
+                                                                        <p className="ai-doctor-specialty-horizontal">
+                                                                            {service.price?.toLocaleString('vi-VN')}đ
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+
+                                                    {/* Chọn Giờ Khám - Only show for selected service */}
+                                                    {(() => {
+                                                        const messageKey = `msg${idx}_service`;
+                                                        const selectedServiceIdx = selectedDoctorPerMessage[messageKey] ?? 0; // Default to first service
+                                                        const selectedService = msg.recommendedServices[selectedServiceIdx];
+
+                                                        if (!selectedService) return null;
+
+                                                        return (
+                                                            <div className="ai-time-selection-section">
+                                                                <h3 className="ai-time-section-title">
+                                                                    Chọn Giờ - {selectedService.service_name}
+                                                                </h3>
+
+                                                                {selectedService.available_slots && selectedService.available_slots.length > 0 && (() => {
+                                                                    const availableDates = selectedService.available_slots.map(s => s.date);
+                                                                    const selectedDateKey = `${messageKey}_date`;
+                                                                    const currentSelectedDate = selectedDatePerMessage[selectedDateKey] || availableDates[0];
+                                                                    const currentSlot = selectedService.available_slots.find(s => s.date === currentSelectedDate);
+
+                                                                    return (
+                                                                        <>
+                                                                            {/* Date Selector */}
+                                                                            <div className="ai-date-selector">
+                                                                                {selectedService.available_slots.map((slot, dateIdx) => {
+                                                                                    const dateObj = new Date(slot.date);
+                                                                                    const dayOfWeek = dateObj.toLocaleDateString('vi-VN', { weekday: 'short' });
+                                                                                    const dayOfMonth = dateObj.getDate();
+                                                                                    const month = dateObj.getMonth() + 1;
+                                                                                    const isSelected = slot.date === currentSelectedDate;
+
+                                                                                    return (
+                                                                                        <button
+                                                                                            key={dateIdx}
+                                                                                            onClick={() => {
+                                                                                                setSelectedDatePerMessage(prev => ({
+                                                                                                    ...prev,
+                                                                                                    [selectedDateKey]: slot.date
+                                                                                                }));
+                                                                                                // Reset selected slot when changing date
+                                                                                                setSelectedSlot(null);
+                                                                                            }}
+                                                                                            className={`ai-date-button ${isSelected ? 'selected' : ''}`}
+                                                                                        >
+                                                                                            <div className="ai-date-month">{month}/{dayOfMonth}</div>
+                                                                                            <div className="ai-date-day">{dayOfWeek}</div>
+                                                                                        </button>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+
+                                                                            {/* Time Slots */}
+                                                                            <div className="ai-shifts-container">
+                                                                                <div className="ai-shift-section">
+                                                                                    <div className="ai-shift-header">
+                                                                                        <span className="ai-shift-icon">⏰</span>
+                                                                                        <span className="ai-shift-name">Giờ khám</span>
+                                                                                    </div>
+
+                                                                                    {currentSlot?.available_times && currentSlot.available_times.length > 0 && (
+                                                                                        <div className="ai-time-slots-grid">
+                                                                                            {currentSlot.available_times.map((time, timeIdx) => {
+                                                                                                const slotKey = `${idx}_service_${selectedService.service_id}_${currentSelectedDate}_${time}`;
+                                                                                                const isSelected = selectedSlot?.key === slotKey;
+
+                                                                                                return (
+                                                                                                    <button
+                                                                                                        key={timeIdx}
+                                                                                                        onClick={() => {
+                                                                                                            setSelectedSlot({
+                                                                                                                key: slotKey,
+                                                                                                                messageIndex: idx,
+                                                                                                                serviceId: selectedService.service_id,
+                                                                                                                serviceName: selectedService.service_name,
+                                                                                                                date: currentSelectedDate,
+                                                                                                                time
+                                                                                                            });
+                                                                                                        }}
+                                                                                                        className={`ai-time-slot ${isSelected ? 'selected' : ''}`}
+                                                                                                    >
+                                                                                                        {time}
+                                                                                                    </button>
+                                                                                                );
+                                                                                            })}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </>
+                                                                    );
+                                                                })()}
+
+                                                                {/* Book Service Button */}
+                                                                <button
+                                                                    onClick={() => handleBookService(selectedService, idx)}
+                                                                    className={`ai-book-appointment-btn ${selectedSlot?.messageIndex === idx && selectedSlot?.serviceId === selectedService.service_id ? 'has-selection' : ''}`}
+                                                                >
+                                                                    <i className="bi bi-calendar-check"></i>
+                                                                    {selectedSlot?.messageIndex === idx && selectedSlot?.serviceId === selectedService.service_id
+                                                                        ? `Đặt lịch: ${selectedSlot.time} - ${new Date(selectedSlot.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}`
+                                                                        : 'Chọn giờ để đặt lịch'
+                                                                    }
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -866,45 +1075,86 @@ function AIChatPage() {
                                             <input
                                                 type="text"
                                                 className="form-control"
-                                                value="Khám chuyên khoa"
+                                                value={bookingData.isService ? "Khám dịch vụ" : "Khám chuyên khoa"}
                                                 readOnly
                                             />
                                         </div>
                                     </div>
-                                    <div className="col-md-12">
-                                        <div className="form-group">
-                                            <label>Bác sĩ</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                value={bookingData.doctor.doctor_name}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label>Chuyên khoa</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                value={bookingData.doctor.specialty}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label>Phí khám</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                value={`${bookingData.doctor.examination_fee?.toLocaleString('vi-VN')} VNĐ`}
-                                                readOnly
-                                                style={{ fontWeight: 'bold', color: '#1e88e5' }}
-                                            />
-                                        </div>
-                                    </div>
+                                    {bookingData.isService ? (
+                                        <>
+                                            <div className="col-md-12">
+                                                <div className="form-group">
+                                                    <label>Dịch vụ</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={bookingData.service.service_name}
+                                                        readOnly
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Loại dịch vụ</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={bookingData.service.service_type}
+                                                        readOnly
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Giá dịch vụ</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={`${bookingData.service.price?.toLocaleString('vi-VN')} VNĐ`}
+                                                        readOnly
+                                                        style={{ fontWeight: 'bold', color: '#1e88e5' }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="col-md-12">
+                                                <div className="form-group">
+                                                    <label>Bác sĩ</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={bookingData.doctor.doctor_name}
+                                                        readOnly
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Chuyên khoa</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={bookingData.doctor.specialty}
+                                                        readOnly
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label>Phí khám</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={`${bookingData.doctor.examination_fee?.toLocaleString('vi-VN')} VNĐ`}
+                                                        readOnly
+                                                        style={{ fontWeight: 'bold', color: '#1e88e5' }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
                                     <div className="col-md-4">
                                         <div className="form-group">
                                             <label>Ngày khám</label>
@@ -918,27 +1168,33 @@ function AIChatPage() {
                                     </div>
                                     <div className="col-md-4">
                                         <div className="form-group">
-                                            <label>Ca khám</label>
+                                            <label>{bookingData.isService ? "Giờ khám" : "Ca khám"}</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
-                                                value={bookingData.slot.shift === 'SANG' ? 'Sáng' : bookingData.slot.shift === 'CHIEU' ? 'Chiều' : 'Tối'}
+                                                value={bookingData.isService
+                                                    ? bookingData.slot.time
+                                                    : (bookingData.slot.shift === 'SANG' ? 'Sáng' : bookingData.slot.shift === 'CHIEU' ? 'Chiều' : 'Tối')
+                                                }
                                                 readOnly
+                                                style={bookingData.isService ? { fontWeight: 'bold', color: '#1e88e5' } : {}}
                                             />
                                         </div>
                                     </div>
-                                    <div className="col-md-4">
-                                        <div className="form-group">
-                                            <label>Giờ khám</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                value={bookingData.slot.time}
-                                                readOnly
-                                                style={{ fontWeight: 'bold', color: '#1e88e5' }}
-                                            />
+                                    {!bookingData.isService && (
+                                        <div className="col-md-4">
+                                            <div className="form-group">
+                                                <label>Giờ khám</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={bookingData.slot.time}
+                                                    readOnly
+                                                    style={{ fontWeight: 'bold', color: '#1e88e5' }}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                     <div className="col-md-12">
                                         <div className="form-group">
                                             <label>Lý do khám</label>
