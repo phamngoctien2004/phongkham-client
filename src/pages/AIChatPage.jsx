@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import appointmentService from '../services/appointmentService';
 import aiService from '../services/aiService';
 import chatService from '../services/chatService';
+import AddFamilyMemberModal from '../components/Profile/AddFamilyMemberModal';
 import './AIChatPage.css';
 import '../components/Appointment/Appointment.css'; // Import appointment styles
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -33,6 +34,7 @@ function AIChatPage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [bookingData, setBookingData] = useState(null);
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
     // Form states
     const [patients, setPatients] = useState([]);
@@ -449,6 +451,12 @@ function AIChatPage() {
         } finally {
             setFormLoading(false);
         }
+    };
+
+    const handleAddMemberSuccess = async () => {
+        // Reload patients list after adding new member
+        await loadPatients();
+        setShowAddMemberModal(false);
     };
 
     // Show loading state while checking authentication
@@ -1033,22 +1041,50 @@ function AIChatPage() {
                                             (Tổng: {patients?.length || 0} bệnh nhân)
                                         </span>
                                     </label>
-                                    <select
-                                        className="form-control"
-                                        value={selectedPatient?.id || ''}
-                                        onChange={(e) => {
-                                            const patient = patients.find(p => p.id === parseInt(e.target.value));
-                                            setSelectedPatient(patient);
-                                        }}
-                                        required
-                                    >
-                                        <option value="">-- Chọn bệnh nhân --</option>
-                                        {patients.map((patient) => (
-                                            <option key={patient.id} value={patient.id}>
-                                                {patient.fullName} - {patient.code}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                                        <select
+                                            className="form-control"
+                                            value={selectedPatient?.id || ''}
+                                            onChange={(e) => {
+                                                const patient = patients.find(p => p.id === parseInt(e.target.value));
+                                                setSelectedPatient(patient);
+                                            }}
+                                            required
+                                            style={{ flex: 1 }}
+                                        >
+                                            <option value="">-- Chọn bệnh nhân --</option>
+                                            {patients.map((patient) => (
+                                                <option key={patient.id} value={patient.id}>
+                                                    {patient.fullName} - {patient.code}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary"
+                                            onClick={() => setShowAddMemberModal(true)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                whiteSpace: 'nowrap',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                backgroundColor: '#1e88e5',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                color: 'white',
+                                                fontSize: '14px',
+                                                fontWeight: '500',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#1976d2'}
+                                            onMouseLeave={(e) => e.target.style.backgroundColor = '#1e88e5'}
+                                        >
+                                            <i className="bi bi-person-plus-fill"></i>
+                                            Thêm thành viên
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1281,6 +1317,13 @@ function AIChatPage() {
                     </div>
                 </div>
             )}
+
+            {/* Add Family Member Modal */}
+            <AddFamilyMemberModal
+                isOpen={showAddMemberModal}
+                onClose={() => setShowAddMemberModal(false)}
+                onSuccess={handleAddMemberSuccess}
+            />
         </div>
     );
 }

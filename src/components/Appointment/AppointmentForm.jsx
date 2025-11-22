@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import appointmentService from '../../services/appointmentService';
+import AddFamilyMemberModal from '../Profile/AddFamilyMemberModal';
 import TimePickerModal from './TimePickerModal';
 import DatePickerModal from './DatePickerModal';
 import './Appointment.css';
@@ -55,6 +56,7 @@ const AppointmentForm = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showTimePickerModal, setShowTimePickerModal] = useState(false);
     const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
     // Step 1: Chọn bệnh nhân
     const [patients, setPatients] = useState([]);
@@ -121,6 +123,12 @@ const AppointmentForm = () => {
             toast.error('Không thể tải danh sách bệnh nhân');
             console.error(error);
         }
+    };
+
+    const handleAddMemberSuccess = async () => {
+        // Reload patients list after adding new member
+        await loadPatients();
+        setShowAddMemberModal(false);
     };
 
     // Load danh sách bác sĩ hoặc dịch vụ khi chọn loại khám
@@ -670,22 +678,51 @@ const AppointmentForm = () => {
                             <div className="form-section">
                                 <div className="form-group">
                                     <label>Chọn bệnh nhân <span className="required">*</span></label>
-                                    <select
-                                        className="form-control"
-                                        value={selectedPatient?.id || ''}
-                                        onChange={(e) => {
-                                            const patient = patients.find(p => p.id === parseInt(e.target.value));
-                                            setSelectedPatient(patient);
-                                        }}
-                                        required
-                                    >
-                                        <option value="">-- Chọn bệnh nhân --</option>
-                                        {patients.map((patient) => (
-                                            <option key={patient.id} value={patient.id}>
-                                                {patient.fullName} - {patient.code}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                                        <select
+                                            className="form-control"
+                                            value={selectedPatient?.id || ''}
+                                            onChange={(e) => {
+                                                const patient = patients.find(p => p.id === parseInt(e.target.value));
+                                                setSelectedPatient(patient);
+                                            }}
+                                            required
+                                            style={{ flex: 1 }}
+                                        >
+                                            <option value="">-- Chọn bệnh nhân --</option>
+                                            {patients.map((patient) => (
+                                                <option key={patient.id} value={patient.id}>
+                                                    {patient.fullName} - {patient.code}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary"
+                                            onClick={() => setShowAddMemberModal(true)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                whiteSpace: 'nowrap',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                backgroundColor: '#1977cc',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                color: 'white',
+                                                fontSize: '14px',
+                                                fontWeight: '500',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.3s ease',
+                                                height: '38px'
+                                            }}
+                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#1558a0'}
+                                            onMouseLeave={(e) => e.target.style.backgroundColor = '#1977cc'}
+                                        >
+                                            <i className="bi bi-person-plus-fill"></i>
+                                            Thêm thành viên
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1048,6 +1085,13 @@ const AppointmentForm = () => {
                     selectedDate={selectedDate}
                     minDate={formatDate(new Date(Date.now() + 24 * 60 * 60 * 1000))}
                     maxDate={formatDate(new Date(Date.now() + 8 * 24 * 60 * 60 * 1000))}
+                />
+
+                {/* Add Family Member Modal */}
+                <AddFamilyMemberModal
+                    isOpen={showAddMemberModal}
+                    onClose={() => setShowAddMemberModal(false)}
+                    onSuccess={handleAddMemberSuccess}
                 />
             </div>
         </section>
