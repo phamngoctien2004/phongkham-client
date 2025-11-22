@@ -74,7 +74,8 @@ const TimePickerModal = ({
                             <span>Buổi chiều</span>
                             <small>13:00 - 17:00</small>
                         </button>
-                        <button
+                        {/* Ẩn buổi tối */}
+                        {/* <button
                             type="button"
                             className={`shift-tab ${activeShift === 'evening' ? 'active' : ''}`}
                             onClick={() => setActiveShift('evening')}
@@ -82,7 +83,7 @@ const TimePickerModal = ({
                             <i className="bi bi-moon-stars"></i>
                             <span>Buổi tối</span>
                             <small>17:00 - 23:00</small>
-                        </button>
+                        </button> */}
                     </div>
 
                     {/* Time Slots */}
@@ -97,11 +98,12 @@ const TimePickerModal = ({
                                 {renderTimeSlots(afternoonSlots, 'CHIEU')}
                             </div>
                         )}
-                        {activeShift === 'evening' && (
+                        {/* Ẩn buổi tối */}
+                        {/* {activeShift === 'evening' && (
                             <div className="time-slots-grid">
                                 {renderTimeSlots(eveningSlots, 'TOI')}
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
 
